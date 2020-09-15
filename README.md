@@ -5,7 +5,7 @@
 
 #### 软件架构
 软件架构说明
-对于要造大量数据来讲，有几种方式，一是通过开发写的接口来模拟真实用户场景来产生数据，这种方式在某些方面来讲是比较合适的，比如因为是模拟用户场景，业务数据完整，不会丢．但不好的地方就是要处理的地方太多，接口定义，签名，加密等等，还有扩展性也很不好，一个业务场景要写一套代码．另一种方式，是已知业务产生的数据之间的依赖关系后，直接在数据库中插入相关数据，本项目就是通过这种方式来实现，好处就是生成规则通过配置文件来描述即可（ymal文件），不需要额外添加代码（对于某些字段生成规则有可能需要单独编写方法），与测试库testrunner比较类似．现在已知有些库也支持直接在数据库内造数据，但对库表之间的关联关系的处理都做得不好，比如datafaker．
+对于要造大量数据来讲，有几种方式，一是通过开发写的接口来模拟真实用户场景来产生数据，这种方式在某些方面来讲是比较合适的，比如因为是模拟用户场景，业务数据完整，不会丢．但不好的地方就是要处理的地方太多，接口定义，签名，加密等等，还有扩展性也很不好，一个业务场景要写一套代码．另一种方式，是已知业务产生的数据之间的依赖关系后，直接在数据库中插入相关数据，本项目就是通过这种方式来实现，好处就是生成规则通过配置文件来描述即可（ymal文件），不需要额外添加代码（对于某些字段生成规则有可能需要单独编写方法），与测试库testrunner比较类似．现在已知有些库也支持直接在数据库内造数据，但对库表之间的关联关系的处理都做得不太好．
 
 本项目数据处理流程如下：
 ![处理流程](https://images.gitee.com/uploads/images/2020/0915/183724_40e0141c_1021400.png "屏幕截图.png")
@@ -51,6 +51,7 @@ env:
   id:
     engine: faker.uuid
     rule: null
+  time_format: "%Y-%m-%d %H:%M:%S"
 tables:
   - columns:
     - column: id
@@ -71,8 +72,36 @@ tables:
       engine: faker.eq
       rule: 
         value: '{{ datetime.datetime.now().year - int(information_sick.idcard[6:10]) }}'　＃　通过jinja２模板直接计算
+    - column: sex
+      comment: 性别
+      engine: faker.eq
+      rule: 
+        value: '{{ "man" if int(information_sick.idcard[-2]) % 2==1 else "female" }}'　＃　通过jinja２模板直接计算
     comment: '病人资料 '
-    table: information_sick
+    table: stu
+  - columns:
+    - column: id
+      comment: 数据主键id
+      engine: faker.uuid
+      rule: null
+　　- column: stu_id
+      comment: 数据主键id
+      engine: faker.eq
+      rule: 
+        value: '{{ stu.id }}'  # 通过其他表中的值
+    - column: course_name
+      comment: 课程名称
+      engine: faker.choice　　＃ 通过内置方法从列表中随机取一个值
+      rule: 
+        value: [数学,语文,英语,化学,地理]
+    - column: course_time
+      comment: 上课时间
+      engine: faker.now　　＃ 通过内置方法从列表中随机取一个值
+      rule: 
+        format: "{{ env.time_format }}"
+    comment: '课程信息 '
+    table: course
+
 
 ```
 #### 参与贡献
