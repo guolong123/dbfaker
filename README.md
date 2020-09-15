@@ -43,7 +43,7 @@ optional arguments:
   --output [OUTPUT]     输出文件名，默认为数据库表名+meta.yml
 
 ```
-meta.yml文件格式：
+2, 编辑meta.yml文件，文件格式如下
 ```yaml
 package:
   - datetime  #　导入额外的包，在jinja2模板中使用（下面有用到datetime包，所以要先导入）
@@ -106,11 +106,51 @@ tables:
   table: course
 
 ```
+３，创建ｓｑｌ
+```shell
+python main.py meta.yml --cnt 10
+```
 
 通过上述模板文件生成出sql:
 ```sql
-insert into stu set id='71ce6fb1b26d427baa4d6a5688f3baa7', name='李健', idcard='130530196601040537', age='54', sex='man';
-insert into course set id='66757cc9b6cb43dbae0d37f4defff3e6', stu_id='71ce6fb1b26d427baa4d6a5688f3baa7', course_name='化学', course_time='2020-09-15 19:24:36';
+insert into stu set id='2c5e318e24eb4bbeb6f0155721d5fa4d', name='郭杨', idcard='450329193605314982', age='84', sex='female';
+insert into course set id='980e0c308b904e4d8574c14589b73d6c', stu_id='2c5e318e24eb4bbeb6f0155721d5fa4d', course_name='化学', course_time='2020-09-15 19:26:21';
+
+
+insert into stu set id='dbd26e53363b4ad0a80d91bf20b58306', name='孙晨', idcard='441500198604185699', age='34', sex='man';
+insert into course set id='46dc316ae223411fa0a5169e1cf9c7df', stu_id='dbd26e53363b4ad0a80d91bf20b58306', course_name='语文', course_time='2020-09-15 19:26:21';
+
+
+insert into stu set id='bc779ca4b55a4216aa21692df798b8a2', name='陈秀华', idcard='321084195409070529', age='66', sex='female';
+insert into course set id='0b981403fd4b4cc7afa8f85d7187d3b0', stu_id='bc779ca4b55a4216aa21692df798b8a2', course_name='语文', course_time='2020-09-15 19:26:21';
+
+
+insert into stu set id='1982c0c518a4434f8bd4bace6baed3e2', name='张建平', idcard='341721194502236759', age='75', sex='man';
+insert into course set id='371152b6f02c44f884c85daf1918cf90', stu_id='1982c0c518a4434f8bd4bace6baed3e2', course_name='语文', course_time='2020-09-15 19:26:22';
+
+
+insert into stu set id='448e3cf1bbe648719b4802196a626efb', name='王瑞', idcard='360281193801017318', age='82', sex='man';
+insert into course set id='fda8a3f261134c64b0a0dd516ecf2e0b', stu_id='448e3cf1bbe648719b4802196a626efb', course_name='数学', course_time='2020-09-15 19:26:27';
+
+
+insert into stu set id='a3d4952faf054c6ba655c2b67e3b4afc', name='陈杨', idcard='640122198510102904', age='35', sex='female';
+insert into course set id='8a7e021d765044f784979591f92ec28d', stu_id='a3d4952faf054c6ba655c2b67e3b4afc', course_name='化学', course_time='2020-09-15 19:26:27';
+
+
+insert into stu set id='4098cc574f6c4fe5a85535a1d9e5002a', name='苏洁', idcard='341225199306268404', age='27', sex='female';
+insert into course set id='77cdf72f82fa4d8882b304abbe97f3a4', stu_id='4098cc574f6c4fe5a85535a1d9e5002a', course_name='数学', course_time='2020-09-15 19:26:27';
+
+
+insert into stu set id='949f3766cdbd417bb3d35858c8022816', name='刘柳', idcard='542133194402097393', age='76', sex='man';
+insert into course set id='7ad45cc62c3847be814ef75d5287ecd6', stu_id='949f3766cdbd417bb3d35858c8022816', course_name='地理', course_time='2020-09-15 19:26:27';
+
+
+insert into stu set id='97786d4eeb674462a1698fd25291d1ba', name='兰欣', idcard='330802194509029887', age='75', sex='female';
+insert into course set id='a649370a793c44ac9b743d35afa17df9', stu_id='97786d4eeb674462a1698fd25291d1ba', course_name='数学', course_time='2020-09-15 19:26:27';
+
+
+insert into stu set id='2534ed0806974511b92c954831a002e3', name='许玉梅', idcard='350401197207148812', age='48', sex='man';
+insert into course set id='0d4dfe07fb3640c69afce366d102487d', stu_id='2534ed0806974511b92c954831a002e3', course_name='语文', course_time='2020-09-15 19:26:27';
 ```
 #### 参与贡献
 
