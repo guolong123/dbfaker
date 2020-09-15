@@ -1,0 +1,9 @@
+# Created by pytest automatically.
+*.pyc
+
+.idea
+venv/
+*.log
+datafaker
+log/
+resource/

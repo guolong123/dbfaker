@@ -1,0 +1,2114 @@
+# 请完善此文件中每个字段的生成规则"engine/rule/tag"
+# 规则说明：
+# "engine": 字段生成的方法，在工具类中需包含此方法的引用；
+# "rule"： "engine"方法中接收的参数
+# "tag"： 接收一个变量名，在字段生成后将结果赋值给这个变量名。可在后续的字段进行引用
+
+package:  # 动态导入包, 在jinja2模板中引用
+  - datetime
+
+env:  # 环境变量，可在此预定义全局变量，用于在下方字段引用
+  hospital_id:
+    engine: faker.from_db
+    rule:
+      sql: select id from hospital_info where name='海口市人民医院';
+      key: id
+  operator_id:
+    engine: faker.from_db
+    rule:
+      sql: select id from sys_user_account limit 1;
+      key: id
+      choice_method: first
+  offset:
+    engine: faker.eq
+    rule:
+      value: 10
+  time_format:
+    engine: faker.eq
+    rule:
+      value: "%Y-%m-%d %H:%M:%S"
+
+tables:
+  - columns:
+      - column: id
+        comment: 病人id
+        engine: faker.uuid
+        rule: null
+
+      - column: hos_id
+        comment: 医院id
+        engine: faker.eq
+        rule:
+          value: '{{ env.hospital_id }}'
+      - column: nick_name
+        comment: 昵称
+        engine: null
+        rule: null
+      - column: avatar
+        comment: 头像
+        engine: null
+        rule: null
+      - column: name
+        comment: 病人名称
+        engine: faker.name
+        rule: null
+
+      - column: idcard
+        comment: 病人身份号
+        engine: faker.ssn
+        rule: null
+
+      - column: sincard
+        comment: 病人社保卡号
+        engine: faker.credit_card_number
+        rule: null
+
+      - column: cardnum
+        comment: 病人卡号
+        engine: faker.random_number
+        rule:
+          digits: 8
+
+      - column: contact
+        comment: 病人联系方式
+        engine: faker.phone_number
+        rule: null
+      - column: gender
+        comment: 病人性别:男-man,女-female
+        engine: faker.choice
+        rule:
+          value: [man,female]
+      - column: birthday
+        comment: 病人出生日期
+        engine: null
+        rule: null
+      - column: address
+        comment: 病人地址
+        engine: faker.address
+        rule: null
+      - column: province
+        comment: 病人省份
+        engine: null
+        rule: null
+      - column: city
+        comment: 病人所在城市
+        engine: null
+        rule: null
+      - column: district
+        comment: 病人所在区
+        engine: null
+        rule: null
+      - column: street
+        comment: 病人所在街道地址
+        engine: null
+        rule: null
+      - column: sick_native
+        comment: 病人籍贯
+        engine: null
+        rule: null
+      - column: nation
+        comment: 病人民族
+        engine: faker.eq
+        rule:
+          value: 汉
+      - column: blood_type
+        comment: 病人血型
+        engine: null
+        rule: null
+      - column: profession
+        comment: 病人职业 01:国家机关、党群组织、企事业单位负责人 02:各类专业技术人员 03:办事人员和有关人员 04:商业及服务型工作人员  05:农、林、牧、渔、水利业生产人员
+          06:生产工人，运输工人和相关人员 07:下岗或无业 08:离退休 09:学生 10:军人 11:不便分类的其他从业人员
+        engine: faker.choice
+        rule:
+          value: ["01", "02", "03", '04', '05', '06', '07', '08', '09', '10', '11']
+      - column: height
+        comment: 病人身高
+        engine: faker.weights_randint
+        rule:
+          - value: [140, 180]
+            weights: 1
+      - column: weight
+        comment: 病人体重
+        engine: faker.weights_randint
+        rule:
+          - value: [40, 80]
+            weights: 1
+      - column: bmi
+        comment: 体重指数
+        engine: faker.eq
+        rule:
+          value: '{{ round(information_sick.weight / (information_sick.height / 100)**2, 2) }}'
+      - column: history
+        comment: 病人病史
+        engine: null
+        rule: null
+      - column: other_history
+        comment: 病人其它病史
+        engine: null
+        rule: null
+      - column: family_history
+        comment: 病人家族病史
+        engine: null
+        rule: null
+      - column: other_family_history
+        comment: 病人其它家族病史
+        engine: null
+        rule: null
+      - column: drug_taboos
+        comment: 病人药物禁忌
+        engine: null
+        rule: null
+      - column: other_drug_taboos
+        comment: 病人其它药物禁忌
+        engine: null
+        rule: null
+      - column: married
+        comment: 婚姻状态 01:未婚  02:已婚 03:丧偶  04:离异 09:不详
+        engine: faker.choice
+        rule:
+          value: ['01', '02', '03', '04', '09']
+      - column: have_child
+        comment: 病人是否已育0-未育 1-已育
+        engine: faker.choice
+        rule:
+          value: [1, 0]
+      - column: create_time
+        comment: 病人建档时间
+        engine: faker.now
+        rule: null
+      - column: update_time
+        comment: 病人更新时间
+        engine: faker.now
+        rule: null
+      - column: his_patient_id
+        comment: 病人在HIS的系统Id
+        engine: null
+        rule: null
+      - column: medicare_account
+        comment: 病人医保账号
+        engine: faker.credit_card_number
+        rule: null
+      - column: email
+        comment: 病人邮箱
+        engine: faker.email
+        rule: null
+      - column: country
+        comment: 病人国家
+        engine: faker.eq
+        rule:
+          value: 中国
+      - column: spell_name
+        comment: 姓名的拼音
+        engine: faker.hans2pinyin
+        rule:
+          hans: '{{ information_sick.name }}'
+          style: A
+      - column: initial_name
+        comment: 姓名的拼音首字母
+        engine: faker.hans2pinyin
+        rule:
+          hans: '{{ information_sick.name }}'
+          style: F
+      - column: synchronized_time
+        comment: 同步到数据中心时间
+        engine: null
+        rule: null
+      - column: attending_doctor_id
+        comment: 主治医生
+        engine: null
+        rule: null
+      - column: type
+        comment: 患者类型 0或null为普通患者 1-临时患者
+        engine: faker.eq
+        rule:
+          value: 0
+    comment: '病人资料 '
+    table: information_sick
+  - columns:
+      - column: id
+        comment: 胸痛数据主键id
+        engine: faker.uuid
+        rule: null
+      - column: sick_id
+        comment: 病人id
+        engine: faker.eq
+        rule:
+          value: '{{ information_sick.id }}'
+      - column: hos_id
+        comment: 所属医院Id
+        engine: faker.eq
+        rule:
+          value: '{{ information_sick.hos_id }}'
+      - column: remote_id
+        comment: 远程胸痛中心数据id
+        engine: null
+        rule: null
+      - column: create_time
+        comment: 创建时间
+        engine: faker.now
+        rule:
+          format: "%Y-%m-%d %H:%M:%S"
+      - column: create_id
+        comment: 创建人id
+        engine: faker.eq
+        rule:
+          value: '{{ env.operator_id }}'
+      - column: update_id
+        comment: 更新人id
+        engine: faker.eq
+        rule:
+          value: '{{ env.operator_id }}'
+      - column: update_time
+        comment: 更新时间
+        engine: faker.now
+        rule:
+          format: "%Y-%m-%d %H:%M:%S"
+      - column: status
+        comment: 病例审核状态 0 - 病例终止:恢复填报 1 - 填报中:提交审核 2 - 审核拒绝:提交审核  3 - 等待审核:审核通过|审核拒绝 4
+          - 等待存档:病例存档 5 - 已存档:病例上报 6 - 已上报
+        engine: faker.eq
+        rule:
+          value: 1
+      - column: fillin_person
+        comment: 填报人
+        engine: null
+        rule: null
+      - column: submit_audit_person
+        comment: 提交审核人
+        engine: null
+        rule: null
+      - column: auditor
+        comment: 审核人
+        engine: null
+        rule: null
+      - column: archiving_person
+        comment: 存档人
+        engine: null
+        rule: null
+      - column: report_to_person
+        comment: 上报人
+        engine: null
+        rule: null
+      - column: cause
+        comment: 病例拒绝审核原因
+        engine: null
+        rule: null
+      - column: doctor_ids
+        comment: 拒绝审核指定处理人医生id，多个分号隔开
+        engine: null
+        rule: null
+      - column: type
+        comment: 时间轴展示类型 1-呼叫（120或其他）出车,2-转院（包含任何机构）,3-自行来院,4-院内发病,5-自行来科，6-双绕
+        engine: faker.choice
+        rule:
+          value: [1,2,3,4,5,6]
+    comment: 胸痛病例基础数据
+    table: cpc_basis
+  - columns:
+      - column: id
+        comment: 胸痛病例基础数据id
+        engine: faker.eq
+        rule:
+          value: '{{ cpc_basis.id }}'
+      - column: name
+        comment: 姓名
+        engine: faker.eq
+        rule:
+          value: '{{ information_sick.name }}'
+      - column: gender
+        comment: 性别:1-男，2-女
+        engine: faker.eq
+        rule:
+          value: '{{ 1 if information_sick.gender=="man" else 2 }}'
+      - column: age
+        comment: 年龄:0-250
+        engine: faker.eq
+        rule:
+          value: '{{ datetime.datetime.now().year - int(information_sick.idcard[6:10]) }}'
+      - column: birthday
+        comment: 出生日期
+        engine: faker.eq
+        rule:
+          value: '{{ datetime.datetime.strptime(information_sick.idcard[6:14], "%Y%m%d").strftime("%Y-%m-%d %H:%M:%S") }}'
+      - column: nation
+        engine: null
+        rule: null
+      - column: contact_phone
+        engine: faker.eq
+        rule:
+          value: '{{ information_sick.contact }}'
+      - column: credentials_type
+        comment: 证件类型:0-无，1-身份证，2-护照
+        engine: faker.eq
+        rule:
+          value: 1
+      - column: idcard
+        comment: 条件：当证件类型不为"无"时,必填
+        engine: faker.eq
+        rule:
+          value: '{{ information_sick.idcard }}'
+      - column: job
+        comment: 职业:01-国家机关、党群组织、企事业单位负责人,02-各类专业技术人员,03-办事人员和有关人员,04-商业及服务型工作人员,05-农、林、牧、渔、水利业生产人员,06-生产工人，运输工人和相关人员,07-下岗或无业,08-离退休,09-学生,10-军人,11-不便分类的其他从业人员
+        engine: faker.eq
+        rule:
+          value: '{{ information_sick.profession }}'
+      - column: culturedegree
+        comment: 文化程度:01-没上过学,02-小学,03-初中,04-高中或中专（中技）,05-大专,06-本科及以上,09-不详
+        engine: faker.choice
+        rule:
+          value: ["01","02","03","04","05","06","09"]
+      - column: maritalstatus
+        comment: 婚姻状况:01-未婚,02-已婚,03-丧偶,04-离异,09-不详
+        engine: faker.eq
+        rule:
+          value: '{{ information_sick.married }}'
+      - column: height
+        comment: 身高:0-300
+        engine: faker.eq
+        rule:
+          value: '{{ information_sick.height }}'
+      - column: weight
+        comment: 身高:0-300,保留一位小数
+        engine: faker.eq
+        rule:
+          value: '{{ information_sick.weight }}'
+      - column: register_info_remark
+        comment: 填报信息备注
+        engine: faker.sentence
+        rule: null
+    comment: 人口基本信息
+    table: cpc_register_info
+  - columns:
+      - column: id
+        comment: 胸痛病例基础数据id
+        engine: faker.eq
+        rule:
+          value: '{{ cpc_basis.id }}'
+      - column: inpatient_id
+        comment: 住院ID
+        engine: faker.random_number
+        rule:
+          digits: 8
+      - column: outpatient_id
+        comment: 门诊ID
+        engine: faker.random_number
+        rule:
+          digits: 8
+      - column: is_null_attack_detail_time
+        comment: 发病时间无法精确到分钟
+        engine: faker.choice
+        rule:
+          value: [0,1]
+      - column: attack_zone
+        comment: 发病区间(必填 条件:当发病时间无法精确到分钟时):1-凌晨(0点到6点),2-清晨(6到8点),3-上午(8到12点),4-中午(12到14点),5-下午(14到17点),6-傍晚(17到19点),7-晚上(19到24点)
+        engine: faker.choice
+        rule:
+          value: [1,2,3,4,5,6,7]
+      - column: attack_time
+        comment: 发病时间(必填)
+        engine: faker.date_time_between
+        rule:
+          start_date: -3d
+          end_date: -12h
+          offset: '{{ env.offset }}'
+          format: '{{ env.time_format }}'
+      - column: province
+        comment: 发病地址(省)
+        engine: faker.eq
+        rule:
+          value: 海南
+      - column: city
+        comment: 发病地址(市)
+        engine: faker.eq
+        rule:
+          value: 海口
+      - column: area
+        comment: 发病地址区（县）
+        engine: faker.district
+        rule: null
+
+      - column: attack_address
+        comment: 发病详细地址
+        engine: faker.address
+        rule: null
+      - column: medical_insurance_type
+        comment: 医保类型:1-城镇职工基本医疗保险,2-新型农村合作医疗,3-城镇居民基本医疗保险,4-自费
+        engine: faker.choice
+        rule:
+          value: [1,2,3,4,5]
+      - column: medical_insurance_no
+        comment: 医保编号
+        engine: faker.eq
+        rule:
+          value: '{{ information_sick.sincard }}'
+      - column: serious_illness_insurance
+        comment: 大病医保:0-否,1-是
+        engine: faker.choice
+        rule:
+          value: [0,1]
+      - column: consciousness_type
+        comment: 意识:1-清醒,2-对语言有反应,3-对刺痛有反应,4-对任何刺激无反应
+        engine: faker.choice
+        rule:
+          value: [1,2,3,4]
+      - column: respiration_rate
+        comment: 呼吸
+        engine: faker.randint
+        rule:
+          value: [15,40]
+      - column: pulse_rate
+        comment: 脉搏
+        engine: faker.randint
+        rule:
+          value: [50, 150]
+      - column: heart_rate
+        comment: 心率
+        engine: faker.eq
+        rule:
+          value: '{{ cpc_emergency_info.pulse_rate }}'
+      - column: systolic_pressure
+        comment: 血压：收缩压
+        engine: faker.randint
+        rule:
+          value: [70, 180]
+
+      - column: diastolic_pressure
+        comment: 血压：舒张压
+        engine: faker.randint
+        rule:
+          value: [50, 120]
+      - column: temperature
+        comment: 体温
+        engine: faker.randfloat
+        rule:
+          value: [35,40]
+      - column: distress_case
+        comment: 病情评估(必填):1-持续性胸闷/胸痛,2-间歇性胸闷/胸痛,3-症状已缓解
+        engine: faker.choice
+        rule:
+          value: [1,2,3]
+      - column: distress_case_detail
+        comment: 病情评估明细(多选用竖线隔开。如"1|7"):1-呼吸困难,2-腹痛,3-齿痛,4-肩背痛,5-合并出血,6-合并心衰,7-合并恶性心律失常,8-其他
+        engine: faker.multi_choice
+        rule:
+          value: [1,2,3,4,5,6,7,8,9,10,11,12,13,14,99]
+          splits: "|"
+      - column: cw_coming_way_code
+        comment: 来院方式(必填):1-呼叫（120或其他）出车,2-转院（包含任何机构）,3-自行来院,4-院内发病
+        engine: faker.choice
+        rule:
+          value: [1,2,3,4,5]
+      - column: cw_120_ambulance_department
+        comment: 出车单位(必填):1-120救护车,2-本院救护车,3-外院救护车
+        engine: faker.choice
+        rule:
+          value: [1,2,3]
+      - column: cw_120_help_time
+        comment: 呼救时间(必填)
+        engine: faker.date_time_subtraction
+        rule:
+          start_date: '{{ cpc_emergency_info.attack_time }}'
+          sub_time: +1h
+          format: '{{ env.time_format }}'
+      - column: cw_120_arrived_hospital_time
+        comment: 到达本院大门时间(必填)
+        engine: faker.date_time_subtraction
+        rule:
+          start_date: '{{ cpc_emergency_info.cw_120_help_time }}'
+          sub_time: +1h
+          format: '{{ env.time_format }}'
+      - column: cw_120_is_trans_hospital
+        comment: 直接转送上级医院:0-否, 1-是
+        engine: faker.weights_choice
+        rule:
+          - value: [0]
+            weight: 0.8
+          - value: [1]
+            weight: 0.2
+      - column: cw_120_first_mc_time
+        comment: 首次医疗接触时间(必填)
+        engine: faker.date_time_subtraction
+        rule:
+          start_date: '{{ cpc_emergency_info.cw_120_help_time }}'
+          sub_time: +30m
+          format: '{{ env.time_format }}'
+      - column: cw_120_first_doctor_time
+        comment: 首诊医师接诊时间
+        engine: faker.date_time_subtraction
+        rule:
+          start_date: '{{ cpc_emergency_info.cw_120_arrived_hospital_time }}'
+          sub_time: +10m
+          format: '{{ env.time_format }}'
+      - column: cw_120_first_doctor_name
+        comment: 医护人员
+        engine: faker.name
+        rule: null
+      - column: cw_zy_trans_type
+        comment: 转院类型(必填):1-网络医院,2-其他医疗机构
+        engine: faker.choice
+        rule:
+          value: [1,2]
+      - column: cw_zy_trans_hospital_name
+        comment: 医院名称
+        engine: faker.choice
+        rule:
+          value: [三院,四院,省干,中医院]
+      - column: cw_zy_transfer_time
+        comment: 决定转院时间
+        engine: faker.date_time_subtraction
+        rule:
+          start_date: '{{ cpc_emergency_info.attack_time }}'
+          sub_time: +1d
+          format: '{{ env.time_format }}'
+      - column: cw_zy_outhospital_visit_time
+        comment: 转出医院入门时间
+        engine: faker.date_time_subtraction
+        rule:
+          start_date: '{{ cpc_emergency_info.attack_time }}'
+          sub_time: +12h
+          format: '{{ env.time_format }}'
+      - column: cw_zy_leave_outhospital_time
+        comment: 转出医院出门时间
+        engine: faker.date_time_subtraction
+        rule:
+          start_date: '{{ cpc_emergency_info.cw_zy_outhospital_visit_time }}'
+          sub_time: +12h
+          format: '{{ env.time_format }}'
+      - column: cw_zy_first_mc_time
+        comment: 首次医疗接触时间
+        engine: faker.date_time_subtraction
+        rule:
+          start_date: '{{ cpc_emergency_info.cw_zy_outhospital_visit_time }}'
+          sub_time: +10m
+          format: '{{ env.time_format }}'
+      - column: cw_zy_arrived_hospital_time
+        comment: 到达本院大门时间(必填)
+        engine: faker.date_time_subtraction
+        rule:
+          start_date: '{{ cpc_emergency_info.cw_zy_leave_outhospital_time }}'
+          sub_time: +30m
+          format: '{{ env.time_format }}'
+      - column: cw_zy_admission_time
+        comment: 院内接诊时间(必填)
+        engine: faker.date_time_subtraction
+        rule:
+          start_date: '{{ cpc_emergency_info.cw_zy_arrived_hospital_time }}'
+          sub_time: +10m
+          format: '{{ env.time_format }}'
+      - column: cw_zy_first_doctor_name
+        comment: 医护人员
+        engine: faker.name
+        rule: null
+      - column: cw_zxly_arrived_hospital_time
+        comment: 到达本院大门时间(必填)
+        engine: faker.date_time_subtraction
+        rule:
+          start_date: '{{ cpc_emergency_info.attack_time }}'
+          sub_time: +3d
+          format: '{{ env.time_format }}'
+      - column: cw_zxly_first_mc_time
+        comment: 首次医疗接触时间
+        engine: faker.date_time_subtraction
+        rule:
+          start_date: '{{ cpc_emergency_info.cw_zxly_arrived_hospital_time }}'
+          sub_time: +10m
+          format: '{{ env.time_format }}'
+      - column: cw_zxly_first_doctor_time
+        comment: 首诊医师接诊时间
+        engine: faker.date_time_subtraction
+        rule:
+          start_date: '{{ cpc_emergency_info.cw_zxly_first_mc_time }}'
+          sub_time: +10m
+          format: '{{ env.time_format }}'
+      - column: cw_zxly_first_doctor_name
+        comment: 医护人员
+        engine: faker.name
+        rule: null
+      - column: cw_ynfb_attack_department
+        comment: 发病科室(必填)
+        engine: faker.choice
+        rule:
+          value: [心内科, 导管室, ccu病房]
+      - column: cw_ynfb_first_mc_time
+        comment: 首次医疗接触时间
+        engine: faker.date_time_subtraction
+        rule:
+          start_date: '{{ cpc_emergency_info.attack_time }}'
+          sub_time: +10m
+          format: '{{ env.time_format }}'
+      - column: cw_ynfb_consultation_time
+        comment: 床位医生接触时间(必填)
+        engine: faker.date_time_subtraction
+        rule:
+          start_date: '{{ cpc_emergency_info.cw_ynfb_first_mc_time }}'
+          sub_time: +5m
+          format: '{{ env.time_format }}'
+      - column: cw_ynfb_leave_department_time
+        comment: 离开科室时间
+        engine: faker.date_time_subtraction
+        rule:
+          start_date: '{{ cpc_emergency_info.cw_ynfb_first_mc_time }}'
+          sub_time: +20m
+          format: '{{ env.time_format }}'
+      - column: cw_ynfb_first_doctor_name
+        comment: 医护人员
+        engine: faker.name
+        rule: null
+      - column: screening
+        comment: 溶栓筛查(必填):1- 合适,2-不合适,3-未筛查
+        engine: faker.choice
+        rule:
+          value: [1,2,3]
+      - column: is_thrombolysis
+        comment: 是否溶栓治疗(必填 条件:当溶栓筛查为"合适"时):1-有,0-无
+        engine: faker.choice
+        rule:
+          value: [0,1]
+      - column: is_direct
+        comment: 是否直达溶栓场所(必填 条件:当溶栓治疗为"有"时):1-是,0-否
+        engine: faker.choice
+        rule:
+          value: [0,1]
+      - column: throm_treatment_place
+        comment: 溶栓场所(必填 条件:当溶栓治疗为"有"时):1-其他医院,2-救护车
+        engine: faker.choice
+        rule:
+          value: [1,2]
+      - column: start_agree_time
+        comment: 开始知情同意(必填 条件:当溶栓治疗为"有"时)
+        engine: faker.date_time_subtraction
+        rule:
+          start_date: '{{ cpc_emergency_info.cw_zxly_first_mc_time }}'
+          sub_time: +1h
+          format: '{{ env.time_format }}'
+      - column: sign_agree_time
+        comment: 签署知情同意书(必填 条件:当溶栓治疗为"有"时)
+        engine: faker.date_time_subtraction
+        rule:
+          start_date: '{{ cpc_emergency_info.start_agree_time }}'
+          sub_time: +5m
+          format: '{{ env.time_format }}'
+      - column: throm_start_time
+        comment: 开始溶栓时间(必填 条件:当溶栓治疗为"有"时)
+        engine: faker.date_time_subtraction
+        rule:
+          start_date: '{{ cpc_emergency_info.sign_agree_time }}'
+          sub_time: +10m
+          format: '{{ env.time_format }}'
+      - column: throm_end_time
+        comment: 溶栓结束时间(必填 条件:当溶栓治疗为"有"时)
+        engine: faker.date_time_subtraction
+        rule:
+          start_date: '{{ cpc_emergency_info.throm_start_time }}'
+          sub_time: +20m
+          format: '{{ env.time_format }}'
+      - column: throm_drug_type
+        comment: 药物(必填 条件:当溶栓治疗为"有"时):1-第一代,2-第二代,3-第三代
+        engine: faker.choice
+        rule:
+          value: [1,2,3]
+      - column: throm_drug_code
+        comment: 剂量(必填 条件:当溶栓治疗为"有"时):1-全量,2-半量
+        engine: faker.choice
+        rule:
+          value: [1,2]
+      - column: is_repatency
+        comment: 溶栓再通:1-是,0-否
+        engine: faker.choice
+        rule:
+          value: [1,0]
+      - column: start_radiography_time
+        comment: 溶栓后造影时间
+        engine: faker.date_time_subtraction
+        rule:
+          start_date: '{{ cpc_emergency_info.throm_end_time }}'
+          sub_time: +20m
+          format: '{{ env.time_format }}'
+      - column: is_repci
+        comment: 补救PCI:0-否,1-是
+        engine: faker.choice
+        rule:
+          value: [0,1]
+      - column: operation_time
+        comment: 实际手术时间
+        engine: faker.date_time_subtraction
+        rule:
+          start_date: '{{ cpc_emergency_info.start_radiography_time }}'
+          sub_time: +20m
+          format: '{{ env.time_format }}'
+      - column: hospital_position
+        comment: 手术地点:1-本院,2-外院
+        engine: faker.choice
+        rule:
+          value: [1,2]
+      - column: patient_remark
+        comment: 患者情况备注
+        engine: faker.sentence
+        rule: null
+      - column: throm_contraindication
+        comment: 是否存在禁忌症:0-否，1-是
+        engine: faker.choice
+        rule:
+          value: [0,1]
+      - column: emergency_info_basis_remark
+        comment: 填报信息备注
+        engine: faker.sentence
+        rule: null
+      - column: vital_signs_remark
+        comment: 填报信息备注
+        engine: faker.sentence
+        rule: null
+      - column: evaluating_severity_remark
+        comment: 填报信息备注
+        engine: faker.sentence
+        rule: null
+      - column: cw_coming_way_remark
+        comment: 填报信息备注
+        engine: faker.sentence
+        rule: null
+      - column: thrombolytic_treatment_remark
+        comment: 填报信息备注
+        engine: faker.sentence
+        rule: null
+      - column: cw_120_is_direct_conduit_room
+        comment: 直达导管室
+        engine: faker.choice
+        rule:
+          value: [0,1]
+      - column: cw_zy_is_trans_hospital
+        comment: 直接转送上级医院
+        engine: faker.choice
+        rule:
+          value: [0,1]
+      - column: cw_zy_is_direct_conduit_room
+        comment: 直达导管室
+        engine: faker.choice
+        rule:
+          value: [0,1]
+    comment: 急救信息
+    table: cpc_emergency_info
+  - columns:
+      - column: id
+        comment: 胸痛病例基础数据id
+        engine: faker.eq
+        rule:
+          value: '{{ cpc_basis.id }}'
+      - column: has_ecg_image
+        comment: 心电图 0-无 1-有
+        engine: null
+        rule: null
+      - column: no_ecg_image_reason
+        comment: 心电图未获得原因
+        engine: null
+        rule: null
+      - column: ecg_time
+        comment: 心电图时间
+        engine: null
+        rule: null
+      - column: ecgimagefiles
+        comment: 心电图文件，文档说是List<string>类型
+        engine: null
+        rule: null
+      - column: ecg_diagnose_time
+        comment: 心电图诊断时间
+        engine: null
+        rule: null
+      - column: remote_ecg_transmission
+        comment: '远程心电图传输 1:接收 120/网络医院心电图 2:未传输 '
+        engine: null
+        rule: null
+      - column: is_remote_ecgtran
+        comment: 心电图传输方式
+        engine: null
+        rule: null
+      - column: tran_time
+        comment: 接收 120/网络医院心电图时间
+        engine: null
+        rule: null
+      - column: is_ctnt
+        comment: 肌钙蛋白 0:否 1:是
+        engine: null
+        rule: null
+      - column: type
+        comment: 肌钙蛋白类型 1:TnT 2:Tnl
+        engine: null
+        rule: null
+      - column: value
+        comment: 肌钙蛋白数值
+        engine: null
+        rule: null
+      - column: unit
+        comment: 肌钙蛋白单位 1:ng/mL 2:ug/L 3:ng/L 4:pg/mL 5:mg/L
+        engine: null
+        rule: null
+      - column: status
+        comment: 肌钙蛋白状态  1:阳性 2:阴性
+        engine: null
+        rule: null
+      - column: blood_time
+        comment: 抽血完成时间
+        engine: null
+        rule: null
+      - column: report_time
+        comment: 获得报告时间
+        engine: null
+        rule: null
+      - column: is_cr
+        comment: 血清肌酐 0:无 1:有
+        engine: null
+        rule: null
+      - column: cr_value
+        comment: 血清肌酐(数值)
+        engine: null
+        rule: null
+      - column: is_ddimer
+        comment: D-二聚体 0:无 1:有
+        engine: null
+        rule: null
+      - column: ddimer_value
+        comment: 'D-二聚体(数值) '
+        engine: null
+        rule: null
+      - column: ddimer_unit
+        comment: 'D-二聚体(单位) 1:ng/mL   2:ug/mL 3:ug/L '
+        engine: null
+        rule: null
+      - column: is_bnp
+        comment: 'BNP 0:无 1:有 '
+        engine: null
+        rule: null
+      - column: bnp_value
+        comment: BNP(数值)
+        engine: null
+        rule: null
+      - column: is_nt_probnp
+        comment: 'NT-proBNP 0:无 1:有 '
+        engine: null
+        rule: null
+      - column: ntprobnp_value
+        comment: NT-proBNP(数值)
+        engine: null
+        rule: null
+      - column: is_myo
+        comment: 'Myo 0:无 1:有 '
+        engine: null
+        rule: null
+      - column: myo_value
+        comment: Myo (数值)
+        engine: null
+        rule: null
+      - column: myo_unit
+        comment: 'Myo (单位) 1:ng/mL 2:ug/L '
+        engine: null
+        rule: null
+      - column: is_ckmb
+        comment: 'CKMB 0:无 1:有 '
+        engine: null
+        rule: null
+      - column: ckmb_value
+        comment: CKMB (数值)
+        engine: null
+        rule: null
+      - column: ckmb_unit
+        comment: CKMB (单位) 1:ng/mL 2:ug/L 3:u/L
+        engine: null
+        rule: null
+      - column: is_notice_imcd
+        comment: '心内科会诊 0:无 1:有 '
+        engine: null
+        rule: null
+      - column: imcd_type
+        comment: 心内科会诊 1:现场会诊 2:远程会诊
+        engine: null
+        rule: null
+      - column: notice_imcd_time
+        comment: 通知会诊时间
+        engine: null
+        rule: null
+      - column: consultation_time
+        comment: 会诊时间
+        engine: null
+        rule: null
+      - column: cp_diagnosis_code
+        comment: 初步诊断 1:STEMI 2:NSTEMI 3:UA 4:主动脉夹层 5:肺动脉栓塞 6:非 ACS 心源性胸痛 7:其它非心源性胸痛 8:待查
+        engine: null
+        rule: null
+      - column: give_up_treatment
+        comment: '患者自愿放弃后续治疗 0:无 1:是 '
+        engine: null
+        rule: null
+      - column: diagnosis_time
+        comment: 初步诊断时间
+        engine: null
+        rule: null
+      - column: doctor_name
+        comment: 医生
+        engine: null
+        rule: null
+      - column: killip_level
+        comment: 1:I 级(no CHF) 2:II 级(rales and/or JVD) 3:III 级(pulmonary edema) 4:IV
+          级(cardiogenic shock)
+        engine: null
+        rule: null
+      - column: stemi_is_bypass_emergency
+        comment: 绕行急诊 0-否 1-是
+        engine: null
+        rule: null
+      - column: stemi_is_bypass_ccu
+        comment: 绕行ccu 0-否 1-是
+        engine: null
+        rule: null
+      - column: ad_img_examination
+        comment: 影像学检查 1:急诊 CT 2:彩超 3:MRI 4:未做
+        engine: null
+        rule: null
+      - column: ad_ct_notice_time
+        comment: 通知CT室时间
+        engine: null
+        rule: null
+      - column: ad_ct_finish_time
+        comment: CT室完成准备
+        engine: null
+        rule: null
+      - column: ad_ct_scan_time
+        comment: CT扫描开始时间
+        engine: null
+        rule: null
+      - column: ad_ct_report_time
+        comment: CT报告时间
+        engine: null
+        rule: null
+      - column: ad_notice_cdu_time
+        comment: 通知彩超室时间
+        engine: null
+        rule: null
+      - column: ad_cdu_check_time
+        comment: 彩超检查时间
+        engine: null
+        rule: null
+      - column: ad_check_result_time
+        comment: 彩超出结果时间
+        engine: null
+        rule: null
+      - column: ad_imcd_notice_time
+        comment: 通知心外科会诊时间
+        engine: null
+        rule: null
+      - column: ad_ecc_consultation_time
+        comment: 心外科会诊时间
+        engine: null
+        rule: null
+      - column: ad_interlayer_type
+        comment: '夹层类型 1:A 型 2:B 型 '
+        engine: null
+        rule: null
+      - column: ad_treatment_strategy_code
+        comment: '治疗策略 1:紧急介入治疗 2:择期介入治疗 3:保守治疗 4:外科手术 5:其他（介入失败转手术） '
+        engine: null
+        rule: null
+      - column: pe_img_examination
+        comment: '影像学检查 1:急诊 CT  2:未做 '
+        engine: null
+        rule: null
+      - column: pe_ct_notice_time
+        comment: 通知CT室时间
+        engine: null
+        rule: null
+      - column: pe_ct_finish_time
+        comment: CT室完成准备
+        engine: null
+        rule: null
+      - column: pe_ct_scan_time
+        comment: CT扫描开始时间
+        engine: null
+        rule: null
+      - column: pe_ct_report_time
+        comment: CCT报告时间
+        engine: null
+        rule: null
+      - column: pe_risk_lamination
+        comment: 危险分层 1:高危 2:中危 3:低危
+        engine: null
+        rule: null
+      - column: pe_anti_treatment_time
+        comment: 开始抗凝治疗时间
+        engine: null
+        rule: null
+      - column: nacs_type
+        comment: '非 ACS 心源性胸痛类型 1:心律失常 2:扩张性心肌病 3:缺血性心肌病 4:肥厚型心肌病 5:心肌炎 6:冠心病 7:瓣膜性心脏病
+      8:陈旧性心肌梗死 9:心绞痛 10:心悸 11:房颤 12:高血压 13:心衰 14:房扑 15:室早 16:房早 17:室上速 18:心包炎 19:心肌桥
+      20:心包积液 '
+        engine: null
+        rule: null
+      - column: other_type
+        comment: 其它非心源性胸痛类型 1:呼吸系统病 2:消化系统病 3:神经系统病 4:精神系统病 5:肌肉骨骼病 6:皮肤系统病 9:其他
+        engine: null
+        rule: null
+      - column: treatment_type
+        comment: '处理措施 1:收治入院 2:急诊留观 3:门诊治疗 4:随访 '
+        engine: null
+        rule: null
+      - column: patient_remark
+        comment: 患者情况备注
+        engine: null
+        rule: null
+      - column: is_drug
+        comment: '抗血小板治疗 0:否 1:是 '
+        engine: null
+        rule: null
+      - column: aspirin_dose
+        comment: 阿司匹林剂量
+        engine: null
+        rule: null
+      - column: aspirin_time
+        comment: 阿司匹林时间
+        engine: null
+        rule: null
+      - column: clopidogrel_dose
+        comment: 氯吡格雷剂量
+        engine: null
+        rule: null
+      - column: clopidogrel_time
+        comment: 氯吡格雷时间
+        engine: null
+        rule: null
+      - column: ticagrelor_dose
+        comment: 替格瑞洛剂量
+        engine: null
+        rule: null
+      - column: ticagrelor_time
+        comment: 替格瑞洛时间
+        engine: null
+        rule: null
+      - column: is_anticoagulation
+        comment: 抗凝 0 -否 1-是
+        engine: null
+        rule: null
+      - column: anticoagulation_drug
+        comment: '抗凝 1:普通肝素 2:低分子肝素 3:比伐卢定 4:磺达肝癸钠 '
+        engine: null
+        rule: null
+      - column: anticoagulation_dose
+        comment: 抗凝(剂量)
+        engine: null
+        rule: null
+      - column: anticoagulation_time
+        comment: 抗凝时间
+        engine: null
+        rule: null
+      - column: anticoagulation_unit
+        comment: 抗凝单位
+        engine: null
+        rule: null
+      - column: intensify_statins_treat
+        comment: 他汀治疗 0 -否 1-是
+        engine: null
+        rule: null
+      - column: receptor_retardant_using
+        comment: β受体阻滞剂 0 -否 1-是
+        engine: null
+        rule: null
+      - column: grace_estimate
+        comment: 'Grace评估 1:发病后曾出现心脏骤停 2:心电图 ST 段改变 3:心肌坏死标志物升高 '
+        engine: null
+        rule: null
+      - column: grace_hr_env
+        comment: 'Grace 极高危条件 1:急性心力衰竭伴难治性心绞痛和 ST段改变 2:危及生命的心律失常或心脏骤停 3:心源性休克或血流动力学不稳定
+      4:心肌梗死机械性并发症 5:再发 ST-T 动态演变，尤其是伴有间歇性 ST 段抬高 '
+        engine: null
+        rule: null
+      - column: grace_value
+        comment: Grace 分值
+        engine: null
+        rule: null
+      - column: risk_lamination
+        comment: Grace危险分层 1:极高危 2:高危 3:中危 4:低危
+        engine: null
+        rule: null
+      - column: risk_lamination_ag
+        comment: '再次危险分层 0:未做 1:转为 STEMI 2:极高危 3:高危 4:中危 5:低危 '
+        engine: null
+        rule: null
+      - column: risk_lamination_ag_time
+        comment: 再次危险分层时间
+        engine: null
+        rule: null
+      - column: strategy
+        comment: '策略 1:保守治疗(仅药物治疗) 2:侵入性策略 '
+        engine: null
+        rule: null
+      - column: invasive_strategy
+        comment: 侵入性策略 1:紧急介入治疗 2:24H 内介入治疗 3:72H 内介入治疗 4:择期介入治疗 5:CABG
+        engine: null
+        rule: null
+      - column: strategy_doctor_name
+        comment: '决定医生 '
+        engine: null
+        rule: null
+      - column: decision_operation_time
+        comment: 决定介入手术时间
+        engine: null
+        rule: null
+      - column: start_conduit_time
+        comment: 启动导管室时间
+        engine: null
+        rule: null
+      - column: start_agree_time
+        comment: 开始知情同意时间
+        engine: null
+        rule: null
+      - column: sign_agree_time
+        comment: 签署知情同意时间
+        engine: null
+        rule: null
+      - column: actual_intervent_time
+        comment: 实际介入治疗时间
+        engine: null
+        rule: null
+      - column: stemi_is_reperfusion
+        comment: 再灌注措施 0 -否 1-是
+        engine: null
+        rule: null
+      - column: stemi_no_reperfusion_reason
+        comment: 无再灌注措施 1:无明确胸痛，生命体征平稳 2:错过再灌注时间 3:出血 4:严重肝肾功能不全 5:经济原因 6:家庭放弃 9:其他原因
+        engine: null
+        rule: null
+      - column: stemi_measures
+        comment: '措施 1:直接 PCI 2: 溶栓 3:4:CABG 5:转运 PCI '
+        engine: null
+        rule: null
+      - column: stemi_measures_thrombolysis
+        comment: '措施(溶栓) 1:补救 PCI 2:溶栓后介入 '
+        engine: null
+        rule: null
+      - column: stemi_measures_doctor_name
+        comment: 决定医生
+        engine: null
+        rule: null
+      - column: stemi_decision_operation_time
+        comment: 决定介入手术时间
+        engine: null
+        rule: null
+      - column: stemi_start_conduit_time
+        comment: 启动导管室时间
+        engine: null
+        rule: null
+      - column: stemi_start_agree_time
+        comment: 开始知情同意时间
+        engine: null
+        rule: null
+      - column: stemi_sign_agree_time
+        comment: 签署知情同意时间
+        engine: null
+        rule: null
+      - column: stemi_start_radiography_time
+        comment: 造影开始时间
+        engine: null
+        rule: null
+      - column: stemi_decision_cabg_time
+        comment: 决定CABG时间
+        engine: null
+        rule: null
+      - column: stemi_start_cabg_time
+        comment: stemi_start_cabg_time
+        engine: null
+        rule: null
+      - column: stemi_tpci_type
+        comment: '转运 PCI 0:否 1:是 '
+        engine: null
+        rule: null
+      - column: screening
+        comment: '溶栓筛查 1:合适 2:不合适 3:未筛查 '
+        engine: null
+        rule: null
+      - column: is_thrombolysis
+        comment: 溶栓治疗 0-无 1-有
+        engine: null
+        rule: null
+      - column: stemi_is_direct
+        comment: '直达溶栓场所 0:否 1:是 '
+        engine: null
+        rule: null
+      - column: stemi_diagnosis_unit_code_dt
+        comment: 溶栓场所 1:本院急诊科 2:本院心内科 3:其他科室
+        engine: null
+        rule: null
+      - column: stemi_throm_start_agree_time
+        comment: 开始知情同意时间
+        engine: null
+        rule: null
+      - column: stemi_throm_sign_agree_time
+        comment: 签署知情同意书时间
+        engine: null
+        rule: null
+      - column: stemi_throm_start_time_dt
+        comment: 开始溶栓时间
+        engine: null
+        rule: null
+      - column: stemi_throm_end_time_dt
+        comment: 溶栓结束时间
+        engine: null
+        rule: null
+      - column: stemi_throm_drug_type_dt
+        comment: '药物 1:第一代 2:第二代 3:第三代 '
+        engine: null
+        rule: null
+      - column: stemi_throm_drug_code_dt
+        comment: '剂量 1:全量 2:半量 '
+        engine: null
+        rule: null
+      - column: stemi_is_repatency_dt
+        comment: '溶栓再通 0:否 1:是 '
+        engine: null
+        rule: null
+      - column: is_add_ecg_two
+        comment: 新增心电图 0-否1-是
+        engine: null
+        rule: null
+      - column: ecg_time_two
+        comment: 第二份心电图时间
+        engine: null
+        rule: null
+      - column: ecgimagefiles_two
+        comment: 第二份心电图文件
+        engine: null
+        rule: null
+      - column: ecg_diagnose_time_two
+        comment: 第二份心电图确诊时间
+        engine: null
+        rule: null
+      - column: is_add_ecg_three
+        comment: 新增心电图0-否 1-是
+        engine: null
+        rule: null
+      - column: ecg_time_three
+        comment: 第三份心电图时间
+        engine: null
+        rule: null
+      - column: ecgimagefiles_three
+        comment: 第三份心电图文件
+        engine: null
+        rule: null
+      - column: ecg_diagnose_time_three
+        comment: 第三份心电图确诊时间
+        engine: null
+        rule: null
+      - column: is_add_ctnt_two
+        comment: 新增肌钙蛋白0-否，1-是
+        engine: null
+        rule: null
+      - column: ctnt_type_two
+        comment: 第二份肌钙蛋白类型
+        engine: null
+        rule: null
+      - column: ctnt_value_two
+        comment: 第二份肌钙蛋白的值
+        engine: null
+        rule: null
+      - column: ctnt_unit_two
+        comment: 第二份肌钙蛋白单位
+        engine: null
+        rule: null
+      - column: ctnt_status_two
+        comment: 第二份肌钙蛋白状态
+        engine: null
+        rule: null
+      - column: ctnt_blood_time_two
+        comment: 第二份肌钙蛋抽血完成时间
+        engine: null
+        rule: null
+      - column: ctnt_report_time_two
+        comment: 第二份肌钙蛋获得报告时间
+        engine: null
+        rule: null
+      - column: is_add_ctnt_three
+        comment: 新增肌钙蛋白0-否，1-是
+        engine: null
+        rule: null
+      - column: ctnt_type_three
+        comment: 第三份肌钙蛋白类型
+        engine: null
+        rule: null
+      - column: ctnt_value_three
+        comment: 第三份肌钙蛋白值
+        engine: null
+        rule: null
+      - column: ctnt_unit_three
+        comment: 第三份肌钙蛋白单位
+        engine: null
+        rule: null
+      - column: ctnt_status_three
+        comment: 第三份肌钙蛋白状态
+        engine: null
+        rule: null
+      - column: ctnt_blood_time_three
+        comment: 第三份肌钙蛋抽血完成时间
+        engine: null
+        rule: null
+      - column: ctnt_report_time_three
+        comment: 第三份肌钙蛋获得报告时间
+        engine: null
+        rule: null
+      - column: throm_contraindication
+        comment: 是否存在禁忌症:0-否,1-是
+        engine: null
+        rule: null
+      - column: ecg_remark
+        comment: 填报信息备注
+        engine: null
+        rule: null
+      - column: laboratory_inspection_remark
+        comment: 填报信息备注
+        engine: null
+        rule: null
+      - column: notice_imcd_remark
+        comment: 填报信息备注
+        engine: null
+        rule: null
+      - column: diagnosis_remark
+        comment: 填报信息备注
+        engine: null
+        rule: null
+      - column: drug_remark
+        comment: 填报信息备注
+        engine: null
+        rule: null
+      - column: grace_remark
+        comment: 填报信息备注
+        engine: null
+        rule: null
+      - column: risk_lamination_ag_remark
+        comment: 填报信息备注
+        engine: null
+        rule: null
+      - column: strategy_remark
+        comment: 填报信息备注
+        engine: null
+        rule: null
+      - column: reperfusion_remark
+        comment: 填报信息备注
+        engine: null
+        rule: null
+      - column: hospital_thrombolysis_remark
+        comment: 填报信息备注
+        engine: null
+        rule: null
+    comment: 胸痛诊疗
+    table: cpc_treatment_info
+  - columns:
+      - column: id
+        comment: 胸痛病例基础数据id
+        engine: faker.eq
+        rule:
+          value: '{{ cpc_basis.id }}'
+      - column: activate_conduit_time
+        comment: 导管室激活时间
+        engine: null
+        rule: null
+      - column: patient_arrived_conduit_time
+        comment: 患者到达导管室时间
+        engine: null
+        rule: null
+      - column: intervention_person
+        comment: 介入医师
+        engine: null
+        rule: null
+      - column: start_puncture_time
+        comment: 开始穿刺时间
+        engine: null
+        rule: null
+      - column: start_radiography_time
+        comment: 造影开始时间
+        engine: null
+        rule: null
+      - column: anticoagulation_time
+        comment: 术中抗凝给药时间
+        engine: null
+        rule: null
+      - column: anticoagulation_drug
+        comment: 术中抗凝药物 1：普通肝素 2：低分子肝素 3：比伐卢定 4：磺达肝癸钠
+        engine: null
+        rule: null
+      - column: anticoagulation_dose
+        comment: 术中抗凝药物剂量
+        engine: null
+        rule: null
+      - column: anticoagulation_unit
+        comment: 抗凝药物单位
+        engine: null
+        rule: null
+      - column: end_operation_time
+        comment: 手术结束时间
+        engine: null
+        rule: null
+      - column: dtwob_time
+        comment: D2W 时间
+        engine: null
+        rule: null
+      - column: is_delay
+        comment: 是否延误 0-否 1-是
+        engine: null
+        rule: null
+      - column: delay_reason
+        comment: 延误原因 01:症状不明显延误诊断 02:家属未到场 03:医生决策延误 04:排队挂号、缴费、办住院时间长 05:急诊科处理时间长 06:手术期间出现并发症
+          07:超过再灌注时间 08:未实施绕行急诊方案 09:导管室人员未到位 10:药物缺乏 11:知情同意时间过长 12:病情不稳定 13:绕行急诊科但未直接入导管室
+          14:导管室占台 15:转运时间长 16:经费问题 17:心内科会诊时间长 18:血管通路困难 19:难以绕行病变区域 20:心脏骤停或需要气管插管再
+          PCI 21:急需影像学资料再行 PCI 99:其他原因
+        engine: null
+        rule: null
+      - column: route
+        comment: 入路 1:桡动脉(左侧) 2:桡动脉(右侧)   3:股动脉 4:其他
+        engine: null
+        rule: null
+      - column: infarct_position
+        comment: '1:右冠近段 2:右冠中段 3:右冠远段 4:后降支(右优势型) 5:左主干 6:前降支近段 7:前降支中段 8:前降支远段 9:第一对角支
+      10:第二对角支 11:旋支近段 12:第一钝缘支 13:旋支远段 14:左室后支 15:后降支(左优势型或均衡型) 16:中间支 17:第三对角支 18:第二钝缘支
+      19:第三钝缘支 20:锐缘支</label> 21:左圆椎支 22:右圆椎支 23:室间隔支 24:左后外侧支 25:右后外侧支 26:房室沟动脉 27:后降支室间支  '
+        engine: null
+        rule: null
+      - column: intracavity_image
+        comment: 腔内影像 1:IVUS 2:OCT 3:其他 4:未做
+        engine: null
+        rule: null
+      - column: function_test
+        comment: '功能检测 1:FFR 4:iFR 5:IMR 2:其他 3:未做 '
+        engine: null
+        rule: null
+      - column: function_test_value
+        comment: 功能检测(数值)
+        engine: null
+        rule: null
+      - column: iabp
+        comment: IABP 0：否 1：是
+        engine: null
+        rule: null
+      - column: pacemaker
+        comment: 临时起搏器 0：否 1：是
+        engine: null
+        rule: null
+      - column: ecmo
+        comment: ecmo 0：否 1：是
+        engine: null
+        rule: null
+      - column: auxiliary_device
+        comment: 左心室辅助装置 0：否 1：是
+        engine: null
+        rule: null
+      - column: complication
+        comment: 术中并发症 01:恶性心律失常 02:低血压 03:慢血流/无复流 04:血管夹层 05:非干预血管急性闭塞 06:血管穿孔 07:死亡
+          08:无 09:其他
+        engine: null
+        rule: null
+      - column: conduit_remark
+        comment: 填报信息备注
+        engine: null
+        rule: null
+      - column: route_remark
+        comment: 填报信息备注
+        engine: null
+        rule: null
+      - column: coronary_angiogram_remark
+        comment: 填报信息备注
+        engine: null
+        rule: null
+      - column: instrument_remark
+        comment: 填报信息备注
+        engine: null
+        rule: null
+      - column: complication_remark
+        comment: 填报信息备注
+        engine: null
+        rule: null
+      - column: preoperative_timi_level
+        comment: TIMI 血流等级(仅造影时)
+        engine: null
+        rule: null
+    comment: 导管室
+    table: cpc_treatment_pci_info
+  - columns:
+      - column: id
+        comment: 胸痛病例基础数据id
+        engine: faker.eq
+        rule:
+          value: '{{ cpc_basis.id }}'
+      - column: cp_diagnosis_code
+        comment: 出院诊断( 必填):1-STEMI,2-NSTEMI,3-UA,4-主动脉夹层,5-肺动脉栓塞,6-非ACS心源性胸痛,9-其它非心源性胸痛
+        engine: null
+        rule: null
+      - column: nacs_type
+        comment: 非ACS心源性胸痛明细(多选用竖线隔开。如"1|2|14"  必填 条件:当"出院诊断"为"非ACS心源性胸痛"时):1-心律失常,2-扩张性心肌病,3-缺血性心肌病,4-肥厚型心肌病,5-心肌炎,6-冠心病,7-瓣膜性心脏病,8-陈旧性心肌梗死,9-心绞痛,10-心悸,11-房颤,12-高血压,13-心衰,14-房扑,15-室早,16-房早,17-室上速,18-心包炎
+        engine: null
+        rule: null
+      - column: other_nacs_type
+        comment: 非ACS心源性胸痛明细(多选用竖线隔开。如"1|2|14"  必填 条件:当"出院诊断"为"非ACS心源性胸痛"时):1-心律失常,2-扩张性心肌病,3-缺血性心肌病,4-肥厚型心肌病,5-心肌炎
+        engine: null
+        rule: null
+      - column: diagnosis_time
+        comment: 确诊时间( 必填)
+        engine: null
+        rule: null
+      - column: is_heart_failure
+        comment: 院内新发心力衰竭( 必填 条件:当"出院诊断"为"STEMI"、"NSTEMI"、"UA"时):1-是,0-否
+        engine: null
+        rule: null
+      - column: complication
+        comment: 合并症(多选用竖线隔开。如"01|02"  必填 条件:当"出院诊断"为"STEMI"、"NSTEMI"、"UA"时):01-休克,02-机械性并发症,03-感染,04-再发心梗,05-血栓,06-卒中,07-TIA,08-出血,9-呼吸衰竭,10-肾衰竭,11-死亡,99-无
+        engine: null
+        rule: null
+      - column: feritin
+        comment: 高血压( 必填 条件:当"出院诊断"为"STEMI"、"NSTEMI"、"UA"时):1-是,0-否
+        engine: null
+        rule: null
+      - column: hyperlipemia
+        comment: 高脂血症( 必填 条件:当"出院诊断"为"STEMI"、"NSTEMI"、"UA"时):1-是,0-否
+        engine: null
+        rule: null
+      - column: diabetes
+        comment: 糖尿病( 必填 条件:当"出院诊断"为"STEMI"、"NSTEMI"、"UA"时):1-是,0-否
+        engine: null
+        rule: null
+      - column: smoking
+        comment: 吸烟( 必填 条件:当"出院诊断"为"STEMI"、"NSTEMI"、"UA"时):1-是,0-否
+        engine: null
+        rule: null
+      - column: smoking_status
+        comment: 吸烟状态( 必填 条件:当"出院诊断"为"STEMI"、"NSTEMI"、"UA"时):1-已戒烟,2-当前仍吸烟
+        engine: null
+        rule: null
+      - column: obesity
+        comment: 肥胖( 必填 条件:当"出院诊断"为"STEMI"、"NSTEMI"、"UA"时):1-是,0-否
+        engine: null
+        rule: null
+      - column: family_disease
+        comment: 早发CVD家族史(男<55岁,女<60岁)( 必填 条件:当"出院诊断"为"STEMI"、"NSTEMI"、"UA"时):1-是,0-否
+        engine: null
+        rule: null
+      - column: chd
+        comment: 冠心病( 必填 条件:当"出院诊断"为"STEMI"、"NSTEMI"、"UA"时):1-是,0-否
+        engine: null
+        rule: null
+      - column: previous_revascularization
+        comment: 血运重建史( 必填 条件:当"出院诊断"为"STEMI"、"NSTEMI"、"UA"时):1-是,0-否
+        engine: null
+        rule: null
+      - column: af
+        comment: 心房颤动( 必填 条件:当"出院诊断"为"STEMI"、"NSTEMI"、"UA"时):1-是,0-否
+        engine: null
+        rule: null
+      - column: af_type
+        comment: 心房颤动(分型)( 必填 条件:当心房颤动为是时):1-阵发性,2-持续性,3-长程持续性,4-永久性
+        engine: null
+        rule: null
+      - column: slow_heart_failure
+        comment: 慢性心力衰竭( 必填 条件:当"出院诊断"为"STEMI"、"NSTEMI"、"UA"时):1-是,0-否
+        engine: null
+        rule: null
+      - column: nyha_level
+        comment: NYHA分级( 必填 条件:当慢性心力衰竭为是时):1-I,2-II,3-III,4-IV
+        engine: null
+        rule: null
+      - column: avhd
+        comment: 心脏瓣膜病( 必填 条件:当"出院诊断"为"STEMI"、"NSTEMI"、"UA"时):1-是,0-否
+        engine: null
+        rule: null
+      - column: brian_vascellum
+        comment: 脑血管疾病( 必填 条件:当"出院诊断"为"STEMI"、"NSTEMI"、"UA"时):1-是,0-否
+        engine: null
+        rule: null
+      - column: brian_vascellum_desc
+        comment: 脑血管疾病(描述)( 必填 条件:当脑血管疾病为是时):1-缺血性,2-出血性
+        engine: null
+        rule: null
+      - column: peripheral_artery_disease
+        comment: 外周动脉疾病( 必填 条件:当"出院诊断"为"STEMI"、"NSTEMI"、"UA"时):1-是,0-否
+        engine: null
+        rule: null
+      - column: aortic_aneurysm
+        comment: 主动脉瘤( 必填 条件:当"出院诊断"为"STEMI"、"NSTEMI"、"UA"时):1-是,0-否
+        engine: null
+        rule: null
+      - column: copd
+        comment: COPD( 必填 条件:当"出院诊断"为"STEMI"、"NSTEMI"、"UA"时):1-是,0-否
+        engine: null
+        rule: null
+      - column: chronic_kidney_disease
+        comment: 慢性肾病( 必填 条件:当"出院诊断"为"STEMI"、"NSTEMI"、"UA"时):1-是,0-否
+        engine: null
+        rule: null
+      - column: anemia
+        comment: 贫血( 必填 条件:当"出院诊断"为"STEMI"、"NSTEMI"、"UA"时):1-是,0-否
+        engine: null
+        rule: null
+      - column: peptic_ulcer
+        comment: 消化性溃疡( 必填 条件:当"出院诊断"为"STEMI"、"NSTEMI"、"UA"时):1-是,0-否
+        engine: null
+        rule: null
+      - column: thyroid_disease
+        comment: 甲状腺功能异常( 必填 条件:当"出院诊断"为"STEMI"、"NSTEMI"、"UA"时):1-是,0-否
+        engine: null
+        rule: null
+      - column: therioma
+        comment: 恶性肿瘤( 必填 条件:当"出院诊断"为"STEMI"、"NSTEMI"、"UA"时):1-是,0-否
+        engine: null
+        rule: null
+      - column: troponin_72h
+        comment: 72h内肌钙蛋白( 必填 条件:当"出院诊断"为"STEMI"、"NSTEMI"、"UA"时):1-是,0-否
+        engine: null
+        rule: null
+      - column: troponin_72h_type
+        comment: 72h内肌钙蛋白( 必填 条件:当72h内肌钙蛋白为是时):1-TNT,2-TNI
+        engine: null
+        rule: null
+      - column: ctni_max_value
+        comment: 72h内肌钙蛋白( 必填 条件:当72h内肌钙蛋白为是时,保留2位小数)
+        engine: null
+        rule: null
+      - column: bnp
+        comment: 脑钠肽( 必填 条件:当"出院诊断"为"STEMI"、"NSTEMI"、"UA"时):1-是,0-否
+        engine: null
+        rule: null
+      - column: bnp_type
+        comment: 脑钠肽类型( 必填 条件:当脑钠肽为是时):1-TNT,2-TNI
+        engine: null
+        rule: null
+      - column: bnp_value
+        comment: 脑钠肽(最高值)( 必填 条件:当脑钠肽为是时,保留8位小数)
+        engine: null
+        rule: null
+      - column: tc
+        comment: 总胆固醇(TC)( 必填 条件:当"出院诊断"为"STEMI"、"NSTEMI"、"UA"时):1-是,0-否
+        engine: null
+        rule: null
+      - column: tc_value
+        comment: 总胆固醇(TC)(数值)( 必填 条件:当总胆固醇(TC)为是时,保留8位小数)
+        engine: null
+        rule: null
+      - column: tg
+        comment: 甘油三酯(TG)( 必填 条件:当"出院诊断"为"STEMI"、"NSTEMI"、"UA"时):1-是,0-否
+        engine: null
+        rule: null
+      - column: tg_value
+        comment: 总胆固醇(TC)(数值)( 必填 条件:当甘油三酯(TG)为是时,保留8位小数)
+        engine: null
+        rule: null
+      - column: hdl_c
+        comment: 高密度脂蛋白(HDL-C)( 必填 条件:当"出院诊断"为"STEMI"、"NSTEMI"、"UA"时):1-是,0-否
+        engine: null
+        rule: null
+      - column: hdl_c_value
+        comment: 高密度脂蛋白(HDL-C)(数值)( 必填 条件:当高密度脂蛋白(HDL-C)为是时,保留8位小数)
+        engine: null
+        rule: null
+      - column: ldl_c
+        comment: 低密度脂蛋白(LDL-C)( 必填 条件:当"出院诊断"为"STEMI"、"NSTEMI"、"UA"时):1-是,0-否
+        engine: null
+        rule: null
+      - column: ldl_c_value
+        comment: 低密度脂蛋白(LDL-C)(数值)( 必填 条件:当低密度脂蛋白(LDL-C)为是时,保留8位小数)
+        engine: null
+        rule: null
+      - column: ucg
+        comment: 超声心动图(LDL-C)( 必填 条件:当"出院诊断"为"STEMI"、"NSTEMI"、"UA"时):1-是,0-否
+        engine: null
+        rule: null
+      - column: lvef
+        comment: LVEF(条件:当超声心动图为是时,保留2位小数)
+        engine: null
+        rule: null
+      - column: vntricular_aneurysm
+        comment: 室壁瘤(条件:当超声心动图为是时):1-是,0-否
+        engine: null
+        rule: null
+      - column: part_vntricular
+        comment: 局部室壁活动异常(条件:当超声心动图为是时):1-是,0-否
+        engine: null
+        rule: null
+      - column: hod
+        comment: 住院天数
+        engine: null
+        rule: null
+      - column: total_cost
+        comment: 总费用保留2位小数
+        engine: null
+        rule: null
+      - column: outcome_code
+        comment: 患者转归( 必填):1-出院,2-转送其它医院,3-转送其它科室,4-死亡
+        engine: null
+        rule: null
+      - column: mission_education
+        comment: 离院宣教(多选用竖线隔开。如"1|2|14" ):1-戒烟,2-规律坚持服药,3-遵医嘱随访治疗,4-生活起居调护,5-心血管危险因素控制（降压、调脂、血糖控制、限酒、控制体重）,9-未宣教
+        engine: null
+        rule: null
+      - column: leave_time
+        comment: 出院时间( 必填 条件:当“患者转归”为“出院”时)
+        engine: null
+        rule: null
+      - column: treatment_result_code
+        comment: 治疗结果( 必填 条件:当“患者转归”为“出院”时):1-治愈,2-好转,3-自动离院,4-其它原因离院
+        engine: null
+        rule: null
+      - column: hand_time
+        comment: 离开本院大门时间( 必填 条件:当“患者转归”为“转送其它医院”时)
+        engine: null
+        rule: null
+      - column: is_net_hospital
+        comment: 是否是网络医院0-否,1-是
+        engine: null
+        rule: null
+      - column: hospital_name
+        comment: 医院名称
+        engine: null
+        rule: null
+      - column: is_trans_pci
+        comment: 是否转运PCI:1-是,0-否
+        engine: null
+        rule: null
+      - column: is_direct_catheter
+        comment: 直达导管室:1-是,0-否
+        engine: null
+        rule: null
+      - column: decision_operation_time
+        comment: 实际介入手术开始时间
+        engine: null
+        rule: null
+      - column: remote_ecg_transmission
+        comment: 远程心电图传输
+        engine: null
+        rule: null
+      - column: trans_ecg_time
+        comment: 传输心电图至协作单位时间
+        engine: null
+        rule: null
+      - column: trans_way
+        comment: 传输方式
+        engine: null
+        rule: null
+      - column: after_thrombolysis_radiography
+        comment: 溶栓后24h内造影
+        engine: null
+        rule: null
+      - column: start_radiography_time
+        comment: 造影开始时间
+        engine: null
+        rule: null
+      - column: transfer_date
+        comment: 转科时间
+        engine: null
+        rule: null
+      - column: admission_dept
+        comment: 接诊科室
+        engine: null
+        rule: null
+      - column: transfer_reason
+        comment: 转科原因描述
+        engine: null
+        rule: null
+      - column: death_time
+        comment: 死亡时间
+        engine: null
+        rule: null
+      - column: death_cause_code
+        comment: 死亡原因:1-是,0-否
+        engine: null
+        rule: null
+      - column: death_cause_desc
+        comment: 死亡描述
+        engine: null
+        rule: null
+      - column: antiplatelet_drug
+        comment: 抗血小板药物:1-是,0-否
+        engine: null
+        rule: null
+      - column: acei_arb_drug
+        comment: ACEI/ARB:1-是,0-否
+        engine: null
+        rule: null
+      - column: lipid_drug
+        comment: 调脂药物:1-是,0-否
+        engine: null
+        rule: null
+      - column: arbs
+        comment: β受体阻滞剂:1-是,0-否
+        engine: null
+        rule: null
+      - column: remark
+        comment: 患者情况备注
+        engine: null
+        rule: null
+      - column: antiplatelet_drug_name
+        comment: 抗血小板药物名称
+        engine: null
+        rule: null
+      - column: antiplatelet_drug_other_name
+        comment: 抗血小板其它药物名称
+        engine: null
+        rule: null
+      - column: antiplatelet_drug_value
+        comment: 抗血小板药物单次剂量
+        engine: null
+        rule: null
+      - column: is_add_antiplatelet_drug
+        comment: 新增抗血小板药物0-否，1-是
+        engine: null
+        rule: null
+      - column: antiplatelet_drug_name_two
+        comment: 第二份抗血小板药物名称
+        engine: null
+        rule: null
+      - column: antiplatelet_drug_other_name_two
+        comment: 第二份抗血小板其它药物名称
+        engine: null
+        rule: null
+      - column: antiplatelet_drug_value_two
+        comment: 第二份抗血小板药物单次剂量
+        engine: null
+        rule: null
+      - column: acei_arb_drug_name
+        comment: ACEI/ARB
+        engine: null
+        rule: null
+      - column: acei_arb_drug_other_name
+        comment: ACEI/ARB其它药物名称
+        engine: null
+        rule: null
+      - column: acei_arb_drug_value
+        comment: ACEI/ARB药物单次剂量
+        engine: null
+        rule: null
+      - column: lipid_drug_name
+        comment: 调脂药物名称
+        engine: null
+        rule: null
+      - column: lipid_drug_other_name
+        comment: 调脂药物其它药物名称
+        engine: null
+        rule: null
+      - column: lipid_drug_value
+        comment: 调脂药物单次剂量
+        engine: null
+        rule: null
+      - column: is_add_lipid_drug
+        comment: 新增调脂药物0-否，1-是
+        engine: null
+        rule: null
+      - column: lipid_drug_name_two
+        comment: 第二份调脂药物名称
+        engine: null
+        rule: null
+      - column: lipid_drug_other_name_two
+        comment: 第二份调脂药物其它药物名称
+        engine: null
+        rule: null
+      - column: lipid_drug_value_two
+        comment: 第二份调脂药物单次剂量
+        engine: null
+        rule: null
+      - column: arbs_name
+        comment: β受体阻滞剂药物名称
+        engine: null
+        rule: null
+      - column: arbs_other_name
+        comment: β受体阻滞剂其它药物名称
+        engine: null
+        rule: null
+      - column: arbs_value
+        comment: β受体阻滞剂药物单次剂量
+        engine: null
+        rule: null
+      - column: antiplatelet_drug_rete_count
+        comment: 服用频次
+        engine: null
+        rule: null
+      - column: antiplatelet_drug_rete_time
+        comment: 时间
+        engine: null
+        rule: null
+      - column: antiplatelet_drug_rete_count_two
+        comment: 服用频次
+        engine: null
+        rule: null
+      - column: antiplatelet_drug_rete_time_two
+        comment: 时间
+        engine: null
+        rule: null
+      - column: acei_arb_drug_rete_count
+        comment: 服用频次
+        engine: null
+        rule: null
+      - column: acei_arb_drug_rete_time
+        comment: 时间
+        engine: null
+        rule: null
+      - column: lipid_drug_rete_count
+        comment: 服用频次
+        engine: null
+        rule: null
+      - column: lipid_drug_rete_time
+        comment: 时间
+        engine: null
+        rule: null
+      - column: lipid_drug_rete_count_two
+        comment: 服用频次
+        engine: null
+        rule: null
+      - column: lipid_drug_rete_time_two
+        comment: 时间
+        engine: null
+        rule: null
+      - column: arbs_rete_count
+        comment: 服用频次
+        engine: null
+        rule: null
+      - column: arbs_rete_time
+        comment: 时间
+        engine: null
+        rule: null
+      - column: lapse_to_basis_remark
+        comment: 填报信息备注
+        engine: null
+        rule: null
+      - column: hazards_remark
+        comment: 填报信息备注
+        engine: null
+        rule: null
+      - column: complicating_disease_remark
+        comment: 填报信息备注
+        engine: null
+        rule: null
+      - column: inspection_result_remark
+        comment: 填报信息备注
+        engine: null
+        rule: null
+      - column: leave_hospital_remark
+        comment: 填报信息备注
+        engine: null
+        rule: null
+      - column: leave_hospital_drugs_remark
+        comment: 填报信息备注
+        engine: null
+        rule: null
+      - column: ctni_max_value_unit
+        comment: '72h 内肌钙蛋白最高值(单位) '
+        engine: null
+        rule: null
+      - column: covid19
+        comment: 'COVID-19 1:经筛查后排除  2:经筛查后确诊  3:未经筛查 '
+        engine: null
+        rule: null
+      - column: is_jtyw
+        comment: 降糖药物
+        engine: null
+        rule: null
+      - column: jtywname
+        comment: 降糖药物(名称)
+        engine: null
+        rule: null
+      - column: is_knyw
+        comment: 口服抗凝药物
+        engine: null
+        rule: null
+      - column: knywname
+        comment: 口服抗凝药物(名称)
+        engine: null
+        rule: null
+      - column: is_pcsk
+        comment: PCSK
+        engine: null
+        rule: null
+      - column: pcsk_name
+        comment: PCSK药物名称
+        engine: null
+        rule: null
+      - column: pcsk_dose
+        comment: PCSK次剂量
+        engine: null
+        rule: null
+      - column: is_arni
+        comment: ARNI
+        engine: null
+        rule: null
+      - column: arni_dose
+        comment: ARNI次剂量
+        engine: null
+        rule: null
+      - column: arni_frequency
+        comment: ARNI服用频次
+        engine: null
+        rule: null
+      - column: arni_frequency_range
+        comment: ARNI用药频次区间
+        engine: null
+        rule: null
+    comment: 患者转归
+    table: cpc_out_come_info
+  - auto_increment: 1745
+    columns:
+      - auto_increment: true
+        column: id
+        comment: 数据id
+        engine: faker.eq
+        rule:
+          value: null
+      - column: cpc_basis_id
+        comment: 胸痛病例基础数据id
+        engine: faker.eq
+        rule:
+          value: '{{ cpc_basis.id }}'
+      - column: infarct_position
+        comment: 部位值
+        engine: null
+        rule: null
+      - column: narrow_level
+        comment: '狭窄程度 1:<50% 2:50~69% 3:70~89% 4:90~99% 5:100% '
+        engine: null
+        rule: null
+      - column: preoperative_timi_level
+        comment: 造影时 TIMI 血流 0:0 级 1:1 级 2:2 级 3:3 级
+        engine: null
+        rule: null
+      - column: bracket_thrombus
+        comment: '支架内血栓 0:否 1:是 '
+        engine: null
+        rule: null
+      - column: branching_sick
+        comment: '是否分叉病变 0:否 1:是 '
+        engine: null
+        rule: null
+      - column: cto
+        comment: '是否cto 0:否 1:是 '
+        engine: null
+        rule: null
+      - column: ca_sick
+        comment: 钙化病变 0:否 1:是
+        engine: null
+        rule: null
+      - column: criminal_sick
+        comment: 罪犯病变 0:否 1:是
+        engine: null
+        rule: null
+      - column: pci
+        comment: pci 0:否 1:是
+        engine: null
+        rule: null
+      - column: intraoperative_handle
+        comment: 术中处理 0:无 1:植入支架 2:PTCA 3:血栓抽吸 4:冠脉内溶栓 5:仅使用导丝 9:其他
+        engine: null
+        rule: null
+      - column: balloon_expansion_time
+        comment: 导丝通过时间
+        engine: null
+        rule: null
+      - column: bracket_num
+        comment: '植入支架个 1:0 枚 2:1 枚 3:2 枚 4:>=3 枚 '
+        engine: null
+        rule: null
+      - column: bracket_type
+        comment: '支架种类 1:BMS 2:DES 3:可降解支架 4:其他 '
+        engine: null
+        rule: null
+      - column: timi
+        comment: '术后TIMI 血流 0:0 级 1:1 级 2:2 级 3:3 级 '
+        engine: null
+        rule: null
+    comment: '冠状动脉造影 '
+    table: cpc_coronary_angiographie

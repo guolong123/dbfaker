@@ -1,0 +1,4 @@
+database:
+  type: mysql
+  connect: mysql+mysqldb://pdmsadmin:system001@cpcs.homelabs.in/pdms_hospital
+
