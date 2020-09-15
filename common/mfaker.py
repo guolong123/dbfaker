@@ -1,26 +1,29 @@
 from faker import Faker
 from faker.providers.date_time import Provider
 import random
-from datetime import MAXYEAR, timedelta
-from dateutil.tz import gettz, tzlocal, tzutc
-from faker.utils.datetime_safe import date, datetime, real_date, real_datetime
+from datetime import timedelta
+from dateutil.tz import tzutc
+from faker.utils.datetime_safe import datetime
 import uuid
+from common.logger import log
 import os
 import re
 import time
 from common.setting import check_path
 from common.mysqldb import Database
 import pypinyin
-from __init__ import database_connect
 
 faker = Faker(locale='zh_CN')
 
 
 
 class MFaker(Provider):
-    def __init__(self, offset=0):
+    def __init__(self, offset=0, connect=None):
         super().__init__(faker)
-        self.db = Database(database_connect)
+        self.log = log
+        self.db = None
+        if connect:
+            self.db = Database(connect)
         self.offset = offset
 
     def hans2pinyin(self, hans, style='A'):
@@ -85,6 +88,9 @@ class MFaker(Provider):
         :param tag:
         :return:
         """
+        if not self.db:
+            self.log.w('未指定数据库连接引擎，无法从数据库查询数据')
+            return
         result = self.db.select3(sql)
         if not result:
             return
@@ -104,6 +110,9 @@ class MFaker(Provider):
         :param key: 当key存在时，将从返回数据键值对中取键为“key”的值
         :return:
         """
+        if not self.db:
+            self.log.w('未指定数据库连接引擎，无法从数据库查询数据')
+            return
         result = self.db.select3(sql)
         if key:
             result = [i[key] for i in result]
@@ -256,8 +265,6 @@ class MFaker(Provider):
         for i in value:
             yield i
 
-
-faker.add_provider(MFaker)
 
 if __name__ == '__main__':
     # print(weights_randint([{"value": [-50, 0], "weights": 0.7}, {"value": [1, 100], "weights": 0.1}]))

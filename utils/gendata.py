@@ -1,22 +1,27 @@
 from common.setting import get_yaml
 import jinja2
-from common.mfaker import faker
+from common.mfaker import faker as fk
 import json
 import copy
 from common.logger import log
 from common.mysqldb import Database
-# from common.drivers import load_sqlalchemy
 import os
-from __init__ import database_connect
 import sys
 
 
 class GenData:
-    def __init__(self, meta=None):
+    def __init__(self, meta=None, connect=None, faker=None):
         self.all_package = {}
         self.pre_data = {}
         self.log = log
-        self.db = Database(database_connect)
+        if not faker:
+            self.faker = fk
+        else:
+            self.faker = faker
+        if connect:
+            self.db = Database(connect)
+        else:
+            self.db = None
         self.meta = get_yaml(meta)
         self.mock_data = []
         self._import_package()
@@ -46,7 +51,7 @@ class GenData:
         for i, j in condition.items():
             engine = j.get("engine")
             rule = j.get("rule")
-            result = faker.gen_data(engine, rule)
+            result = self.faker.gen_data(engine, rule)
             self.pre_data['env'][i] = result
 
     def field(self, columns):
@@ -65,7 +70,7 @@ class GenData:
                 tp = jinja2.Template(_rule)
                 tp.globals.update(self.all_package)
                 field_rule = json.loads(tp.render(**self.pre_data, **pre_data))
-            _r = faker.gen_data(field_engine, field_rule)
+            _r = self.faker.gen_data(field_engine, field_rule)
             result[field_column] = _r
             pre_data[table_name][field_column] = _r
         self.pre_data.update(pre_data)
@@ -86,7 +91,7 @@ class GenData:
                     tp = jinja2.Template(json.dumps(field.get("rule")), undefined=jinja2.StrictUndefined)
                     tp.globals.update(self.all_package)
                     field_rule = json.loads(tp.render(**self.pre_data))
-                    _r = faker.gen_data(field_engine, field_rule)
+                    _r = self.faker.gen_data(field_engine, field_rule)
                     result[field_column] = _r
             except jinja2.exceptions.UndefinedError:
                 break
@@ -131,9 +136,8 @@ class GenData:
 
     def insert2db(self, sql, insert=True):
         print(sql)
-        if insert:
+        if self.db and insert:
             self.db.query(sql)
-        # self.db.commit()
 
 
 if __name__ == '__main__':
