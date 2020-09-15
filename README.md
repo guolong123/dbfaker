@@ -45,8 +45,8 @@ optional arguments:
 ```
 meta.yml文件格式：
 ```yaml
-pakages:
-  - datetime　＃　导入额外的包，在jinja2模板中使用（下面有用到datetime包，所以要先导入）
+package:
+  - datetime  #　导入额外的包，在jinja2模板中使用（下面有用到datetime包，所以要先导入）
 env:
   id:
     engine: faker.uuid
@@ -56,56 +56,61 @@ env:
     rule:
       value: "%Y-%m-%d %H:%M:%S"
 tables:
-  - columns:
-      - column: id
-        comment: 数据主键id
-        engine: faker.eq
-        rule:
-          value: '{{ env.id }}'  # 通过引用环境变量中的值
-      - column: name
-        comment: 姓名
-        engine: faker.name
-        rule: null
-      - column: idcard
-        comment: 身份证号
-        engine: faker.ssn
-        rule: null
-      - column: age
-        comment: 年龄
-        engine: faker.eq
-        rule:
-          value: '{{ datetime.datetime.now().year - int(information_sick.idcard[6:10]) }}'　＃　通过jinja２模板直接计算
-      - column: sex
-        comment: 性别
-        engine: faker.eq
-        rule:
-          value: '{{ "man" if int(information_sick.idcard[-2]) % 2==1 else "female" }}'　＃　通过jinja２模板直接计算
-    comment: '学生信息'
-    table: stu
-  - columns:
-      - column: id
-        comment: 数据主键id
-        engine: faker.uuid
-        rule: null
-      - column: stu_id
-        comment: 数据主键id
-        engine: faker.eq
-        rule:
-          value: '{{ stu.id }}'  # 通过其他表中的值
-      - column: course_name
-        comment: 课程名称
-        engine: faker.choice　　＃ 通过内置方法从列表中随机取一个值
-        rule:
-          value: [数学,语文,英语,化学,地理]
-      - column: course_time
-        comment: 上课时间
-        engine: faker.now　　＃ 通过内置方法从列表中随机取一个值
-        rule:
-          format: "{{ env.time_format }}"
+- columns:
+  - column: id
+    comment: 数据主键id
+    engine: faker.eq
+    rule:
+      value: '{{ env.id }}'  # 通过引用环境变量中的值
+  - column: name
+    comment: 姓名
+    engine: faker.name
+    rule: null
+  - column: idcard
+    comment: 身份证号
+    engine: faker.ssn
+    rule: null
+  - column: age
+    comment: 年龄
+    engine: faker.eq
+    rule:
+      value: '{{ datetime.datetime.now().year - int(stu.idcard[6:10]) }}'  #　通过jinja２模板直接计算
+  - column: sex
+    comment: 性别
+    engine: faker.eq
+    rule:
+      value: '{{ "man" if int(stu.idcard[-2]) % 2==1 else "female" }}'  #　通过jinja２模板直接计算
+  comment: ''
+  table: stu
+- columns:
+  - column: id
+    comment: 数据主键id
+    engine: faker.uuid
+    rule: null
+  - column: stu_id
+    comment: 数据主键id
+    engine: faker.eq
+    rule:
+      value: '{{ stu.id }}'  # 通过其他表中的值
+  - column: course_name
+    comment: 课程名称
+    engine: faker.choice # 通过内置方法从列表中随机取一个值
+    rule:
+      value: [数学,语文,英语,化学,地理]
+  - column: course_time
+    comment: 上课时间
+    engine: faker.now  # 通过内置方法获取当前时间，并按照指定格式返回
+    rule:
+      format: "{{ env.time_format }}"
   comment: '课程信息 '
   table: course
 
+```
 
+通过上述模板文件生成出sql:
+```sql
+insert into stu set id='71ce6fb1b26d427baa4d6a5688f3baa7', name='李健', idcard='130530196601040537', age='54', sex='man';
+insert into course set id='66757cc9b6cb43dbae0d37f4defff3e6', stu_id='71ce6fb1b26d427baa4d6a5688f3baa7', course_name='化学', course_time='2020-09-15 19:24:36';
 ```
 #### 参与贡献
 
