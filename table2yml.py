@@ -1,26 +1,16 @@
 import json
 import yaml
 from common.mysqldb import Database
-# from common.drivers import load_sqlalchemy, load_conn
-# from sqlalchemy.orm import sessionmaker
 from nsqlparse.mysql_create_table_yacc import parser
 import sys
 import os
 from utils.constant import __version__
 import argparse
-import pymysql
 
 sys.modules["MySQLDB"] = sys.modules["_mysql"] = sys.modules["pymysql"]
 
 
 def table_name_to_table_building_statement(db_session, tables):
-
-    # def query_table(session, table_name):
-    #     sql = f'show create table {table_name};'
-    #     s = session.execute(sql)
-    #     result = s.fetchall()
-    #     return result[0][1]
-
     table_words = ';\n'.join([db_session.query_table(s) for s in tables]) + ';'
     print(table_words)
     return table_words
@@ -29,13 +19,12 @@ def table_name_to_table_building_statement(db_session, tables):
 def start(connect, table_names=None,
           sql_file=None, output=None, **kwargs):
     if table_names:
-        if  "," in table_names:
+        if "," in table_names:
             tables = table_names.split(",")
         else:
             tables = [table_names]
         file_name = '_'.join(tables) + '_meta.yml'
         session = Database(connect)
-        # session = engine.connect()
         table_building_statement = table_name_to_table_building_statement(session, tables)
     else:
         file_name = os.path.split(sql_file)[1] + '_meta.yml'
@@ -86,17 +75,17 @@ def parse_args():
                         help='数据来源，table_name： 通过输入表名与数据库链接方式，在数据库中获取数据库建表语句；\n table_statement: 指定数据库建表语句的sql文件路径')
     parser.add_argument('--connect', nargs='?', action='store',
                         help='数据库连接语法，例如：mysql+mysqldb://pdmsadmin:system001@cpcs.homelabs.in/pdms_hospital')
-    parser.add_argument('--table_names', nargs='?',action='store', help='数据库表，多个表以“,”分割')
-    parser.add_argument('--sql_file', nargs='?',action='store', help='数据库建表语句的sql文件路径')
+    parser.add_argument('--table_names', nargs='?', action='store', help='数据库表，多个表以“,”分割')
+    parser.add_argument('--sql_file', nargs='?', action='store', help='数据库建表语句的sql文件路径')
     parser.add_argument('--output', nargs='?', action='store', default=None, help='输出文件名，默认为数据库表名+meta.yml')
     args = parser.parse_args()
 
-    if args.type=='table_name' and (not args.connect or not args.table_names):
+    if args.type == 'table_name' and (not args.connect or not args.table_names):
         print('You must supply a connect and table_names\n')
         parser.print_help()
         exit(0)
 
-    if args.type=='table_statement' and not args.sql_file:
+    if args.type == 'table_statement' and not args.sql_file:
         print('You must supply a sql_file\n')
         parser.print_help()
         exit(0)
