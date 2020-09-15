@@ -103,7 +103,7 @@ tables:
 ```
 ３，创建ｓｑｌ
 ```shell
-python main.py meta.yml --cnt 10
+python main.py meta.yml --number 10
 ```
 
 通过上述模板文件生成出sql:
