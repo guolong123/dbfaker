@@ -40,7 +40,6 @@ def parse_args():
 
 
 if __name__ == '__main__':
-
     args = parse_args()
     faker.add_provider(MFaker(connect=args.__dict__.get('connect')))
     loop(**args.__dict__)
