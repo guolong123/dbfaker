@@ -103,7 +103,37 @@ tables:
 ```
 ３，创建ｓｑｌ
 ```shell
+guolong@guolong-PC:~/01 Work/07 MyProject/dbfaker$ source venv/bin/activate
+(venv) guolong@guolong-PC:~/01 Work/07 MyProject/dbfaker$ python main.py -h
+usage: main.py [-h] [-n [NUMBER]] [-i] [-c [CONNECT]] [-o [OUTPUT]]
+               [meta_file]
+
+通过ｙｍｌ格式的描述文件来生成数据
+
+positional arguments:
+  meta_file             yml文件所在路径
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -n [NUMBER], --number [NUMBER]
+                        生成数据数量
+  -i, --insert          是否插入到数据库
+  -c [CONNECT], --connect [CONNECT]
+                        数据库连接语法，例如：mysql+mysqldb://pdmsadmin:system001@cpcs.ho
+                        melabs.in/pdms_hospital
+  -o [OUTPUT], --output [OUTPUT]
+                        数据库连接语法，例如：mysql+mysqldb://pdmsadmin:system001@cpcs.ho
+                        melabs.in/pdms_hospital
+
+
+# 打印输出
 python main.py meta.yml --number 10
+
+# 保存到文件
+python main.py meta.yml --number 10 -o out.sql
+
+# 插入到数据库
+python main.py meta.yml --number 10 -i --connect mysql+mysqldb://pdmsadmin:system001@cpcs.homelabs.in/pdms_hospital
 ```
 
 通过上述模板文件生成出sql:
