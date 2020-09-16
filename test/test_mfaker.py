@@ -1,16 +1,20 @@
 import unittest
-from common.mfaker import MFaker
+from utils.faker_tool import Provider
+from faker import Faker
+from utils.generator import MGenerator
 
+mfaker = Faker(locale='zh_CN', generator=MGenerator(locale='zh_CN'))
+mfaker.add_provider(Provider, connect='mysql+mysqldb://pdmsadmin:system001@cpcs.homelabs.in/pdms_hospital')
 
 class MfakerTestCase(unittest.TestCase):
-    mfaker = MFaker()
+    mfaker = mfaker
     def test_uuid_1(self):
-        self.mfaker.uuid(underline=True)
-        self.assertEqual(len(self.mfaker.report_id), 32)
+        uid = self.mfaker.uuid(underline=True)
+        self.assertEqual(len(uid), 32)
 
     def test_uuid_2(self):
-        self.mfaker.uuid(underline=False)
-        self.assertEqual(len(self.mfaker.report_id), 36)
+        uid = self.mfaker.uuid(underline=False)
+        self.assertEqual(len(uid), 36)
 
     def test_uuid_3(self):
         uid = self.mfaker.uuid(underline=False)

@@ -9,7 +9,7 @@ package:  # 动态导入包, 在jinja2模板中引用
 
 env:  # 环境变量，可在此预定义全局变量，用于在下方字段引用
   hospital_id:
-    engine: faker.from_db
+    engine: from_db
     rule:
       sql: select id from hospital_info where name='海口市人民医院';
       key: id
@@ -795,603 +795,838 @@ tables:
           value: '{{ cpc_basis.id }}'
       - column: has_ecg_image
         comment: 心电图 0-无 1-有
-        engine: null
-        rule: null
+        engine: faker.choice
+        rule:
+          value: [0, 1]
       - column: no_ecg_image_reason
         comment: 心电图未获得原因
-        engine: null
+        engine: faker.sentence
         rule: null
       - column: ecg_time
         comment: 心电图时间
-        engine: null
-        rule: null
+        engine: faker.date_time_subtraction
+        rule:
+          start_date: '{{ cpc_emergency_info.cw_zxly_arrived_hospital_time }}'
+          sub_time: +10m
+          format: '{{ env.time_format }}'
       - column: ecgimagefiles
         comment: 心电图文件，文档说是List<string>类型
         engine: null
         rule: null
       - column: ecg_diagnose_time
         comment: 心电图诊断时间
-        engine: null
-        rule: null
+        engine: faker.date_time_subtraction
+        rule:
+          start_date: '{{ cpc_treatment_info.ecg_time }}'
+          sub_time: +10m
+          format: '{{ env.time_format }}'
       - column: remote_ecg_transmission
         comment: '远程心电图传输 1:接收 120/网络医院心电图 2:未传输 '
-        engine: null
-        rule: null
+        engine: faker.choice
+        rule:
+          value: [1,2]
       - column: is_remote_ecgtran
         comment: 心电图传输方式
-        engine: null
-        rule: null
+        engine: faker.choice
+        rule:
+          value: [1,2,9]
       - column: tran_time
         comment: 接收 120/网络医院心电图时间
-        engine: null
-        rule: null
+        engine: faker.date_time_subtraction
+        rule:
+          start_date: '{{ cpc_treatment_info.ecg_time }}'
+          sub_time: +10m
+          format: '{{ env.time_format }}'
       - column: is_ctnt
         comment: 肌钙蛋白 0:否 1:是
-        engine: null
-        rule: null
+        engine: faker.choice
+        rule:
+          value: [0, 1]
       - column: type
         comment: 肌钙蛋白类型 1:TnT 2:Tnl
-        engine: null
-        rule: null
+        engine: faker.choice
+        rule:
+          value: [1,2]
       - column: value
         comment: 肌钙蛋白数值
-        engine: null
-        rule: null
+        engine: faker.randfloat
+        rule:
+          value: [0,10]
       - column: unit
         comment: 肌钙蛋白单位 1:ng/mL 2:ug/L 3:ng/L 4:pg/mL 5:mg/L
-        engine: null
-        rule: null
+        engine: faker.choice
+        rule:
+          value: [1,2,3,4,5]
       - column: status
         comment: 肌钙蛋白状态  1:阳性 2:阴性
-        engine: null
-        rule: null
+        engine: faker.eq
+        rule:
+          value: "{{ 1 if float(cpc_treatment_info.value) > 0.5 else 2 }}"
       - column: blood_time
         comment: 抽血完成时间
-        engine: null
-        rule: null
+        engine: faker.date_time_subtraction
+        rule:
+          start_date: '{{ cpc_treatment_info.ecg_time }}'
+          sub_time: +20m
+          format: '{{ env.time_format }}'
       - column: report_time
         comment: 获得报告时间
-        engine: null
-        rule: null
+        engine: faker.date_time_subtraction
+        rule:
+          start_date: '{{ cpc_treatment_info.blood_time }}'
+          sub_time: +25m
+          format: '{{ env.time_format }}'
       - column: is_cr
         comment: 血清肌酐 0:无 1:有
-        engine: null
-        rule: null
+        engine: faker.choice
+        rule:
+          value: [0,1]
       - column: cr_value
         comment: 血清肌酐(数值)
-        engine: null
-        rule: null
+        engine: faker.randfloat
+        rule:
+          value: [0,200]
       - column: is_ddimer
         comment: D-二聚体 0:无 1:有
-        engine: null
-        rule: null
+        engine: faker.choice
+        rule:
+          value: [0,1]
       - column: ddimer_value
         comment: 'D-二聚体(数值) '
-        engine: null
-        rule: null
+        engine: faker.randfloat
+        rule:
+          value: [0,1000]
       - column: ddimer_unit
         comment: 'D-二聚体(单位) 1:ng/mL   2:ug/mL 3:ug/L '
-        engine: null
-        rule: null
+        engine: faker.eq
+        rule:
+          value: 1
       - column: is_bnp
         comment: 'BNP 0:无 1:有 '
-        engine: null
-        rule: null
+        engine: faker.choice
+        rule:
+          value: [0,1]
       - column: bnp_value
         comment: BNP(数值)
-        engine: null
-        rule: null
+        engine: faker.randfloat
+        rule:
+          value: [0,200]
       - column: is_nt_probnp
         comment: 'NT-proBNP 0:无 1:有 '
-        engine: null
-        rule: null
+        engine: faker.choice
+        rule:
+          value: [0,1]
       - column: ntprobnp_value
         comment: NT-proBNP(数值)
-        engine: null
-        rule: null
+        engine: faker.randfloat
+        rule:
+          value: [0,500]
       - column: is_myo
         comment: 'Myo 0:无 1:有 '
-        engine: null
-        rule: null
+        engine: faker.choice
+        rule:
+          value: [0,1]
       - column: myo_value
         comment: Myo (数值)
-        engine: null
-        rule: null
+        engine: faker.randfloat
+        rule:
+          value: [0,200]
       - column: myo_unit
         comment: 'Myo (单位) 1:ng/mL 2:ug/L '
-        engine: null
-        rule: null
+        engine: faker.choice
+        rule:
+          value: [1,2]
       - column: is_ckmb
         comment: 'CKMB 0:无 1:有 '
-        engine: null
-        rule: null
+        engine: faker.choice
+        rule:
+          value: [0,1]
       - column: ckmb_value
         comment: CKMB (数值)
-        engine: null
-        rule: null
+        engine: faker.randfloat
+        rule:
+          value: [0,10]
       - column: ckmb_unit
         comment: CKMB (单位) 1:ng/mL 2:ug/L 3:u/L
-        engine: null
-        rule: null
+        engine: faker.eq
+        rule:
+          value: 1
       - column: is_notice_imcd
         comment: '心内科会诊 0:无 1:有 '
-        engine: null
-        rule: null
+        engine: faker.choice
+        rule:
+          value: [0,1]
       - column: imcd_type
         comment: 心内科会诊 1:现场会诊 2:远程会诊
-        engine: null
-        rule: null
+        engine: faker.choice
+        rule:
+          value: [2,1]
       - column: notice_imcd_time
         comment: 通知会诊时间
-        engine: null
-        rule: null
+        engine: faker.date_time_subtraction
+        rule:
+          start_date: '{{ cpc_treatment_info.report_time }}'
+          sub_time: +20m
+          format: '{{ env.time_format }}'
       - column: consultation_time
         comment: 会诊时间
-        engine: null
-        rule: null
+        engine: faker.date_time_subtraction
+        rule:
+          start_date: '{{ cpc_treatment_info.notice_imcd_time }}'
+          sub_time: +20m
+          format: '{{ env.time_format }}'
       - column: cp_diagnosis_code
         comment: 初步诊断 1:STEMI 2:NSTEMI 3:UA 4:主动脉夹层 5:肺动脉栓塞 6:非 ACS 心源性胸痛 7:其它非心源性胸痛 8:待查
-        engine: null
-        rule: null
+        engine: faker.choice
+        rule:
+          value: [1,2,3,4,5,6,7,8]
       - column: give_up_treatment
         comment: '患者自愿放弃后续治疗 0:无 1:是 '
-        engine: null
-        rule: null
+        engine: faker.weights_choice
+        rule:
+          - value: [0]
+            weight: 0.8
+          - value: [0]
+            weight: 0.2
       - column: diagnosis_time
         comment: 初步诊断时间
-        engine: null
-        rule: null
+        engine: faker.date_time_subtraction
+        rule:
+          start_date: '{{ cpc_treatment_info.consultation_time }}'
+          sub_time: +10m
+          format: '{{ env.time_format }}'
       - column: doctor_name
         comment: 医生
-        engine: null
+        engine: faker.name
         rule: null
       - column: killip_level
         comment: 1:I 级(no CHF) 2:II 级(rales and/or JVD) 3:III 级(pulmonary edema) 4:IV
           级(cardiogenic shock)
-        engine: null
-        rule: null
+        engine: faker.choice
+        rule:
+          value: [1,2,3,4]
       - column: stemi_is_bypass_emergency
         comment: 绕行急诊 0-否 1-是
-        engine: null
-        rule: null
+        engine: faker.choice
+        rule:
+          value: [0,1]
       - column: stemi_is_bypass_ccu
         comment: 绕行ccu 0-否 1-是
-        engine: null
-        rule: null
+        engine: faker.choice
+        rule:
+          value: [0,1]
       - column: ad_img_examination
         comment: 影像学检查 1:急诊 CT 2:彩超 3:MRI 4:未做
-        engine: null
-        rule: null
+        engine: faker.choice
+        rule:
+          value: [1,2,3,4]
       - column: ad_ct_notice_time
         comment: 通知CT室时间
-        engine: null
-        rule: null
+        engine: faker.date_time_subtraction
+        rule:
+          start_date: '{{ cpc_treatment_info.diagnosis_time }}'
+          sub_time: +10m
+          format: '{{ env.time_format }}'
       - column: ad_ct_finish_time
         comment: CT室完成准备
-        engine: null
-        rule: null
+        engine: faker.date_time_subtraction
+        rule:
+          start_date: '{{ cpc_treatment_info.ad_ct_notice_time }}'
+          sub_time: +10m
+          format: '{{ env.time_format }}'
       - column: ad_ct_scan_time
         comment: CT扫描开始时间
-        engine: null
-        rule: null
+        engine: faker.date_time_subtraction
+        rule:
+          start_date: '{{ cpc_treatment_info.ad_ct_finish_time }}'
+          sub_time: +10m
+          format: '{{ env.time_format }}'
       - column: ad_ct_report_time
         comment: CT报告时间
-        engine: null
-        rule: null
+        engine: faker.date_time_subtraction
+        rule:
+          start_date: '{{ cpc_treatment_info.ad_ct_scan_time }}'
+          sub_time: +10m
+          format: '{{ env.time_format }}'
       - column: ad_notice_cdu_time
         comment: 通知彩超室时间
-        engine: null
-        rule: null
+        engine: faker.date_time_subtraction
+        rule:
+          start_date: '{{ cpc_treatment_info.ad_ct_scan_time }}'
+          sub_time: +10m
+          format: '{{ env.time_format }}'
       - column: ad_cdu_check_time
         comment: 彩超检查时间
-        engine: null
-        rule: null
+        engine: faker.date_time_subtraction
+        rule:
+          start_date: '{{ cpc_treatment_info.ad_notice_cdu_time }}'
+          sub_time: +10m
+          format: '{{ env.time_format }}'
       - column: ad_check_result_time
         comment: 彩超出结果时间
-        engine: null
-        rule: null
+        engine: faker.date_time_subtraction
+        rule:
+          start_date: '{{ cpc_treatment_info.ad_cdu_check_time }}'
+          sub_time: +10m
+          format: '{{ env.time_format }}'
       - column: ad_imcd_notice_time
         comment: 通知心外科会诊时间
-        engine: null
-        rule: null
+        engine: faker.date_time_subtraction
+        rule:
+          start_date: '{{ cpc_treatment_info.ad_check_result_time }}'
+          sub_time: +10m
+          format: '{{ env.time_format }}'
       - column: ad_ecc_consultation_time
         comment: 心外科会诊时间
-        engine: null
-        rule: null
+        engine: faker.date_time_subtraction
+        rule:
+          start_date: '{{ cpc_treatment_info.ad_imcd_notice_time }}'
+          sub_time: +10m
+          format: '{{ env.time_format }}'
       - column: ad_interlayer_type
         comment: '夹层类型 1:A 型 2:B 型 '
-        engine: null
-        rule: null
+        engine: faker.choice
+        rule:
+          value: [1,2]
       - column: ad_treatment_strategy_code
         comment: '治疗策略 1:紧急介入治疗 2:择期介入治疗 3:保守治疗 4:外科手术 5:其他（介入失败转手术） '
-        engine: null
-        rule: null
+        engine: faker.choice
+        rule:
+          value: [1,2,3,4,5]
       - column: pe_img_examination
         comment: '影像学检查 1:急诊 CT  2:未做 '
-        engine: null
-        rule: null
+        engine: faker.choice
+        rule:
+          value: [2,1]
       - column: pe_ct_notice_time
         comment: 通知CT室时间
-        engine: null
-        rule: null
+        engine: faker.date_time_subtraction
+        rule:
+          start_date: '{{ cpc_treatment_info.diagnosis_time }}'
+          sub_time: +10m
+          format: '{{ env.time_format }}'
       - column: pe_ct_finish_time
         comment: CT室完成准备
-        engine: null
-        rule: null
+        engine: faker.date_time_subtraction
+        rule:
+          start_date: '{{ cpc_treatment_info.ad_ct_notice_time }}'
+          sub_time: +10m
+          format: '{{ env.time_format }}'
       - column: pe_ct_scan_time
         comment: CT扫描开始时间
-        engine: null
-        rule: null
+        engine: faker.date_time_subtraction
+        rule:
+          start_date: '{{ cpc_treatment_info.ad_ct_finish_time }}'
+          sub_time: +10m
+          format: '{{ env.time_format }}'
       - column: pe_ct_report_time
         comment: CCT报告时间
-        engine: null
-        rule: null
+        engine: faker.date_time_subtraction
+        rule:
+          start_date: '{{ cpc_treatment_info.ad_ct_scan_time }}'
+          sub_time: +10m
+          format: '{{ env.time_format }}'
       - column: pe_risk_lamination
         comment: 危险分层 1:高危 2:中危 3:低危
-        engine: null
-        rule: null
+        engine: faker.choice
+        rule:
+          value: [1,2,3]
       - column: pe_anti_treatment_time
         comment: 开始抗凝治疗时间
-        engine: null
-        rule: null
+        engine: faker.date_time_subtraction
+        rule:
+          start_date: '{{ cpc_treatment_info.ad_ct_report_time }}'
+          sub_time: +30m
+          format: '{{ env.time_format }}'
       - column: nacs_type
         comment: '非 ACS 心源性胸痛类型 1:心律失常 2:扩张性心肌病 3:缺血性心肌病 4:肥厚型心肌病 5:心肌炎 6:冠心病 7:瓣膜性心脏病
       8:陈旧性心肌梗死 9:心绞痛 10:心悸 11:房颤 12:高血压 13:心衰 14:房扑 15:室早 16:房早 17:室上速 18:心包炎 19:心肌桥
       20:心包积液 '
-        engine: null
-        rule: null
+        engine: faker.choice
+        rule:
+          value: [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20]
       - column: other_type
         comment: 其它非心源性胸痛类型 1:呼吸系统病 2:消化系统病 3:神经系统病 4:精神系统病 5:肌肉骨骼病 6:皮肤系统病 9:其他
-        engine: null
-        rule: null
+        engine: faker.choice
+        rule:
+          value: [1,2,3,4,5,6,9]
       - column: treatment_type
         comment: '处理措施 1:收治入院 2:急诊留观 3:门诊治疗 4:随访 '
-        engine: null
-        rule: null
+        engine: faker.choice
+        rule:
+          value: [1,2,3,4]
       - column: patient_remark
         comment: 患者情况备注
-        engine: null
+        engine: faker.sentence
         rule: null
       - column: is_drug
         comment: '抗血小板治疗 0:否 1:是 '
-        engine: null
-        rule: null
+        engine: faker.choice
+        rule:
+          value: [1,0]
       - column: aspirin_dose
         comment: 阿司匹林剂量
-        engine: null
-        rule: null
+        engine: faker.randfloat
+        rule:
+          value: [100,1000]
       - column: aspirin_time
         comment: 阿司匹林时间
-        engine: null
-        rule: null
+        engine: faker.date_time_subtraction
+        rule:
+          start_date: '{{ cpc_treatment_info.pe_anti_treatment_time }}'
+          sub_time: +10m
+          format: '{{ env.time_format }}'
       - column: clopidogrel_dose
         comment: 氯吡格雷剂量
-        engine: null
-        rule: null
+        engine: faker.randfloat
+        rule:
+          value: [100,1000]
       - column: clopidogrel_time
         comment: 氯吡格雷时间
-        engine: null
-        rule: null
+        engine: faker.date_time_subtraction
+        rule:
+          start_date: '{{ cpc_treatment_info.pe_anti_treatment_time }}'
+          sub_time: +10m
+          format: '{{ env.time_format }}'
       - column: ticagrelor_dose
         comment: 替格瑞洛剂量
-        engine: null
-        rule: null
+        engine: faker.randfloat
+        rule:
+          value: [100,1000]
       - column: ticagrelor_time
         comment: 替格瑞洛时间
-        engine: null
-        rule: null
+        engine: faker.date_time_subtraction
+        rule:
+          start_date: '{{ cpc_treatment_info.pe_anti_treatment_time }}'
+          sub_time: +10m
+          format: '{{ env.time_format }}'
       - column: is_anticoagulation
         comment: 抗凝 0 -否 1-是
-        engine: null
-        rule: null
+        engine: faker.choice
+        rule:
+          value: [1,0]
       - column: anticoagulation_drug
         comment: '抗凝 1:普通肝素 2:低分子肝素 3:比伐卢定 4:磺达肝癸钠 '
-        engine: null
-        rule: null
+        engine: faker.choice
+        rule:
+          value: [1,2,3,4]
       - column: anticoagulation_dose
         comment: 抗凝(剂量)
-        engine: null
-        rule: null
+        engine: faker.randfloat
+        rule:
+          value: [100,1000]
       - column: anticoagulation_time
         comment: 抗凝时间
-        engine: null
-        rule: null
+        engine: faker.date_time_subtraction
+        rule:
+          start_date: '{{ cpc_treatment_info.aspirin_time }}'
+          sub_time: +5m
+          format: '{{ env.time_format }}'
       - column: anticoagulation_unit
         comment: 抗凝单位
-        engine: null
-        rule: null
+        engine: faker.eq
+        rule:
+          value: ng/ml
       - column: intensify_statins_treat
         comment: 他汀治疗 0 -否 1-是
-        engine: null
-        rule: null
+        engine: faker.choice
+        rule:
+          value: [0,1]
       - column: receptor_retardant_using
         comment: β受体阻滞剂 0 -否 1-是
-        engine: null
-        rule: null
+        engine: faker.choice
+        rule:
+          value: [0,1]
       - column: grace_estimate
         comment: 'Grace评估 1:发病后曾出现心脏骤停 2:心电图 ST 段改变 3:心肌坏死标志物升高 '
-        engine: null
-        rule: null
+        engine: faker.choice
+        rule:
+          value: [1,2,3]
       - column: grace_hr_env
         comment: 'Grace 极高危条件 1:急性心力衰竭伴难治性心绞痛和 ST段改变 2:危及生命的心律失常或心脏骤停 3:心源性休克或血流动力学不稳定
       4:心肌梗死机械性并发症 5:再发 ST-T 动态演变，尤其是伴有间歇性 ST 段抬高 '
-        engine: null
-        rule: null
+        engine: faker.weights_choice
+        rule:
+          - value: [1,2,3,4,5]
+            weight: 0.2
+          - value: [null]
+            weight: 0.8
       - column: grace_value
         comment: Grace 分值
-        engine: null
-        rule: null
+        engine: faker.randint
+        rule:
+          value: [50, 150]
       - column: risk_lamination
         comment: Grace危险分层 1:极高危 2:高危 3:中危 4:低危
-        engine: null
-        rule: null
+        engine: faker.eq
+        rule:
+          value: "{{ 1 if cpc_treatment_info.grace_hr_env else 2 if cpc_treatment_info.grace_value >=140 else 3 if 140 >= cpc_treatment_info.grace_value >= 109 else 1 }}"
       - column: risk_lamination_ag
         comment: '再次危险分层 0:未做 1:转为 STEMI 2:极高危 3:高危 4:中危 5:低危 '
-        engine: null
-        rule: null
+        engine: faker.choice
+        rule:
+          value: [0,1,2,3,4,5]
       - column: risk_lamination_ag_time
         comment: 再次危险分层时间
-        engine: null
-        rule: null
+        engine: faker.date_time_subtraction
+        rule:
+          start_date: '{{ cpc_treatment_info.anticoagulation_time }}'
+          sub_time: +20m
+          format: '{{ env.time_format }}'
       - column: strategy
         comment: '策略 1:保守治疗(仅药物治疗) 2:侵入性策略 '
-        engine: null
-        rule: null
+        engine: faker.choice
+        rule:
+          value: [1,2]
       - column: invasive_strategy
         comment: 侵入性策略 1:紧急介入治疗 2:24H 内介入治疗 3:72H 内介入治疗 4:择期介入治疗 5:CABG
-        engine: null
-        rule: null
+        engine: faker.choice
+        rule:
+          value: [1,2,3,4,5]
       - column: strategy_doctor_name
         comment: '决定医生 '
-        engine: null
+        engine: faker.name
         rule: null
       - column: decision_operation_time
         comment: 决定介入手术时间
-        engine: null
-        rule: null
+        engine: faker.date_time_subtraction
+        rule:
+          start_date: '{{ cpc_treatment_info.risk_lamination_ag_time }}'
+          sub_time: +20m
+          format: '{{ env.time_format }}'
       - column: start_conduit_time
         comment: 启动导管室时间
-        engine: null
-        rule: null
+        engine: faker.date_time_subtraction
+        rule:
+          start_date: '{{ cpc_treatment_info.decision_operation_time }}'
+          sub_time: +5m
+          format: '{{ env.time_format }}'
       - column: start_agree_time
         comment: 开始知情同意时间
-        engine: null
-        rule: null
+        engine: faker.date_time_subtraction
+        rule:
+          start_date: '{{ cpc_treatment_info.start_conduit_time }}'
+          sub_time: +5m
+          format: '{{ env.time_format }}'
       - column: sign_agree_time
         comment: 签署知情同意时间
-        engine: null
-        rule: null
+        engine: faker.date_time_subtraction
+        rule:
+          start_date: '{{ cpc_treatment_info.start_agree_time }}'
+          sub_time: +5m
+          format: '{{ env.time_format }}'
       - column: actual_intervent_time
         comment: 实际介入治疗时间
-        engine: null
-        rule: null
+        engine: faker.date_time_subtraction
+        rule:
+          start_date: '{{ cpc_treatment_info.sign_agree_time }}'
+          sub_time: +20m
+          format: '{{ env.time_format }}'
       - column: stemi_is_reperfusion
         comment: 再灌注措施 0 -否 1-是
-        engine: null
-        rule: null
+        engine: faker.choice
+        rule:
+          value: [0,1]
       - column: stemi_no_reperfusion_reason
         comment: 无再灌注措施 1:无明确胸痛，生命体征平稳 2:错过再灌注时间 3:出血 4:严重肝肾功能不全 5:经济原因 6:家庭放弃 9:其他原因
-        engine: null
-        rule: null
+        engine: faker.choice
+        rule:
+          value: "{{ [1,2,3,4,5,6,9] if not int(cpc_treatment_info.stemi_is_reperfusion) else None }}"
       - column: stemi_measures
         comment: '措施 1:直接 PCI 2: 溶栓 3:4:CABG 5:转运 PCI '
-        engine: null
-        rule: null
+        engine: faker.choice
+        rule:
+          value: [1,2,3,4,5]
       - column: stemi_measures_thrombolysis
         comment: '措施(溶栓) 1:补救 PCI 2:溶栓后介入 '
-        engine: null
-        rule: null
+        engine: faker.choice
+        rule:
+          value: [1,2]
       - column: stemi_measures_doctor_name
         comment: 决定医生
-        engine: null
+        engine: faker.name
         rule: null
       - column: stemi_decision_operation_time
         comment: 决定介入手术时间
-        engine: null
-        rule: null
+        engine: faker.date_time_subtraction
+        rule:
+          start_date: '{{ cpc_treatment_info.risk_lamination_ag_time }}'
+          sub_time: +20m
+          format: '{{ env.time_format }}'
       - column: stemi_start_conduit_time
         comment: 启动导管室时间
-        engine: null
-        rule: null
+        engine: faker.date_time_subtraction
+        rule:
+          start_date: '{{ cpc_treatment_info.decision_operation_time }}'
+          sub_time: +5m
+          format: '{{ env.time_format }}'
       - column: stemi_start_agree_time
         comment: 开始知情同意时间
-        engine: null
-        rule: null
+        engine: faker.date_time_subtraction
+        rule:
+          start_date: '{{ cpc_treatment_info.start_conduit_time }}'
+          sub_time: +5m
+          format: '{{ env.time_format }}'
       - column: stemi_sign_agree_time
         comment: 签署知情同意时间
-        engine: null
-        rule: null
+        engine: faker.date_time_subtraction
+        rule:
+          start_date: '{{ cpc_treatment_info.start_agree_time }}'
+          sub_time: +5m
+          format: '{{ env.time_format }}'
       - column: stemi_start_radiography_time
         comment: 造影开始时间
         engine: null
         rule: null
       - column: stemi_decision_cabg_time
         comment: 决定CABG时间
-        engine: null
-        rule: null
+        engine: faker.date_time_subtraction
+        rule:
+          start_date: '{{ cpc_treatment_info.stemi_sign_agree_time }}'
+          sub_time: +5m
+          format: '{{ env.time_format }}'
       - column: stemi_start_cabg_time
         comment: stemi_start_cabg_time
-        engine: null
-        rule: null
+        engine: faker.date_time_subtraction
+        rule:
+          start_date: '{{ cpc_treatment_info.stemi_decision_cabg_time }}'
+          sub_time: +5m
+          format: '{{ env.time_format }}'
       - column: stemi_tpci_type
         comment: '转运 PCI 0:否 1:是 '
-        engine: null
-        rule: null
+        engine: faker.choice
+        rule:
+          value: [0,1]
       - column: screening
         comment: '溶栓筛查 1:合适 2:不合适 3:未筛查 '
         engine: null
         rule: null
       - column: is_thrombolysis
         comment: 溶栓治疗 0-无 1-有
-        engine: null
-        rule: null
+        engine: faker.choice
+        rule:
+          value: [1,0]
       - column: stemi_is_direct
         comment: '直达溶栓场所 0:否 1:是 '
-        engine: null
-        rule: null
+        engine: faker.choice
+        rule:
+          value: [1,0]
       - column: stemi_diagnosis_unit_code_dt
         comment: 溶栓场所 1:本院急诊科 2:本院心内科 3:其他科室
-        engine: null
-        rule: null
+        engine: faker.choice
+        rule:
+          value: [1,2,3]
       - column: stemi_throm_start_agree_time
         comment: 开始知情同意时间
-        engine: null
-        rule: null
+        engine: faker.date_time_subtraction
+        rule:
+          start_date: '{{ cpc_treatment_info.start_conduit_time }}'
+          sub_time: +5m
+          format: '{{ env.time_format }}'
       - column: stemi_throm_sign_agree_time
         comment: 签署知情同意书时间
-        engine: null
-        rule: null
+        engine: faker.date_time_subtraction
+        rule:
+          start_date: '{{ cpc_treatment_info.start_agree_time }}'
+          sub_time: +5m
+          format: '{{ env.time_format }}'
       - column: stemi_throm_start_time_dt
         comment: 开始溶栓时间
-        engine: null
-        rule: null
+        engine: faker.date_time_subtraction
+        rule:
+          start_date: '{{ cpc_treatment_info.stemi_throm_sign_agree_time }}'
+          sub_time: +15m
+          format: '{{ env.time_format }}'
       - column: stemi_throm_end_time_dt
         comment: 溶栓结束时间
-        engine: null
-        rule: null
+        engine: faker.date_time_subtraction
+        rule:
+          start_date: '{{ cpc_treatment_info.stemi_throm_sign_agree_time }}'
+          sub_time: +15m
+          format: '{{ env.time_format }}'
       - column: stemi_throm_drug_type_dt
         comment: '药物 1:第一代 2:第二代 3:第三代 '
-        engine: null
-        rule: null
+        engine: faker.choice
+        rule:
+          value: [2,1,3]
       - column: stemi_throm_drug_code_dt
         comment: '剂量 1:全量 2:半量 '
-        engine: null
-        rule: null
+        engine: faker.choice
+        rule:
+          value: [2,1]
       - column: stemi_is_repatency_dt
         comment: '溶栓再通 0:否 1:是 '
-        engine: null
-        rule: null
+        engine: faker.choice
+        rule:
+          value: [0,1]
       - column: is_add_ecg_two
         comment: 新增心电图 0-否1-是
-        engine: null
-        rule: null
+        engine: faker.choice
+        rule:
+          value: [0,1]
       - column: ecg_time_two
         comment: 第二份心电图时间
-        engine: null
-        rule: null
+        engine: faker.date_time_subtraction
+        rule:
+          start_date: '{{ cpc_treatment_info.sign_agree_time }}'
+          sub_time: +10h
+          format: '{{ env.time_format }}'
       - column: ecgimagefiles_two
         comment: 第二份心电图文件
         engine: null
         rule: null
       - column: ecg_diagnose_time_two
         comment: 第二份心电图确诊时间
-        engine: null
-        rule: null
+        engine: faker.date_time_subtraction
+        rule:
+          start_date: '{{ cpc_treatment_info.ecg_time_two }}'
+          sub_time: +10m
+          format: '{{ env.time_format }}'
       - column: is_add_ecg_three
         comment: 新增心电图0-否 1-是
-        engine: null
-        rule: null
+        engine: faker.choice
+        rule:
+          value: [0,1]
       - column: ecg_time_three
         comment: 第三份心电图时间
-        engine: null
-        rule: null
+        engine: faker.date_time_subtraction
+        rule:
+          start_date: '{{ cpc_treatment_info.ecg_diagnose_time_two }}'
+          sub_time: +10h
+          format: '{{ env.time_format }}'
       - column: ecgimagefiles_three
         comment: 第三份心电图文件
         engine: null
         rule: null
       - column: ecg_diagnose_time_three
         comment: 第三份心电图确诊时间
-        engine: null
-        rule: null
+        engine: faker.date_time_subtraction
+        rule:
+          start_date: '{{ cpc_treatment_info.ecg_time_three }}'
+          sub_time: +10m
+          format: '{{ env.time_format }}'
       - column: is_add_ctnt_two
         comment: 新增肌钙蛋白0-否，1-是
-        engine: null
-        rule: null
+        engine: faker.choice
+        rule:
+          value: [0,1]
       - column: ctnt_type_two
         comment: 第二份肌钙蛋白类型
-        engine: null
-        rule: null
+        engine: faker.choice
+        rule:
+          value: [2,1]
       - column: ctnt_value_two
         comment: 第二份肌钙蛋白的值
-        engine: null
-        rule: null
+        engine: faker.randfloat
+        rule:
+          value: [0,10]
       - column: ctnt_unit_two
         comment: 第二份肌钙蛋白单位
-        engine: null
-        rule: null
+        engine: faker.choice
+        rule:
+          value: [1,2,3,4,5]
       - column: ctnt_status_two
         comment: 第二份肌钙蛋白状态
-        engine: null
-        rule: null
+        engine: faker.eq
+        rule:
+          value: "{{ 1 if float(cpc_treatment_info.ctnt_value_two) > 0.5 else 2 }}"
       - column: ctnt_blood_time_two
         comment: 第二份肌钙蛋抽血完成时间
-        engine: null
-        rule: null
+        engine: faker.date_time_subtraction
+        rule:
+          start_date: '{{ cpc_treatment_info.stemi_throm_end_time_dt }}'
+          sub_time: +20m
+          format: '{{ env.time_format }}'
       - column: ctnt_report_time_two
         comment: 第二份肌钙蛋获得报告时间
-        engine: null
-        rule: null
+        engine: faker.date_time_subtraction
+        rule:
+          start_date: '{{ cpc_treatment_info.ctnt_blood_time_two }}'
+          sub_time: +20m
+          format: '{{ env.time_format }}'
       - column: is_add_ctnt_three
         comment: 新增肌钙蛋白0-否，1-是
-        engine: null
-        rule: null
+        engine: faker.choice
+        rule:
+          value: [0,1]
       - column: ctnt_type_three
         comment: 第三份肌钙蛋白类型
-        engine: null
-        rule: null
+        engine: faker.choice
+        rule:
+          value: [1,2]
       - column: ctnt_value_three
         comment: 第三份肌钙蛋白值
-        engine: null
-        rule: null
+        engine: faker.randfloat
+        rule:
+          value: [0,10]
       - column: ctnt_unit_three
         comment: 第三份肌钙蛋白单位
-        engine: null
-        rule: null
+        engine: faker.choice
+        rule:
+          value: [1,2,3,4,5]
       - column: ctnt_status_three
         comment: 第三份肌钙蛋白状态
-        engine: null
-        rule: null
+        engine: faker.eq
+        rule:
+          value: "{{ 1 if float(cpc_treatment_info.ctnt_value_three) > 0.5 else 2 }}"
       - column: ctnt_blood_time_three
         comment: 第三份肌钙蛋抽血完成时间
-        engine: null
-        rule: null
+        engine: faker.date_time_subtraction
+        rule:
+          start_date: '{{ cpc_treatment_info.ctnt_report_time_two }}'
+          sub_time: +10h
+          format: '{{ env.time_format }}'
       - column: ctnt_report_time_three
         comment: 第三份肌钙蛋获得报告时间
-        engine: null
-        rule: null
+        engine: faker.date_time_subtraction
+        rule:
+          start_date: '{{ cpc_treatment_info.ctnt_blood_time_three }}'
+          sub_time: +15m
+          format: '{{ env.time_format }}'
       - column: throm_contraindication
         comment: 是否存在禁忌症:0-否,1-是
-        engine: null
-        rule: null
+        engine: faker.choice
+        rule:
+          value: [0,1]
       - column: ecg_remark
         comment: 填报信息备注
-        engine: null
+        engine: faker.sentence
         rule: null
       - column: laboratory_inspection_remark
         comment: 填报信息备注
-        engine: null
+        engine: faker.sentence
         rule: null
       - column: notice_imcd_remark
         comment: 填报信息备注
-        engine: null
+        engine: faker.sentence
         rule: null
       - column: diagnosis_remark
         comment: 填报信息备注
-        engine: null
+        engine: faker.sentence
         rule: null
       - column: drug_remark
         comment: 填报信息备注
-        engine: null
+        engine: faker.sentence
         rule: null
       - column: grace_remark
         comment: 填报信息备注
-        engine: null
+        engine: faker.sentence
         rule: null
       - column: risk_lamination_ag_remark
         comment: 填报信息备注
-        engine: null
+        engine: faker.sentence
         rule: null
       - column: strategy_remark
         comment: 填报信息备注
-        engine: null
+        engine: faker.sentence
         rule: null
       - column: reperfusion_remark
         comment: 填报信息备注
-        engine: null
+        engine: faker.sentence
         rule: null
       - column: hospital_thrombolysis_remark
         comment: 填报信息备注
-        engine: null
+        engine: faker.sentence
         rule: null
     comment: 胸痛诊疗
     table: cpc_treatment_info

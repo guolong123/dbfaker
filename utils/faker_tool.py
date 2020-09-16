@@ -1,30 +1,22 @@
-from faker import Faker
-from faker.providers.date_time import Provider
+from faker.providers import BaseProvider
 import random
-from datetime import timedelta
-from dateutil.tz import tzutc
-from faker.utils.datetime_safe import datetime
 import uuid
 from common.logger import log
 import os
 import re
-import time
+import json
 from common.setting import check_path
 from common.mysqldb import Database
 import pypinyin
 
-faker = Faker(locale='zh_CN')
 
-
-
-class MFaker(Provider):
-    def __init__(self, offset=0, connect=None):
-        super().__init__(faker)
+class Provider(BaseProvider):
+    def __init__(self, generator, connect=None):
+        super().__init__(generator)
         self.log = log
         self.db = None
         if connect:
             self.db = Database(connect)
-        self.offset = offset
 
     def hans2pinyin(self, hans, style='A'):
         """
@@ -43,6 +35,11 @@ class MFaker(Provider):
         return value
 
     def choice(self, value):
+        if isinstance(value, str):
+            try:
+                value = json.loads(value)
+            except json.decoder.JSONDecodeError:
+                pass
         return random.choice(value)
 
     def choice_file(self, path, file_match=None, recursion=False, number=1):
@@ -119,69 +116,17 @@ class MFaker(Provider):
         for i in result:
             yield i
 
-    def date_time_between(self, start_date=None, end_date=None, tzinfo=None, offset=None, format=None):
-        start_date = self._parse_date_time(start_date, tzinfo=tzinfo)
-        end_date = self._parse_date_time(end_date, tzinfo=tzinfo)
-        if not offset:
-            offset = self.offset * 24 * 60 * 60
-        else:
-            offset = int(offset) * 24 * 60 * 60
-
-        if end_date - start_date <= 1:
-            ts = start_date + self.generator.random.random() - offset
-        else:
-            ts = self.generator.random.randint(start_date, end_date) - offset
-
-        if tzinfo is None:
-            result = datetime(1970, 1, 1, tzinfo=tzinfo) + timedelta(seconds=ts)
-        else:
-            result = (
-                    datetime(1970, 1, 1, tzinfo=tzutc()) + timedelta(seconds=ts)
-            ).astimezone(tzinfo)
-        if format:
-            result = result.strftime(format)
-        return result
-
-    def date_time_subtraction(self, start_date, sub_time, format=None, approximate_time=True):
-        """
-        指定开始时间点，与过去时间，计算结果时间，按照指定的格式返回
-        :param start_date:
-        :param sub_time:
-        :param format:
-        :param approximate_time: 是否返回浮动的时间（为Ｔｒｕｅ时将对sub_time时间进行随机正负一倍以内来返回）
-        :return:
-        """
-        if isinstance(start_date, str) and format:
-            start_date = datetime.strptime(start_date, format)
-        elif isinstance(start_date, int):
-            start_date = datetime.utcfromtimestamp(start_date)
-        sub_time = self._parse_date_string(sub_time)
-        key, value = list(sub_time.items())[0]
-        appr_value = value + value*random.uniform(-1,1)
-        if approximate_time:
-            sub_time.update({key: appr_value})
-        sub_time1 = timedelta(**sub_time)
-        end_date = start_date + sub_time1
-        return end_date.strftime(format)
-
-    def now(self, format=None):
-        """
-        返回当前时间，format参数存在时按照format参数指定的时间格式进行返回，
-        否则返回时间戳
-        :param format: 格式化时间格式 %Y-%m-%d %H:%M:%S
-        :return:
-        """
-        if format:
-            r = datetime.now().strftime(format)
-        else:
-            r = int(time.time() * 1000)
-        return r
-
     def weights_randint(self, *args):
         result = []
         for d in args:
             _weights = d.get('weights')
             value = d.get('value')
+            if isinstance(value, str):
+                try:
+                    value = json.loads(value)
+                except json.decoder.JSONDecodeError:
+                    pass
+
             n = 10
             while _weights < 1:
                 _weights = int(_weights * n)
@@ -201,6 +146,11 @@ class MFaker(Provider):
         for d in args:
             _weights = d.get('weight')
             value = d.get('value')
+            if isinstance(value, str):
+                try:
+                    value = json.loads(value)
+                except json.decoder.JSONDecodeError:
+                    pass
             if d.get("round_num"):
                 round_num = d.get("round_num")
             n = 10
@@ -221,6 +171,11 @@ class MFaker(Provider):
         for d in args:
             weights = d.get('weight')
             value = d.get('value')
+            if isinstance(value, str):
+                try:
+                    value = json.loads(value)
+                except json.decoder.JSONDecodeError:
+                    pass
             if weights < 1:
                 weights = int(weights * 100 / len(value))
             for i in value:
@@ -235,6 +190,11 @@ class MFaker(Provider):
         :param splits:
         :return:
         """
+        if isinstance(value, str):
+            try:
+                value = json.loads(value)
+            except json.decoder.JSONDecodeError:
+                pass
         if rand_number and rand_number < len(value):
             rand_number = rand_number
         else:
@@ -242,23 +202,21 @@ class MFaker(Provider):
         return splits.join([str(i) for i in random.sample(value, rand_number)])
 
     def randint(self, value):
+        if isinstance(value, str):
+            try:
+                value = json.loads(value)
+            except json.decoder.JSONDecodeError:
+                pass
         return random.randint(*value)
 
     def randfloat(self, value, round_num=2):
+        if isinstance(value, str):
+            try:
+                value = json.loads(value)
+            except json.decoder.JSONDecodeError:
+                pass
         return round(random.uniform(*value), round_num)
 
-    def gen_data(self, engine, rule):
-        if not engine:
-            return
-        if isinstance(rule, list):
-            r = eval(engine + "(*{})".format(rule), )
-        elif isinstance(rule, dict):
-            r = eval(engine + "(**{})".format(rule), )
-        elif rule is None:
-            r = eval(engine + "()")
-        else:
-            raise Exception('rule type need be dict or list!')
-        return r
 
     @staticmethod
     def order(value):
