@@ -6,10 +6,11 @@ from common.logger import log
 from common.mysqldb import Database
 
 
-class GenData:
+class DataGenerator:
     def __init__(self, faker, meta, connect=None):
         self.all_package = {}
         self.pre_data = {}
+        self.result_data = []
         self.log = log
         self.faker = faker
         if connect:
@@ -17,9 +18,13 @@ class GenData:
         else:
             self.db = None
         self.meta = get_yaml(meta)
-        self.mock_data = []
+
+    def __call__(self, *args, **kwargs):
         self._import_package()
-        self.env()
+        self._env()
+        self.mock_data()
+        self.extraction()
+        return self
 
     def _import_package(self):
         self.all_package.update(__builtins__)
@@ -32,7 +37,7 @@ class GenData:
             except ModuleNotFoundError:
                 pass
 
-    def env(self):
+    def _env(self):
         """
         环境变量预处理
         :param condition:
@@ -45,10 +50,10 @@ class GenData:
         for i, j in condition.items():
             engine = j.get("engine")
             rule = j.get("rule")
-            result = self.gen_data(engine, rule)
+            result = self._gen_data(engine, rule)
             self.pre_data['env'][i] = result
 
-    def field(self, columns):
+    def _field(self, columns):
         result = {}
         pre_data = {}
         table_name = columns.get("table")
@@ -61,17 +66,46 @@ class GenData:
             if field_rule:
                 _rule = json.dumps(field.get("rule"))
                 _rule = _rule.replace('\\\"', "'")
-                tp = jinja2.Template(_rule)
-                tp.globals.update(self.all_package)
-                field_rule = json.loads(tp.render(**self.pre_data, **pre_data))
-            _r = self.gen_data(field_engine, field_rule)
+                field_rule = json.loads(self._template_render(_rule))
+            _r = self._gen_data(field_engine, field_rule)
             result[field_column] = _r
             pre_data[table_name][field_column] = _r
-        self.pre_data.update(pre_data)
-
+            self.pre_data.update(pre_data)
         return result
 
-    def gen_data(self, engine:str, rule):
+    def _template_render(self, s, env=None):
+        """
+        jinja2模板渲染
+        """
+        tp = jinja2.Template(s, undefined=jinja2.StrictUndefined)
+        if isinstance(env, dict):
+            self.all_package.update(env)
+        tp.globals.update(self.all_package)
+        r = tp.render(**self.pre_data)
+        return r
+
+    def _more_field(self, columns, max_cnt=1):
+        results = []
+        result = {}
+        table_name = columns.get("table")
+        n = 0
+        while n < max_cnt:
+            try:
+                for field in columns.get('columns'):
+                    field_column = field.get('column')
+                    field_comment = field.get('comment')
+                    field_engine = field.get('engine')
+                    field_rule = json.loads(self._template_render(json.dumps(field.get("rule"))))
+                    _r = self._gen_data(field_engine, field_rule)
+                    result[field_column] = _r
+            except jinja2.exceptions.UndefinedError:
+                break
+            results.append(copy.deepcopy(result))
+            n += 1
+        self.pre_data[table_name] = results
+        return results
+
+    def _gen_data(self, engine:str, rule):
         faker = self.faker
         if not engine:
             return
@@ -87,44 +121,38 @@ class GenData:
             raise Exception('rule type need be dict or list!')
         return r
 
-    def more_field(self, columns, max_cnt=1):
-        results = []
-        result = {}
-        table_name = columns.get("table")
-        n = 0
-        while n < max_cnt:
-            try:
-                for field in columns.get('columns'):
-                    field_column = field.get('column')
-                    field_comment = field.get('comment')
-                    field_engine = field.get('engine')
-                    tp = jinja2.Template(json.dumps(field.get("rule")), undefined=jinja2.StrictUndefined)
-                    tp.globals.update(self.all_package)
-                    field_rule = json.loads(tp.render(**self.pre_data))
-                    _r = self.gen_data(field_engine, field_rule)
-                    result[field_column] = _r
-            except jinja2.exceptions.UndefinedError:
-                break
-            results.append(copy.deepcopy(result))
-            n += 1
-        self.pre_data[table_name] = results
-        return results
+    def mock_data(self):
 
-    def pre(self):
         fields = self.meta.get('tables')
         for columns in fields:
             d = {}
             table_name = columns.get("table")
-            d['comment'] = columns.get("comment")
+            # d['comment'] = columns.get("comment")
             more = columns.get('more')
             d['table_name'] = table_name
             if not more:
-                d['fields'] = self.field(columns)
+                d['fields'] = self._field(columns)
             else:
-                max_cnt = more.get("max_cnt", 1)
-                d['fields'] = self.more_field(columns=columns, max_cnt=max_cnt)
-            self.mock_data.append(d)
-        return self.mock_data
+                max_cnt = more.get("max_number", 1)
+                d['fields'] = self._more_field(columns=columns, max_cnt=max_cnt)
+            self.result_data.append(d)
+        return self.result_data
+
+    def extraction(self):
+        self.extraction_data = {}
+        extraction_metas = self.meta.get('extraction')
+        if not extraction_metas:
+            return self.extraction_data
+        for ext in extraction_metas:
+            for key, values in ext.items():
+                value = {'value': self._template_render(values.get('value', ''))}
+                r_value = self._gen_data('eq', value)
+                default = values.pop("default") if 'default' in values else None
+                if not r_value:
+                    r_value = default
+                self.extraction_data[key] = r_value
+        return self.extraction_data
+
 
     def dict2sql(self, data):
         def d2s(table, fields):
@@ -154,7 +182,7 @@ class GenData:
 if __name__ == '__main__':
 
     g = GenData(meta='../data/ecg_report_meta.yml')
-    g.condition()
-    ds = g.pre()
+    g._env()
+    ds = g.mock_data()
     for d in ds:
         g.dict2sql(data=d)

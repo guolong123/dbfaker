@@ -1,4 +1,4 @@
-from utils.gendata import GenData
+from utils.gendata import DataGenerator
 import sys
 import argparse
 from utils.constant import __version__
@@ -11,11 +11,11 @@ faker = Faker(locale='zh_CN', generator=MGenerator(locale='zh_CN'))
 
 def loop(meta_file, number=1, insert=False, connect=None, output=None):
     n = 0
-
     sql_words = []
     while n < number:
-        handler = GenData(faker, meta_file, connect)
-        mock_data = handler.pre()
+        handler = DataGenerator(faker, meta_file, connect)()
+        mock_data = handler.result_data
+        extraction = handler.extraction_data
         for d in mock_data:
             sqls = handler.dict2sql(d)
             for sql in sqls:

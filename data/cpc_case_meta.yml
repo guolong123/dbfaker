@@ -2347,3 +2347,13 @@ tables:
         rule: null
     comment: '冠状动脉造影 '
     table: cpc_coronary_angiographie
+
+extraction:
+  - hospital_id:
+      value: '{{ env.hospital_id }}'
+      default: null
+  - information_sick_id:
+      value: '{{ information_sick.id }}'
+  - information_sick_name:
+      value: '{{ information_sick.name }}'
+      default: '测试用户'

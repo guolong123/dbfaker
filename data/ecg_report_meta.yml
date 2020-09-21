@@ -326,7 +326,7 @@ tables:
       comment: 数据模板id
       engine: faker.eq
       rule:
-        value: '{{ next(env.template_id) }}'
+        value: '{{ next(env.template_id) }}'  # 迭代器参数
     - column: report_id
       comment: 数据id
       engine: faker.eq
@@ -348,6 +348,6 @@ tables:
       rule: null
     comment: 报告数据表
     table: report_detail_value
-    more:  # more字段为true时会循环创建该表字段，表字段中至少要有一个字段类型为迭代器对象，直到遇到迭代器异常循环结束
-      max_cnt: 10
+    more:  # more字段为true时会循环创建该表字段，表字段中可包含字段类型为迭代器对象，遇到迭代器异常时循环结束；指定max_number后，即时没有迭代器溢出，达到最大时也会退出循环
+      max_number: 10
 
