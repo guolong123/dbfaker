@@ -3,7 +3,7 @@ import logging
 import os
 from logging import handlers
 
-from common.tools import check_path
+from dbfaker.common.tools import check_path
 
 __all__ = ['Logger', 'log']
 

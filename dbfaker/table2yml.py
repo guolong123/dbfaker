@@ -1,10 +1,10 @@
 import json
 import yaml
-from common.mysqldb import Database
-from nsqlparse.mysql_create_table_yacc import parser
+from dbfaker.common.mysqldb import Database
+from dbfaker.nsqlparse.mysql_create_table_yacc import parser
 import sys
 import os
-from utils.constant import __version__
+from dbfaker.utils.constant import __version__
 import argparse
 
 sys.modules["MySQLDB"] = sys.modules["_mysql"] = sys.modules["pymysql"]

@@ -1,9 +1,9 @@
-from common.setting import get_yaml
+from dbfaker.common.setting import get_yaml
 import jinja2
 import json
 import copy
-from common.logger import log
-from common.mysqldb import Database
+from dbfaker.common.logger import log
+from dbfaker.common.mysqldb import Database
 
 
 class DataGenerator:
@@ -13,6 +13,7 @@ class DataGenerator:
         self.result_data = []
         self.log = log
         self.faker = faker
+        self.sqls = []
         if connect:
             self.db = Database(connect)
         else:
@@ -154,35 +155,42 @@ class DataGenerator:
         return self.extraction_data
 
 
-    def dict2sql(self, data):
+    def dict2sql(self, datas=None):
+        if not datas and isinstance(self.result_data, list):
+            datas = self.result_data
         def d2s(table, fields):
             ls = [(k, fields[k]) for k in fields if fields[k]]
             sql = f"insert into {table} set " + ', '.join([i[0] + "=%r" % i[1] for i in ls]) + ';'
             return sql
 
-        table = data.get("table_name")
-        fields = data.get("fields")
-        sqls = []
-        if isinstance(fields, list):
-            for i in fields:
-                sql = d2s(table, i)
-                sqls.append(sql)
-        elif isinstance(fields, dict):
-            sql = d2s(table, fields)
-            sqls.append(sql)
-        return sqls
 
-    def insert2db(self, sql, insert=True):
+        for data in datas:
+            table = data.get("table_name")
+            fields = data.get("fields")
 
-        if self.db and insert:
-            self.db.query(sql)
-        return sql
+            if isinstance(fields, list):
+                for i in fields:
+                    sql = d2s(table, i)
+                    self.sqls.append(sql)
+            elif isinstance(fields, dict):
+                sql = d2s(table, fields)
+                self.sqls.append(sql)
+        return self.sqls
+
+    def insert2db(self, sqls=None):
+        if not sqls:
+            sqls = self.sqls
+        if self.db:
+            for sql in sqls:
+                self.db.query(sql)
+        else:
+            self.log.w('未指定数据库连接引擎，无法插入到数据库...')
 
 
 if __name__ == '__main__':
 
-    g = GenData(meta='../data/ecg_report_meta.yml')
+    g = DataGenerator(meta='../data/ecg_report_meta.yml')
     g._env()
     ds = g.mock_data()
     for d in ds:
-        g.dict2sql(data=d)
+        g.dict2sql()

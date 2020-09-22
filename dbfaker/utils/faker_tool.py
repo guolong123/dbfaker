@@ -1,12 +1,12 @@
 from faker.providers import BaseProvider
 import random
 import uuid
-from common.logger import log
+from dbfaker.common.logger import log
 import os
 import re
 import json
-from common.setting import check_path
-from common.mysqldb import Database
+from dbfaker.common.setting import check_path
+from dbfaker.common.mysqldb import Database
 import pypinyin
 
 

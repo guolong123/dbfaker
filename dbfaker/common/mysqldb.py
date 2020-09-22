@@ -2,7 +2,7 @@ import pymysql
 import datetime
 import time
 import sys
-from common.drivers import load_sqlalchemy, load_conn
+from dbfaker.common.drivers import load_sqlalchemy, load_conn
 sys.modules["MySQLDB"] = sys.modules["_mysql"] = sys.modules["pymysql"]
 
 

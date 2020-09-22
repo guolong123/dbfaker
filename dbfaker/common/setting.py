@@ -2,8 +2,8 @@ import os
 
 import yaml
 
-from common.logger import log
-from common.tools import check_path
+from dbfaker.common.logger import log
+from dbfaker.common.tools import check_path
 
 __all__ = ['get_yaml', 'check_valid', 'update_settings']
 

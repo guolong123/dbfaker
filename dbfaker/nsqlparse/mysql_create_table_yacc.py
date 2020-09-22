@@ -2,7 +2,7 @@
 import os, sys
 import re
 import ply.yacc as yacc
-from nsqlparse.mysql_create_table_lex import tokens
+from dbfaker.nsqlparse.mysql_create_table_lex import tokens
 import json
 
 def p_error(p):

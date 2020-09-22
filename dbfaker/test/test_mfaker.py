@@ -1,7 +1,7 @@
 import unittest
-from utils.faker_tool import Provider
+from dbfaker.utils.faker_tool import Provider
 from faker import Faker
-from utils.generator import MGenerator
+from dbfaker.utils.generator import MGenerator
 
 mfaker = Faker(locale='zh_CN', generator=MGenerator(locale='zh_CN'))
 mfaker.add_provider(Provider, connect='mysql+mysqldb://pdmsadmin:system001@cpcs.homelabs.in/pdms_hospital')

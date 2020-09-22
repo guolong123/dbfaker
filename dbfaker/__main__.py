@@ -1,32 +1,31 @@
-from utils.gendata import DataGenerator
+from dbfaker.utils.gendata import DataGenerator
 import sys
 import argparse
-from utils.constant import __version__
-from utils.faker_date_time import Provider as DateTimeProvider
-from utils.faker_tool import Provider as ToolProvider
+from dbfaker.utils.constant import __version__
+from dbfaker.utils.faker_date_time import Provider as DateTimeProvider
+from dbfaker.utils.faker_tool import Provider as ToolProvider
 from faker import Faker
-from utils.generator import MGenerator
+from dbfaker.utils.generator import MGenerator
 
 faker = Faker(locale='zh_CN', generator=MGenerator(locale='zh_CN'))
 
 def loop(meta_file, number=1, insert=False, connect=None, output=None):
     n = 0
-    sql_words = []
+    sqls = []
     while n < number:
         handler = DataGenerator(faker, meta_file, connect)()
         mock_data = handler.result_data
         extraction = handler.extraction_data
-        for d in mock_data:
-            sqls = handler.dict2sql(d)
-            for sql in sqls:
-                sql_words.append(handler.insert2db(sql, insert))
+        sqls = handler.dict2sql()
+        for sql in sqls:
+            handler.insert2db(sql)
         n += 1
     if output:
         f = open(output, 'w')
-        f.write('\n'.join(sql_words))
+        f.write('\n'.join(sqls))
         f.close()
     else:
-        [print(i) for i in sql_words]
+        [print(i) for i in sqls]
     print(f'执行完成，共生成{number}组数据')
 
 
@@ -62,11 +61,15 @@ def parse_args():
 
 
 
-if __name__ == '__main__':
+def run():
     args = parse_args()
     faker.add_provider(DateTimeProvider, offset=0)
     faker.add_provider(ToolProvider, connect=args.__dict__.get("connect"))
+    loop(**args.__dict__)
+
+if __name__ == '__main__':
+    run()
     # add_provider(faker, DateTimeProvider, offset=0)
     # add_provider(faker, ToolProvider, connect=args.__dict__.get("connect"))
-    loop(**args.__dict__)
+
 
