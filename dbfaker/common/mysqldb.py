@@ -1,9 +1,5 @@
 import pymysql
-import datetime
-import time
-import sys
 from dbfaker.common.drivers import load_sqlalchemy, load_conn
-sys.modules["MySQLDB"] = sys.modules["_mysql"] = sys.modules["pymysql"]
 
 
 class Database:
@@ -121,11 +117,3 @@ class Database:
         self.db.close()
 
 
-if __name__ == "__main__":
-    db = Database(db_session='mysql+mysqldb://pdmsadmin:system001@cpcs.homelabs.in/pdms_hospital')
-    # db.query('select * from report_info')
-    s = db.query_table('report_info')
-
-    print(s)
-    s = db.select3('select * from report_info limit 1;')
-    print(s)

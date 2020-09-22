@@ -1,7 +1,6 @@
 import json
 import yaml
 from dbfaker.common.mysqldb import Database
-from dbfaker.nsqlparse.mysql_create_table_yacc import parser
 import sys
 import os
 from dbfaker.utils.constant import __version__
@@ -18,6 +17,7 @@ def table_name_to_table_building_statement(db_session, tables):
 
 def start(connect, table_names=None,
           sql_file=None, output=None, **kwargs):
+    from dbfaker.nsqlparse.mysql_create_table_yacc import parser
     if table_names:
         if "," in table_names:
             tables = table_names.split(",")
