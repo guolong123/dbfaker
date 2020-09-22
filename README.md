@@ -23,6 +23,17 @@
 本项目数据处理流程如下：
 ![处理流程](https://images.gitee.com/uploads/images/2020/0915/183724_40e0141c_1021400.png "屏幕截图.png")
 
+#### 安装
+```shell script
+git clone https://gitee.com/565169745/dbfaker.git
+cd dbfaker
+# 可先创建虚拟环境后再安装
+python3 setup.py install
+
+# 卸载
+pip uninstall dbfaker
+
+```
 
 #### 使用说明
 
@@ -30,9 +41,9 @@
     
 table2yml.py文件使用说明：
 ```shell
-usage: table2yml.py [-h] [--connect [CONNECT]] [--table_names [TABLE_NAMES]]
-                    [--sql_file [SQL_FILE]] [--output [OUTPUT]]
-                    [type]
+usage: table2yml [-h] [--connect [CONNECT]] [--table_names [TABLE_NAMES]]
+                 [--sql_file [SQL_FILE]] [--output [OUTPUT]]
+                 [type]
 
 数据库表转数据生成yaml文件格式工具
 
@@ -49,6 +60,7 @@ optional arguments:
   --sql_file [SQL_FILE]
                         数据库建表语句的sql文件路径
   --output [OUTPUT]     输出文件名，默认为数据库表名+meta.yml
+
 
 ```
 2, 编辑meta.yml文件，文件格式如下
@@ -116,12 +128,12 @@ tables:
 ```
 ３，创建ｓｑｌ
 ```shell
-guolong@guolong-PC:~/01 Work/07 MyProject/dbfaker$ source venv/bin/activate
-(venv) guolong@guolong-PC:~/01 Work/07 MyProject/dbfaker$ python main.py -h
-usage: main.py [-h] [-n [NUMBER]] [-i] [-c [CONNECT]] [-o [OUTPUT]]
+PC:~/01 Work/07 MyProject/dbfaker$ source venv/bin/activate
+(venv) PC:~/01 Work/07 MyProject/dbfaker$ dbfaker -h
+usage: dbfaker [-h] [-n [NUMBER]] [-i] [-c [CONNECT]] [-o [OUTPUT]]
                [meta_file]
 
-通过ｙｍｌ格式的描述文件来生成数据
+通过yml格式的描述文件来生成数据
 
 positional arguments:
   meta_file             yml文件所在路径
@@ -140,13 +152,13 @@ optional arguments:
 
 
 # 打印输出
-python main.py meta.yml --number 10
+dbfaker data/test.yml --number 10
 
 # 保存到文件
-python main.py meta.yml --number 10 -o out.sql
+dbfaker data/test.yml --number 10 -o out.sql
 
 # 插入到数据库
-python main.py meta.yml --number 10 -i --connect mysql+mysqldb://pdmsadmin:system001@cpcs.homelabs.in/pdms_hospital
+dbfaker data/test.yml --number 10 -i --connect mysql+mysqldb://pdmsadmin:system001@cpcs.homelabs.in/pdms_hospital
 ```
 
 通过上述模板文件生成出sql:
