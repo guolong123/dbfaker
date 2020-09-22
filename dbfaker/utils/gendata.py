@@ -177,12 +177,11 @@ class DataGenerator:
                 self.sqls.append(sql)
         return self.sqls
 
-    def insert2db(self, sqls=None):
-        if not sqls:
-            sqls = self.sqls
+    def insert2db(self, sql=None):
+        if not sql:
+            return
         if self.db:
-            for sql in sqls:
-                self.db.query(sql)
+            self.db.query(sql)
         else:
             self.log.w('未指定数据库连接引擎，无法插入到数据库...')
 
