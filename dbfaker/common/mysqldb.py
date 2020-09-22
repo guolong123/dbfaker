@@ -1,6 +1,6 @@
 import pymysql
 from dbfaker.common.drivers import load_sqlalchemy, load_conn
-
+pymysql.install_as_MySQLdb()
 
 class Database:
     def __init__(self, db_session):

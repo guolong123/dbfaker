@@ -6,8 +6,6 @@ import os
 from dbfaker.utils.constant import __version__
 import argparse
 
-sys.modules["MySQLDB"] = sys.modules["_mysql"] = sys.modules["pymysql"]
-
 
 def table_name_to_table_building_statement(db_session, tables):
     table_words = ';\n'.join([db_session.query_table(s) for s in tables]) + ';'
