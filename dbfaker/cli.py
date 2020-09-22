@@ -17,8 +17,9 @@ def loop(meta_file, number=1, insert=False, connect=None, output=None):
         mock_data = handler.result_data
         extraction = handler.extraction_data
         sqls = handler.dict2sql()
-        for sql in sqls:
-            handler.insert2db(sql)
+        if insert:
+            for sql in sqls:
+                handler.insert2db(sql)
         n += 1
     if output:
         f = open(output, 'w')
