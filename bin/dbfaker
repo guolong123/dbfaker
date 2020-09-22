@@ -1,5 +1,7 @@
-from dbfaker.cli import run
+#!/usr/bin/env python
 import sys
+from dbfaker.cli import run
+
 
 if __name__ == '__main__':
     sys.exit(run())

@@ -12,7 +12,7 @@ setup(
     author_email='565169745@qq.com',  # 你的邮箱**
     url='https://gitee.com/565169745/dbfaker',  # 可以写github上的地址，或者其他地址
     packages=setuptools.find_packages(),  # 包内需要引用的文件夹
-
+    scripts=['bin/dbfaker', 'bin/table2yml',],
     # 依赖包
     install_requires=[
         'PyMySQL',

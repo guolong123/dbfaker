@@ -92,7 +92,10 @@ def parse_args():
 
     return args
 
-
-if __name__ == '__main__':
+def main():
     args = parse_args()
     start(**args.__dict__)
+
+
+if __name__ == '__main__':
+    main()
