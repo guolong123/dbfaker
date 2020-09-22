@@ -376,7 +376,7 @@ def p_str_empty(p):
 	'''
 	p[0] = ''
 
-parser = yacc.yacc(start = 'start', debug=False)
+parser = yacc.yacc(start = 'start', debug=False, write_tables=False)
 
 if __name__ == '__main__':
 	d = '''CREATE TABLE `stu` (
