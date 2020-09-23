@@ -64,4 +64,4 @@ class Logger:
         return kwargs
 
 
-log = Logger('Server', path=r'log/server.log')
+log = Logger('dbfaker', path=r'log/dbfaker.log')

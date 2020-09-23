@@ -40,7 +40,7 @@ def start(connect, table_names=None,
     r = parser.parse(table_building_statement)
 
     for i in r:
-        table_obj = {'table': i.get("table"), 'comment': i.get("comment"), "columns": [],}
+        table_obj = {'table': i.get("table"), 'comment': i.get("comment"), "columns": []}
         for j in i['columns']:
             table_obj['columns'].append(
                 {"column": j.get("column"), 'comment': j.get("comment"), 'engine': None, 'rule': None}
@@ -115,6 +115,7 @@ def parse_args():
         exit(0)
 
     return args
+
 
 def main():
     args = parse_args()

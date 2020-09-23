@@ -9,6 +9,7 @@ from dbfaker.utils.generator import MGenerator
 
 faker = Faker(locale='zh_CN', generator=MGenerator(locale='zh_CN'))
 
+
 def loop(meta_file, number=1, insert=False, connect=None, output=None):
     n = 0
     sqls = []
@@ -40,7 +41,7 @@ def parse_args():
     parser.add_argument('meta_file', nargs='?', action='store',
                         help='yml文件所在路径')
     parser.add_argument('-n', '--number', nargs='?', action='store', default=1,
-                        help='生成数据数量',type=int)
+                        help='生成数据数量', type=int)
     parser.add_argument('-i', '--insert', action='store_true', help='是否插入到数据库')
     parser.add_argument('-c', '--connect', nargs='?', action='store',
                         help='数据库连接语法，例如：mysql+mysqldb://pdmsadmin:system001@cpcs.homelabs.in/pdms_hospital')
@@ -61,11 +62,8 @@ def parse_args():
     return args
 
 
-
 def run():
     args = parse_args()
     faker.add_provider(DateTimeProvider, offset=0)
     faker.add_provider(ToolProvider, connect=args.__dict__.get("connect"))
     loop(**args.__dict__)
-
-
