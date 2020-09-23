@@ -96,7 +96,7 @@ class Database:
         self.query(sql)
 
     def query_table(self, table_name):
-        sql = f'show create table {table_name};'
+        sql = 'show create table {table_name};'.format(table_name=table_name)
         cur = self.db.cursor()
         cur.execute(sql)
         result = cur.fetchall()

@@ -28,7 +28,7 @@ class MfakerTestCase(unittest.TestCase):
 
     def test_choice_file(self):
         self.mfaker.choice_file(path='.', file_match='.*?\.(png|jpg|bmp|PNG|JPG|BMP|py)$', recursion=True)
-        self.mfaker.choice_file(path='../../', file_match='.*?\.(png|jpg|bmp|PNG|JPG|BMP|py)$', recursion=True)
+        self.mfaker.choice_file(path='../../', file_match='.*?\.(png|jpg|bmp|PNG|JPG|BMP|py)$', recursion=True, number=3)
         self.mfaker.choice_file(path='../../', file_match='.*?\.(png|jpg|bmp|PNG|JPG|BMP|py)$', recursion=False)
 
     def test_choice(self):

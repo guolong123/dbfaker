@@ -55,7 +55,6 @@ class Provider(BaseProvider):
         """
         file_list = list(os.walk(check_path(path), ))
         if not file_list:
-            # print(f'指定目录不存在“{file_match}”的文件')
             return
         if not recursion:
             file_list = file_list[0][-1]
@@ -65,13 +64,10 @@ class Provider(BaseProvider):
             for k in list(zip(*file_list))[-1]:
                 result += k
             result = [os.path.abspath(s.string) for s in [re.match(file_match, x) for x in result] if s]
-        if len(result) < number:
-            return result
-        else:
-            rs = []
-            for i in range(number):
-                rs.append(random.choice(result))
-            return rs
+        if len(result) > number:
+            result = random.sample(result, number)
+
+        return result
 
     def uuid(self, underline=True):
         """
@@ -80,6 +76,7 @@ class Provider(BaseProvider):
         uid = str(uuid.uuid4())
         if underline:
             uid = uid.replace("-", '')
+        self.log.d('生成uuid： {}'.format(uid))
         return uid
 
     def from_db(self, sql, choice_method='random', key=None):

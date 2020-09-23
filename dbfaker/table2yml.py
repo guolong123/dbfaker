@@ -59,7 +59,7 @@ def start(connect, table_names=None,
 
 ''' + yaml.dump(result, encoding='utf-8', allow_unicode=True, default_flow_style=False).decode())
     f.close()
-    print(f'table转ymal文件成功，文件路径：{os.path.abspath(output)}')
+    print('table转ymal文件成功，文件路径：{}'.format(os.path.abspath(output)))
 
 
 def parse_args():

@@ -27,7 +27,7 @@ def loop(meta_file, number=1, insert=False, connect=None, output=None):
         f.close()
     else:
         [print(i) for i in sqls]
-    print(f'执行完成，共生成{number}组数据')
+    print('执行完成，共生成{number}组数据'.format(number=number))
 
 
 def parse_args():
