@@ -32,6 +32,9 @@ class Provider(BaseProvider):
             return ''.join(pypinyin.lazy_pinyin(hans=hans))
 
     def eq(self, value=None):
+        """
+        原样返回
+        """
         return value
 
     def choice(self, value):
@@ -71,6 +74,9 @@ class Provider(BaseProvider):
             return rs
 
     def uuid(self, underline=True):
+        """
+        返回遗传32位随机字符串
+        """
         uid = str(uuid.uuid4())
         if underline:
             uid = uid.replace("-", '')
@@ -117,9 +123,14 @@ class Provider(BaseProvider):
             yield i
 
     def weights_randint(self, *args):
+        """
+        带权重的随机数，int型
+        >> weights_randint({"weight": 0.8, "value": [1,2]}, {"weight": 0.2, "value": [3,4]})
+        >> 1
+        """
         result = []
         for d in args:
-            _weights = d.get('weights')
+            _weights = d.get('weight')
             value = d.get('value')
             if isinstance(value, str):
                 try:
@@ -137,7 +148,7 @@ class Provider(BaseProvider):
 
     def weights_randfloat(self, *args, round_num=2):
         """
-        权重计算
+        权重计算随机数float类型
         :param args:
         :param round_num:
         :return:
@@ -201,7 +212,10 @@ class Provider(BaseProvider):
             rand_number = random.randint(0, len(value))
         return splits.join([str(i) for i in random.sample(value, rand_number)])
 
-    def randint(self, value):
+    def randint(self, value: list):
+        """
+        从给定的数值范围内随机返回一个int数值
+        """
         if isinstance(value, str):
             try:
                 value = json.loads(value)
@@ -209,7 +223,10 @@ class Provider(BaseProvider):
                 pass
         return random.randint(*value)
 
-    def randfloat(self, value, round_num=2):
+    def randfloat(self, value: list, round_num=2):
+        """
+        从给定的数值范围内随机返回一个float数值
+        """
         if isinstance(value, str):
             try:
                 value = json.loads(value)
@@ -220,14 +237,9 @@ class Provider(BaseProvider):
 
     @staticmethod
     def order(value):
+        """
+        返回一个列表生成器对象，使用next()来调用
+        """
         for i in value:
             yield i
 
-
-if __name__ == '__main__':
-    # print(weights_randint([{"value": [-50, 0], "weights": 0.7}, {"value": [1, 100], "weights": 0.1}]))
-    # print(weights_choice([{"value": ['01','02', '03', '04', '05', '06', '07', '08', '09', '10', '11'], "weights": 1}]))
-    # print(weights_randfloat(*[{'value': [0, 1], 'weights': 1}]))
-    # a = order([1,2,3])
-    # print(a.__next__())
-    pass

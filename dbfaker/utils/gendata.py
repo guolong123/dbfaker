@@ -184,12 +184,3 @@ class DataGenerator:
             self.db.query(sql)
         else:
             self.log.w('未指定数据库连接引擎，无法插入到数据库...')
-
-
-if __name__ == '__main__':
-
-    g = DataGenerator(meta='../data/ecg_report_meta.yml')
-    g._env()
-    ds = g.mock_data()
-    for d in ds:
-        g.dict2sql()

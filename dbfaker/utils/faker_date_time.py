@@ -12,6 +12,15 @@ class Provider(DataTimeProvider):
         self.offset = offset
 
     def date_time_between(self, start_date=None, end_date=None, tzinfo=None, offset=None, format=None):
+        """
+        指定开始时间点，与过去时间，计算结果时间，按照指定的格式返回
+        :param start_date: 随机时间范围的开始时间
+        :param end_date: 随机时间范围的结束时间
+        :param tzinfo: 时区设置
+        :param offset: 时间偏移，示例： -2d，指的是在开始时间和结束时间中确定了某个时间点后再往前推2天。
+        :param format: 返回的时间格式
+        :return:
+        """
         start_date = self._parse_date_time(start_date, tzinfo=tzinfo)
         end_date = self._parse_date_time(end_date, tzinfo=tzinfo)
         if not offset:
@@ -40,7 +49,7 @@ class Provider(DataTimeProvider):
         :param start_date:
         :param sub_time:
         :param format:
-        :param approximate_time: 是否返回浮动的时间（为Ｔｒｕｅ时将对sub_time时间进行随机正负一倍以内来返回）
+        :param approximate_time: 是否返回浮动的时间（为true时将对sub_time时间进行随机正负一倍以内来返回）
         :return:
         """
         if isinstance(start_date, str) and format:
