@@ -2349,11 +2349,11 @@ tables:
     table: cpc_coronary_angiographie
 
 extraction:
-  - hospital_id:
-      value: '{{ env.hospital_id }}'
-      default: null
-  - information_sick_id:
-      value: '{{ information_sick.id }}'
-  - information_sick_name:
-      value: '{{ information_sick.name }}'
-      default: '测试用户'
+  hospital_id:
+    value: '{{ env.hospital_id }}'
+    default: null
+  information_sick_id:
+    value: '{{ information_sick.id }}'
+  information_sick_name:
+    value: '{{ information_sick.name }}'
+    default: '测试用户'

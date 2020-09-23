@@ -60,11 +60,11 @@ tables:
 
 
 extraction:  # 从已生成的数据中提取字段
-  - stu_id:
-      value: '{{ stu.id }}'
-      default: null
-  - course_id:
-      value: '{{ course.id }}'
-  - stu_name:
-      value: '{{ stu.name }}'
-      default: '测试用户'
+  stu_id:
+    value: '{{ stu.id }}'
+    default: null
+  course_id:
+    value: '{{ course.id }}'
+  stu_name:
+    value: '{{ stu.name }}'
+    default: '测试用户'

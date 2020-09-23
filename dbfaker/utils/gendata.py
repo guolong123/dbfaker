@@ -144,14 +144,14 @@ class DataGenerator:
         extraction_metas = self.meta.get('extraction')
         if not extraction_metas:
             return self.extraction_data
-        for ext in extraction_metas:
-            for key, values in ext.items():
-                value = {'value': self._template_render(values.get('value', ''))}
-                r_value = self._gen_data('eq', value)
-                default = values.pop("default") if 'default' in values else None
-                if not r_value:
-                    r_value = default
-                self.extraction_data[key] = r_value
+
+        for key, values in extraction_metas.items():
+            value = {'value': self._template_render(values.get('value', ''))}
+            r_value = self._gen_data('eq', value)
+            default = values.pop("default") if 'default' in values else None
+            if not r_value:
+                r_value = default
+            self.extraction_data[key] = r_value
         return self.extraction_data
 
 

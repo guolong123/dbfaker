@@ -30,34 +30,60 @@ def start(connect, table_names=None,
             table_building_statement = f.read()
 
     result = {
-        "condition": None,
-        'tables': None,
+        "package": [],
+        "env": {},
+        'tables': [],
+        "extraction": {}
+
     }
 
     r = parser.parse(table_building_statement)
+
     for i in r:
-        i.pop("keys") if 'keys' in i else None
-        i.pop("row_format") if 'row_format' in i else None
-        i.pop("engine") if 'engine' in i else None
-        i.pop("default_charset") if 'default_charset' in i else None
+        table_obj = {'table': i.get("table"), 'comment': i.get("comment"), "columns": [],}
         for j in i['columns']:
-            j.pop("type") if 'type' in j else None
-            j.pop("length") if 'length' in j else None
-            j.pop("not_null") if 'not_null' in j else None
-            j.pop("default") if 'default' in j else None
-            j['engine'] = None
-            j['rule'] = None
-    result.update({"tables": r})
+            table_obj['columns'].append(
+                {"column": j.get("column"), 'comment': j.get("comment"), 'engine': None, 'rule': None}
+            )
+        result['tables'].append(table_obj)
     if not output:
         output = file_name
     f = open(output, 'w')
-    f.write('''# 请完善此文件中每个字段的生成规则"engine/rule/tag"
+    f.write('''# 请完善此文件中每个字段的生成规则
 # 规则说明：
-# "engine": 字段生成的方法，在工具类中需包含此方法的引用；
-# "rule"： "engine"方法中接收的参数
-# "tag"： 接收一个变量名，在字段生成后将结果赋值给这个变量名。可在后续的字段进行引用
+# package: 动态导包，在下方字段使用了jinja2模板且在模板语法中使用了非Python基础库时需要在此动态声明导入需要的包;使用示例:
+# package:
+#  - datetime  # 引入datetime包，可在后续的jinja2模板中使用
+#  - os
 
-''' + yaml.dump(result, encoding='utf-8', allow_unicode=True, default_flow_style=False).decode())
+# env: 可在此处预生成环境变量，给下方字段生成时引用；描述方式如下：
+# env:
+#  name:  # 全局变量名称
+#    engine: eq  # 生成规则方法，与下面的字段生成方法一样
+#    rule:  # "engine"方法中接收的参数
+#      value: 'test'  
+
+# tables： 该字段描述了表字段的生成规则，需要填写数据库字段中的engine与rule字段，为空时数据库字段也为空；示例(给数据库中t_sys_user表中age字段生成从40到80的随机数)：
+# tables:
+# - table: t_sys_user
+#   comment: 用户表
+#   columns:
+#   - column: age  # 数据库中字段名
+#     comment: '年龄'  # 字段备注信息
+#     engine: randint  # 生成字段值调用的方法，必须是faker库中存在或者自行注册到faker库中的方法
+#     rule: 
+#        value: [40, 80]  # 上述方法中接收到的参数
+       
+# extraction： 该字段描述了需要从生成字段中提取哪些变量来返回，写自动化测试用例时可能会用到；举例：
+# extraction：
+#   user_name:
+#     value: '{{ t_sys_user.name }}'  # 返回上面生成的用户姓名
+#     default: '测试用户'  # 可指定默认值，在上述字段不存在或者为空时返回默认值
+#   user_id:
+#     value: '{{ t_sys_user.id }}'  
+
+
+''' + yaml.dump(result, encoding='utf-8', allow_unicode=True, default_flow_style=False, sort_keys=False).decode())
     f.close()
     print('table转ymal文件成功，文件路径：{}'.format(os.path.abspath(output)))
 
