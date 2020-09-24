@@ -10,9 +10,10 @@ class DataGenerator:
     def __init__(self, faker, meta, connect=None):
         self.all_package = {}
         self.pre_data = {}
-        self.result_data = []
+        self.result_data = {}
         self.extraction_data = {}
         self.log = log
+        self.error_fields = {}
         self.faker = faker
         self.sqls = []
         if connect:
@@ -26,6 +27,7 @@ class DataGenerator:
         self._env()
         self.mock_data()
         self.extraction()
+        self._error_field()
         return self
 
     def _import_package(self):
@@ -61,22 +63,39 @@ class DataGenerator:
     def _field(self, columns):
         result = {}
         pre_data = {}
+        error_field = []
         table_name = columns.get("table")
         pre_data[table_name] = {}
         for field in columns.get('columns'):
             field_column = field.get('column')
-            field_comment = field.get('comment')
             field_engine = field.get('engine')
             field_rule = field.get("rule")
             if field_rule:
                 _rule = json.dumps(field.get("rule"))
                 _rule = _rule.replace('\\\"', "'")
-                field_rule = json.loads(self._template_render(_rule))
+                try:
+                    field_rule = json.loads(self._template_render(_rule))
+                except jinja2.exceptions.UndefinedError as e:
+                    error_field.append(field)
+                    continue
             _r = self._gen_data(field_engine, field_rule)
             result[field_column] = _r
             pre_data[table_name][field_column] = _r
-            self.pre_data.update(pre_data)
+            if table_name not in self.pre_data:
+                self.pre_data[table_name] = {}
+            self.pre_data[table_name].update(pre_data[table_name])
+            if error_field:
+                # 记录表中出错的字段，在所有字段都生成后再次生成，解决因前面字段调用未生成字段时报错问题
+                self.error_fields.update({'columns': error_field, 'table': table_name})
         return result
+
+    def _error_field(self):
+        """
+        异常字段重新处理，解决引用的字段还未生成时造成的引用失败的问题
+        """
+        if not self.error_fields:
+            return
+        self.mock_data([self.error_fields])
 
     def _template_render(self, s, env=None):
         """
@@ -102,14 +121,14 @@ class DataGenerator:
                     field_rule = json.loads(self._template_render(json.dumps(field.get("rule"))))
                     _r = self._gen_data(field_engine, field_rule)
                     result[field_column] = _r
-            except jinja2.exceptions.UndefinedError:
+            except jinja2.exceptions.UndefinedError as e:
                 break
             results.append(copy.deepcopy(result))
             n += 1
         self.pre_data[table_name] = results
         return results
 
-    def _gen_data(self, engine:str, rule):
+    def _gen_data(self, engine: str, rule):
         faker = self.faker
         if not engine:
             return
@@ -125,19 +144,18 @@ class DataGenerator:
             raise Exception('rule type need be dict or list!')
         return r
 
-    def mock_data(self):
-        fields = self.meta.get('tables')
+    def mock_data(self, fields=None):
+        if not fields:
+            fields = self.meta.get('tables')
         for columns in fields:
-            d = {}
             table_name = columns.get("table")
             more = columns.get('more')
-            d['table_name'] = table_name
             if not more:
-                d['fields'] = self._field(columns)
+                d = self._field(columns)
             else:
                 max_cnt = more.get("max_number", 1)
-                d['fields'] = self._more_field(columns=columns, max_cnt=max_cnt)
-            self.result_data.append(d)
+                d = self._more_field(columns=columns, max_cnt=max_cnt)
+            self.result_data[table_name] = d
         return self.result_data
 
     def extraction(self):
@@ -154,20 +172,16 @@ class DataGenerator:
             self.extraction_data[key] = r_value
         return self.extraction_data
 
-
     def dict2sql(self, datas=None):
-        if not datas and isinstance(self.result_data, list):
+        if not datas and isinstance(self.result_data, dict):
             datas = self.result_data
+
         def d2s(table, fields):
             ls = [(k, fields[k]) for k in fields if fields[k]]
             sql = f"insert into {table} set " + ', '.join([i[0] + "=%r" % i[1] for i in ls]) + ';'
             return sql
 
-
-        for data in datas:
-            table = data.get("table_name")
-            fields = data.get("fields")
-
+        for table, fields in datas.items():
             if isinstance(fields, list):
                 for i in fields:
                     sql = d2s(table, i)

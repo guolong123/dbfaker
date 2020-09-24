@@ -1,3 +1,4 @@
+# -*- encoding: utf-8 -*-
 from dbfaker.utils.gendata import DataGenerator
 import sys
 import argparse

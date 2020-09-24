@@ -1,3 +1,4 @@
+# -*- encoding: utf-8 -*-
 import datetime
 import logging
 import os
@@ -22,8 +23,7 @@ class Logger:
                 os.mkdir(os.path.dirname(path))
             # print('log into file [%s].' % os.path.abspath(path))
             file_handler = handlers.TimedRotatingFileHandler(path, when='midnight', interval=1, backupCount=10,
-                                                             encoding='utf-8',
-                                                             atTime=datetime.time(0, 0, 0, 0))
+                                                             encoding='utf-8', atTime=datetime.time(0, 0, 0, 0))
             file_handler.setFormatter(fmt)
             file_handler.setLevel(logging.DEBUG)
             self._logger.addHandler(file_handler)

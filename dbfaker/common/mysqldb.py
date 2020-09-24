@@ -1,3 +1,4 @@
+# -*- encoding: utf-8 -*-
 import pymysql
 from dbfaker.common.drivers import load_sqlalchemy, load_conn
 pymysql.install_as_MySQLdb()
@@ -39,7 +40,7 @@ class Database:
             sql = "select * from {}".format(table)
         else:
             ls = [(k, where[k]) for k in where if where[k]]
-            sql = "select * from {table} where ".format(table) + ' and '.join([i[0] + "=%r" % i[1] for i in ls])
+            sql = "select * from {} where ".format(table) + ' and '.join([i[0] + "=%r" % i[1] for i in ls])
         cur.execute(sql)
         result = cur.fetchall()
         results = []
@@ -110,7 +111,7 @@ class Database:
         :return:
         """
         ls = [(k, fields[k]) for k in fields if fields[k]]
-        sql = "insert into {table} set ".format(table) + ', '.join([i[0] + "=%r" % i[1] for i in ls])
+        sql = "insert into {} set ".format(table) + ', '.join([i[0] + "=%r" % i[1] for i in ls])
         self.query(sql)
 
     def close(self):

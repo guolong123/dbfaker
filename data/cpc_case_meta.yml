@@ -126,13 +126,13 @@ tables:
         engine: faker.weights_randint
         rule:
           - value: [140, 180]
-            weights: 1
+            weight: 1
       - column: weight
         comment: 病人体重
         engine: faker.weights_randint
         rule:
           - value: [40, 80]
-            weights: 1
+            weight: 1
       - column: bmi
         comment: 体重指数
         engine: faker.eq
@@ -1638,121 +1638,155 @@ tables:
           value: '{{ cpc_basis.id }}'
       - column: activate_conduit_time
         comment: 导管室激活时间
-        engine: null
-        rule: null
+        engine: faker.date_time_subtraction
+        rule:
+          start_date: '{{ cpc_treatment_info.stemi_throm_sign_agree_time }}'
+          sub_time: +25m
+          format: '{{ env.time_format }}'
       - column: patient_arrived_conduit_time
         comment: 患者到达导管室时间
-        engine: null
-        rule: null
+        engine: faker.date_time_subtraction
+        rule:
+          start_date: '{{ cpc_treatment_pci_info.activate_conduit_time }}'
+          sub_time: +25m
+          format: '{{ env.time_format }}'
       - column: intervention_person
         comment: 介入医师
-        engine: null
+        engine: name
         rule: null
       - column: start_puncture_time
         comment: 开始穿刺时间
-        engine: null
-        rule: null
+        engine: faker.date_time_subtraction
+        rule:
+          start_date: '{{ cpc_treatment_pci_info.patient_arrived_conduit_time }}'
+          sub_time: +10m
+          format: '{{ env.time_format }}'
       - column: start_radiography_time
         comment: 造影开始时间
-        engine: null
-        rule: null
+        engine: faker.date_time_subtraction
+        rule:
+          start_date: '{{ cpc_treatment_pci_info.start_puncture_time }}'
+          sub_time: +10m
+          format: '{{ env.time_format }}'
       - column: anticoagulation_time
         comment: 术中抗凝给药时间
-        engine: null
-        rule: null
+        engine: faker.date_time_subtraction
+        rule:
+          start_date: '{{ cpc_treatment_pci_info.start_radiography_time }}'
+          sub_time: +10m
+          format: '{{ env.time_format }}'
       - column: anticoagulation_drug
         comment: 术中抗凝药物 1：普通肝素 2：低分子肝素 3：比伐卢定 4：磺达肝癸钠
-        engine: null
-        rule: null
+        engine: choice
+        rule:
+          value: [1,2,3,4]
       - column: anticoagulation_dose
         comment: 术中抗凝药物剂量
-        engine: null
-        rule: null
+        engine: randint
+        rule:
+          value: [100, 1000]
       - column: anticoagulation_unit
         comment: 抗凝药物单位
-        engine: null
-        rule: null
+        engine: eq
+        rule:
+          value: mg/l
       - column: end_operation_time
         comment: 手术结束时间
-        engine: null
-        rule: null
+        engine: faker.date_time_subtraction
+        rule:
+          start_date: '{{ cpc_treatment_pci_info.anticoagulation_time }}'
+          sub_time: +20m
+          format: '{{ env.time_format }}'
       - column: dtwob_time
         comment: D2W 时间
-        engine: null
-        rule: null
+        engine: eq
+        rule:
+          value: '{{ int((datetime.datetime.strptime(cpc_coronary_angiographie.balloon_expansion_time,  env.time_format) - datetime.datetime.strptime(cpc_emergency_info.cw_zy_arrived_hospital_time,  env.time_format)).total_seconds()/60) }}'
       - column: is_delay
         comment: 是否延误 0-否 1-是
-        engine: null
-        rule: null
+        engine: eq
+        rule:
+          value: '{{ 0 if cpc_emergency_info.dtwob_time < 90 else 1 }}'
       - column: delay_reason
         comment: 延误原因 01:症状不明显延误诊断 02:家属未到场 03:医生决策延误 04:排队挂号、缴费、办住院时间长 05:急诊科处理时间长 06:手术期间出现并发症
           07:超过再灌注时间 08:未实施绕行急诊方案 09:导管室人员未到位 10:药物缺乏 11:知情同意时间过长 12:病情不稳定 13:绕行急诊科但未直接入导管室
           14:导管室占台 15:转运时间长 16:经费问题 17:心内科会诊时间长 18:血管通路困难 19:难以绕行病变区域 20:心脏骤停或需要气管插管再
           PCI 21:急需影像学资料再行 PCI 99:其他原因
-        engine: null
-        rule: null
+        engine: multi_choice
+        rule:
+          value: ["01","02","03","04",'05",'06','07','08','09','10','11','12','13','14','15','16','17','18','19','20','21','99']
       - column: route
         comment: 入路 1:桡动脉(左侧) 2:桡动脉(右侧)   3:股动脉 4:其他
-        engine: null
-        rule: null
+        engine: choice
+        rule:
+          value: [1,2,3,4]
       - column: infarct_position
         comment: '1:右冠近段 2:右冠中段 3:右冠远段 4:后降支(右优势型) 5:左主干 6:前降支近段 7:前降支中段 8:前降支远段 9:第一对角支
       10:第二对角支 11:旋支近段 12:第一钝缘支 13:旋支远段 14:左室后支 15:后降支(左优势型或均衡型) 16:中间支 17:第三对角支 18:第二钝缘支
       19:第三钝缘支 20:锐缘支</label> 21:左圆椎支 22:右圆椎支 23:室间隔支 24:左后外侧支 25:右后外侧支 26:房室沟动脉 27:后降支室间支  '
-        engine: null
-        rule: null
+        engine: choice
+        rule:
+          value:  ["01","02","03","04",'05",'06','07','08','09','10','11','12','13','14','15','16','17','18','19','20','21','22', '23','24','25','26','27']
       - column: intracavity_image
         comment: 腔内影像 1:IVUS 2:OCT 3:其他 4:未做
-        engine: null
-        rule: null
+        engine: choice
+        rule:
+          value: [1,2,3,4]
       - column: function_test
         comment: '功能检测 1:FFR 4:iFR 5:IMR 2:其他 3:未做 '
-        engine: null
-        rule: null
+        engine: choice
+        rule:
+          value: [1,2,3,4,5]
       - column: function_test_value
         comment: 功能检测(数值)
-        engine: null
-        rule: null
+        engine: randint
+        rule:
+          value: [100,1000]
       - column: iabp
         comment: IABP 0：否 1：是
-        engine: null
-        rule: null
+        engine: faker.choice
+        rule:
+          value: [0,1]
       - column: pacemaker
         comment: 临时起搏器 0：否 1：是
-        engine: null
-        rule: null
+        engine: faker.choice
+        rule:
+          value: [0,1]
       - column: ecmo
         comment: ecmo 0：否 1：是
-        engine: null
-        rule: null
+        engine: faker.choice
+        rule:
+          value: [0,1]
       - column: auxiliary_device
         comment: 左心室辅助装置 0：否 1：是
-        engine: null
-        rule: null
+        engine: faker.choice
+        rule:
+          value: [0,1]
       - column: complication
         comment: 术中并发症 01:恶性心律失常 02:低血压 03:慢血流/无复流 04:血管夹层 05:非干预血管急性闭塞 06:血管穿孔 07:死亡
           08:无 09:其他
-        engine: null
-        rule: null
+        engine: faker.multi_choice
+        rule:
+          value: ['01', '02', '03', '04', '05', '06', '07',]
       - column: conduit_remark
         comment: 填报信息备注
-        engine: null
+        engine: sentence
         rule: null
       - column: route_remark
         comment: 填报信息备注
-        engine: null
+        engine: sentence
         rule: null
       - column: coronary_angiogram_remark
         comment: 填报信息备注
-        engine: null
+        engine: sentence
         rule: null
       - column: instrument_remark
         comment: 填报信息备注
-        engine: null
+        engine: sentence
         rule: null
       - column: complication_remark
         comment: 填报信息备注
-        engine: null
+        engine: sentence
         rule: null
       - column: preoperative_timi_level
         comment: TIMI 血流等级(仅造影时)
@@ -1768,196 +1802,239 @@ tables:
           value: '{{ cpc_basis.id }}'
       - column: cp_diagnosis_code
         comment: 出院诊断( 必填):1-STEMI,2-NSTEMI,3-UA,4-主动脉夹层,5-肺动脉栓塞,6-非ACS心源性胸痛,9-其它非心源性胸痛
-        engine: null
-        rule: null
+        engine: choice
+        rule:
+          value: [1,2,3,4,5,6,9]
       - column: nacs_type
         comment: 非ACS心源性胸痛明细(多选用竖线隔开。如"1|2|14"  必填 条件:当"出院诊断"为"非ACS心源性胸痛"时):1-心律失常,2-扩张性心肌病,3-缺血性心肌病,4-肥厚型心肌病,5-心肌炎,6-冠心病,7-瓣膜性心脏病,8-陈旧性心肌梗死,9-心绞痛,10-心悸,11-房颤,12-高血压,13-心衰,14-房扑,15-室早,16-房早,17-室上速,18-心包炎
-        engine: null
-        rule: null
+        engine: multi_choice
+        rule:
+          value: [1,2,3,4,5,6,7,8,9,10,11,12,14,13,15,16,17]
       - column: other_nacs_type
         comment: 非ACS心源性胸痛明细(多选用竖线隔开。如"1|2|14"  必填 条件:当"出院诊断"为"非ACS心源性胸痛"时):1-心律失常,2-扩张性心肌病,3-缺血性心肌病,4-肥厚型心肌病,5-心肌炎
-        engine: null
-        rule: null
+        engine: multi_choice
+        rule:
+          value: [1,2,3,4,5,6,7,8,9,10,11,12,14,13,15,16,17]
       - column: diagnosis_time
         comment: 确诊时间( 必填)
-        engine: null
-        rule: null
+        engine: eq
+        rule:
+          value: '{{ cpc_treatment_info.diagnosis_time }}'
       - column: is_heart_failure
         comment: 院内新发心力衰竭( 必填 条件:当"出院诊断"为"STEMI"、"NSTEMI"、"UA"时):1-是,0-否
-        engine: null
-        rule: null
+        engine: choice
+        rule:
+          value: [0,1]
       - column: complication
         comment: 合并症(多选用竖线隔开。如"01|02"  必填 条件:当"出院诊断"为"STEMI"、"NSTEMI"、"UA"时):01-休克,02-机械性并发症,03-感染,04-再发心梗,05-血栓,06-卒中,07-TIA,08-出血,9-呼吸衰竭,10-肾衰竭,11-死亡,99-无
-        engine: null
-        rule: null
+        engine: faker.multi_choice
+        rule:
+          value: ['01', '02', '03', '04', '05', '06', '07','08','09','10','11','99']
       - column: feritin
         comment: 高血压( 必填 条件:当"出院诊断"为"STEMI"、"NSTEMI"、"UA"时):1-是,0-否
-        engine: null
-        rule: null
+        engine: choice
+        rule:
+          value: [0,1]
       - column: hyperlipemia
         comment: 高脂血症( 必填 条件:当"出院诊断"为"STEMI"、"NSTEMI"、"UA"时):1-是,0-否
-        engine: null
-        rule: null
+        engine: choice
+        rule:
+          value: [0,1]
       - column: diabetes
         comment: 糖尿病( 必填 条件:当"出院诊断"为"STEMI"、"NSTEMI"、"UA"时):1-是,0-否
-        engine: null
-        rule: null
+        engine: choice
+        rule:
+          value: [0,1]
       - column: smoking
         comment: 吸烟( 必填 条件:当"出院诊断"为"STEMI"、"NSTEMI"、"UA"时):1-是,0-否
-        engine: null
-        rule: null
+        engine: choice
+        rule:
+          value: [0,1]
       - column: smoking_status
         comment: 吸烟状态( 必填 条件:当"出院诊断"为"STEMI"、"NSTEMI"、"UA"时):1-已戒烟,2-当前仍吸烟
-        engine: null
-        rule: null
+        engine: choice
+        rule:
+          value: [2,1]
       - column: obesity
         comment: 肥胖( 必填 条件:当"出院诊断"为"STEMI"、"NSTEMI"、"UA"时):1-是,0-否
-        engine: null
-        rule: null
+        engine: choice
+        rule:
+          value: [0,1]
       - column: family_disease
         comment: 早发CVD家族史(男<55岁,女<60岁)( 必填 条件:当"出院诊断"为"STEMI"、"NSTEMI"、"UA"时):1-是,0-否
-        engine: null
-        rule: null
+        engine: choice
+        rule:
+          value: [0,1]
       - column: chd
         comment: 冠心病( 必填 条件:当"出院诊断"为"STEMI"、"NSTEMI"、"UA"时):1-是,0-否
-        engine: null
-        rule: null
+        engine: choice
+        rule:
+          value: [0,1]
       - column: previous_revascularization
         comment: 血运重建史( 必填 条件:当"出院诊断"为"STEMI"、"NSTEMI"、"UA"时):1-是,0-否
-        engine: null
-        rule: null
+        engine: choice
+        rule:
+          value: [0,1]
       - column: af
         comment: 心房颤动( 必填 条件:当"出院诊断"为"STEMI"、"NSTEMI"、"UA"时):1-是,0-否
-        engine: null
-        rule: null
+        engine: choice
+        rule:
+          value: [0,1]
       - column: af_type
         comment: 心房颤动(分型)( 必填 条件:当心房颤动为是时):1-阵发性,2-持续性,3-长程持续性,4-永久性
-        engine: null
-        rule: null
+        engine: choice
+        rule:
+          value: [0,1]
       - column: slow_heart_failure
         comment: 慢性心力衰竭( 必填 条件:当"出院诊断"为"STEMI"、"NSTEMI"、"UA"时):1-是,0-否
-        engine: null
-        rule: null
+        engine: choice
+        rule:
+          value: [0,1]
       - column: nyha_level
         comment: NYHA分级( 必填 条件:当慢性心力衰竭为是时):1-I,2-II,3-III,4-IV
-        engine: null
-        rule: null
+        engine: choice
+        rule:
+          value: [1,2,3,4]
       - column: avhd
         comment: 心脏瓣膜病( 必填 条件:当"出院诊断"为"STEMI"、"NSTEMI"、"UA"时):1-是,0-否
-        engine: null
-        rule: null
+        engine: choice
+        rule:
+          value: [0,1]
       - column: brian_vascellum
         comment: 脑血管疾病( 必填 条件:当"出院诊断"为"STEMI"、"NSTEMI"、"UA"时):1-是,0-否
-        engine: null
-        rule: null
+        engine: choice
+        rule:
+          value: [0,1]
       - column: brian_vascellum_desc
         comment: 脑血管疾病(描述)( 必填 条件:当脑血管疾病为是时):1-缺血性,2-出血性
-        engine: null
-        rule: null
+        engine: choice
+        rule:
+          value: [2,1]
       - column: peripheral_artery_disease
         comment: 外周动脉疾病( 必填 条件:当"出院诊断"为"STEMI"、"NSTEMI"、"UA"时):1-是,0-否
-        engine: null
-        rule: null
+        engine: choice
+        rule:
+          value: [0,1]
       - column: aortic_aneurysm
         comment: 主动脉瘤( 必填 条件:当"出院诊断"为"STEMI"、"NSTEMI"、"UA"时):1-是,0-否
-        engine: null
-        rule: null
+        engine: choice
+        rule:
+          value: [0,1]
       - column: copd
         comment: COPD( 必填 条件:当"出院诊断"为"STEMI"、"NSTEMI"、"UA"时):1-是,0-否
-        engine: null
-        rule: null
+        engine: choice
+        rule:
+          value: [0,1]
       - column: chronic_kidney_disease
         comment: 慢性肾病( 必填 条件:当"出院诊断"为"STEMI"、"NSTEMI"、"UA"时):1-是,0-否
-        engine: null
-        rule: null
+        engine: choice
+        rule:
+          value: [0,1]
       - column: anemia
         comment: 贫血( 必填 条件:当"出院诊断"为"STEMI"、"NSTEMI"、"UA"时):1-是,0-否
-        engine: null
-        rule: null
+        engine: choice
+        rule:
+          value: [0,1]
       - column: peptic_ulcer
         comment: 消化性溃疡( 必填 条件:当"出院诊断"为"STEMI"、"NSTEMI"、"UA"时):1-是,0-否
-        engine: null
-        rule: null
+        engine: choice
+        rule:
+          value: [0,1]
       - column: thyroid_disease
         comment: 甲状腺功能异常( 必填 条件:当"出院诊断"为"STEMI"、"NSTEMI"、"UA"时):1-是,0-否
-        engine: null
-        rule: null
+        engine: choice
+        rule:
+          value: [0,1]
       - column: therioma
         comment: 恶性肿瘤( 必填 条件:当"出院诊断"为"STEMI"、"NSTEMI"、"UA"时):1-是,0-否
-        engine: null
-        rule: null
+        engine: choice
+        rule:
+          value: [0,1]
       - column: troponin_72h
         comment: 72h内肌钙蛋白( 必填 条件:当"出院诊断"为"STEMI"、"NSTEMI"、"UA"时):1-是,0-否
-        engine: null
-        rule: null
+        engine: choice
+        rule:
+          value: [0,1]
       - column: troponin_72h_type
         comment: 72h内肌钙蛋白( 必填 条件:当72h内肌钙蛋白为是时):1-TNT,2-TNI
-        engine: null
-        rule: null
+        engine: choice
+        rule:
+          value: [2,1]
       - column: ctni_max_value
         comment: 72h内肌钙蛋白( 必填 条件:当72h内肌钙蛋白为是时,保留2位小数)
-        engine: null
-        rule: null
+        engine: randfloat
+        rule:
+          value: [100, 500]
       - column: bnp
         comment: 脑钠肽( 必填 条件:当"出院诊断"为"STEMI"、"NSTEMI"、"UA"时):1-是,0-否
-        engine: null
-        rule: null
+        engine: choice
+        rule:
+          value: [0,1]
       - column: bnp_type
         comment: 脑钠肽类型( 必填 条件:当脑钠肽为是时):1-TNT,2-TNI
-        engine: null
-        rule: null
+        engine: choice
+        rule:
+          value: [2,1]
       - column: bnp_value
         comment: 脑钠肽(最高值)( 必填 条件:当脑钠肽为是时,保留8位小数)
-        engine: null
-        rule: null
+        engine: randfloat
+        rule:
+          value: [100, 500]
       - column: tc
         comment: 总胆固醇(TC)( 必填 条件:当"出院诊断"为"STEMI"、"NSTEMI"、"UA"时):1-是,0-否
-        engine: null
-        rule: null
+        engine: choice
+        rule:
+          value: [0,1]
       - column: tc_value
         comment: 总胆固醇(TC)(数值)( 必填 条件:当总胆固醇(TC)为是时,保留8位小数)
         engine: null
         rule: null
       - column: tg
         comment: 甘油三酯(TG)( 必填 条件:当"出院诊断"为"STEMI"、"NSTEMI"、"UA"时):1-是,0-否
-        engine: null
-        rule: null
+        engine: choice
+        rule:
+          value: [0,1]
       - column: tg_value
         comment: 总胆固醇(TC)(数值)( 必填 条件:当甘油三酯(TG)为是时,保留8位小数)
         engine: null
         rule: null
       - column: hdl_c
         comment: 高密度脂蛋白(HDL-C)( 必填 条件:当"出院诊断"为"STEMI"、"NSTEMI"、"UA"时):1-是,0-否
-        engine: null
-        rule: null
+        engine: choice
+        rule:
+          value: [0,1]
       - column: hdl_c_value
         comment: 高密度脂蛋白(HDL-C)(数值)( 必填 条件:当高密度脂蛋白(HDL-C)为是时,保留8位小数)
         engine: null
         rule: null
       - column: ldl_c
         comment: 低密度脂蛋白(LDL-C)( 必填 条件:当"出院诊断"为"STEMI"、"NSTEMI"、"UA"时):1-是,0-否
-        engine: null
-        rule: null
+        engine: choice
+        rule:
+          value: [0,1]
       - column: ldl_c_value
         comment: 低密度脂蛋白(LDL-C)(数值)( 必填 条件:当低密度脂蛋白(LDL-C)为是时,保留8位小数)
         engine: null
         rule: null
       - column: ucg
         comment: 超声心动图(LDL-C)( 必填 条件:当"出院诊断"为"STEMI"、"NSTEMI"、"UA"时):1-是,0-否
-        engine: null
-        rule: null
+        engine: choice
+        rule:
+          value: [0,1]
       - column: lvef
         comment: LVEF(条件:当超声心动图为是时,保留2位小数)
         engine: null
         rule: null
       - column: vntricular_aneurysm
         comment: 室壁瘤(条件:当超声心动图为是时):1-是,0-否
-        engine: null
-        rule: null
+        engine: choice
+        rule:
+          value: [0,1]
       - column: part_vntricular
         comment: 局部室壁活动异常(条件:当超声心动图为是时):1-是,0-否
-        engine: null
-        rule: null
+        engine: choice
+        rule:
+          value: [0,1]
       - column: hod
         comment: 住院天数
         engine: null
@@ -1988,20 +2065,23 @@ tables:
         rule: null
       - column: is_net_hospital
         comment: 是否是网络医院0-否,1-是
-        engine: null
-        rule: null
+        engine: choice
+        rule:
+          value: [0,1]
       - column: hospital_name
         comment: 医院名称
         engine: null
         rule: null
       - column: is_trans_pci
         comment: 是否转运PCI:1-是,0-否
-        engine: null
-        rule: null
+        engine: choice
+        rule:
+          value: [0,1]
       - column: is_direct_catheter
         comment: 直达导管室:1-是,0-否
-        engine: null
-        rule: null
+        engine: choice
+        rule:
+          value: [0,1]
       - column: decision_operation_time
         comment: 实际介入手术开始时间
         engine: null
@@ -2044,31 +2124,36 @@ tables:
         rule: null
       - column: death_cause_code
         comment: 死亡原因:1-是,0-否
-        engine: null
-        rule: null
+        engine: choice
+        rule:
+          value: [0,1]
       - column: death_cause_desc
         comment: 死亡描述
         engine: null
         rule: null
       - column: antiplatelet_drug
         comment: 抗血小板药物:1-是,0-否
-        engine: null
-        rule: null
+        engine: choice
+        rule:
+          value: [0,1]
       - column: acei_arb_drug
         comment: ACEI/ARB:1-是,0-否
-        engine: null
-        rule: null
+        engine: choice
+        rule:
+          value: [0,1]
       - column: lipid_drug
         comment: 调脂药物:1-是,0-否
-        engine: null
-        rule: null
+        engine: choice
+        rule:
+          value: [0,1]
       - column: arbs
         comment: β受体阻滞剂:1-是,0-否
-        engine: null
-        rule: null
+        engine: choice
+        rule:
+          value: [0,1]
       - column: remark
         comment: 患者情况备注
-        engine: null
+        engine: sentence
         rule: null
       - column: antiplatelet_drug_name
         comment: 抗血小板药物名称
@@ -2084,8 +2169,9 @@ tables:
         rule: null
       - column: is_add_antiplatelet_drug
         comment: 新增抗血小板药物0-否，1-是
-        engine: null
-        rule: null
+        engine: choice
+        rule:
+          value: [0,1]
       - column: antiplatelet_drug_name_two
         comment: 第二份抗血小板药物名称
         engine: null
@@ -2124,8 +2210,9 @@ tables:
         rule: null
       - column: is_add_lipid_drug
         comment: 新增调脂药物0-否，1-是
-        engine: null
-        rule: null
+        engine: choice
+        rule:
+          value: [0,1]
       - column: lipid_drug_name_two
         comment: 第二份调脂药物名称
         engine: null
@@ -2331,8 +2418,11 @@ tables:
         rule: null
       - column: balloon_expansion_time
         comment: 导丝通过时间
-        engine: null
-        rule: null
+        engine: faker.date_time_subtraction
+        rule:
+          start_date: '{{ cpc_treatment_pci_info.end_operation_time }}'
+          sub_time: -20m
+          format: '{{ env.time_format }}'
       - column: bracket_num
         comment: '植入支架个 1:0 枚 2:1 枚 3:2 枚 4:>=3 枚 '
         engine: null
