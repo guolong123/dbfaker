@@ -12,7 +12,7 @@ setup(
     author_email='565169745@qq.com',
     url='https://gitee.com/565169745/dbfaker',
     packages=setuptools.find_packages(),
-    scripts=['bin/dbfaker', 'bin/table2yml',],
+    # scripts=['bin/dbfaker', 'bin/table2yml',],
     entry_points={'console_scripts': [
          'dbfaker = dbfaker.cli:run',
          'table2yml = dbfaker.table2yml:main'
