@@ -26,7 +26,7 @@ def start(connect, table_names=None,
         table_building_statement = table_name_to_table_building_statement(session, tables)
     else:
         file_name = os.path.split(sql_file)[1] + '_meta.yml'
-        with open(sql_file)as f:
+        with open(sql_file, encoding='utf-8')as f:
             table_building_statement = f.read()
 
     result = {
@@ -48,7 +48,7 @@ def start(connect, table_names=None,
         result['tables'].append(table_obj)
     if not output:
         output = file_name
-    f = open(output, 'w')
+    f = open(output, 'w', encoding='utf-8')
     f.write('''# 请完善此文件中每个字段的生成规则
 # 规则说明：
 # package: 动态导包，在下方字段使用了jinja2模板且在模板语法中使用了非Python基础库时需要在此动态声明导入需要的包;使用示例:
