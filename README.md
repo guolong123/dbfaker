@@ -25,7 +25,7 @@
 
 #### 安装
 ```shell script
-git clone https://gitee.com/565169745/dbfaker.git
+git clone https://gitee.com/guojongg/dbfaker.git
 cd dbfaker
 # 可先创建虚拟环境后再安装
 python3 setup.py install
