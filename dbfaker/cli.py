@@ -15,8 +15,6 @@ def loop(meta_file, number=1, insert=False, connect=None, output=None):
     sqls = []
     while n < number:
         handler = DataGenerator(faker, meta_file, connect)()
-        mock_data = handler.result_data
-        extraction = handler.extraction_data
         sqls += handler.dict2sql()
         if insert:
             for sql in sqls:

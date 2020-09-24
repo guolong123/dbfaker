@@ -11,6 +11,7 @@ class DataGenerator:
         self.all_package = {}
         self.pre_data = {}
         self.result_data = []
+        self.extraction_data = {}
         self.log = log
         self.faker = faker
         self.sqls = []
@@ -28,6 +29,9 @@ class DataGenerator:
         return self
 
     def _import_package(self):
+        """
+        动态导包
+        """
         self.all_package.update(__builtins__)
         packages = self.meta.get('package')
         if not packages:
@@ -94,7 +98,6 @@ class DataGenerator:
             try:
                 for field in columns.get('columns'):
                     field_column = field.get('column')
-                    field_comment = field.get('comment')
                     field_engine = field.get('engine')
                     field_rule = json.loads(self._template_render(json.dumps(field.get("rule"))))
                     _r = self._gen_data(field_engine, field_rule)
@@ -123,12 +126,10 @@ class DataGenerator:
         return r
 
     def mock_data(self):
-
         fields = self.meta.get('tables')
         for columns in fields:
             d = {}
             table_name = columns.get("table")
-            # d['comment'] = columns.get("comment")
             more = columns.get('more')
             d['table_name'] = table_name
             if not more:
@@ -140,7 +141,6 @@ class DataGenerator:
         return self.result_data
 
     def extraction(self):
-        self.extraction_data = {}
         extraction_metas = self.meta.get('extraction')
         if not extraction_metas:
             return self.extraction_data

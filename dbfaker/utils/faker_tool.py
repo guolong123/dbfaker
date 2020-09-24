@@ -203,9 +203,7 @@ class Provider(BaseProvider):
                 value = json.loads(value)
             except json.decoder.JSONDecodeError:
                 pass
-        if rand_number and rand_number < len(value):
-            rand_number = rand_number
-        else:
+        if not rand_number or rand_number > len(value):
             rand_number = random.randint(0, len(value))
         return splits.join([str(i) for i in random.sample(value, rand_number)])
 
