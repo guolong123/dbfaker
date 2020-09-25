@@ -29,6 +29,8 @@ git clone https://gitee.com/guojongg/dbfaker.git
 cd dbfaker
 # 可先创建虚拟环境后再安装
 python3 setup.py install
+# 使用pip直接安装
+pip3 install dbfaker
 
 # 卸载
 pip uninstall dbfaker

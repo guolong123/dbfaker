@@ -29,8 +29,8 @@ setup(
     ],
     classifiers=[
         'Development Status :: 4 - Beta',
-        'Operating System :: Microsoft' 
-        'Intended Audience :: Developers',
+        # 'Operating System :: OS Independent'
+        # 'Intended Audience :: Developers',
         'License :: OSI Approved :: BSD License',
         'Programming Language :: Python',
         'Programming Language :: Python :: 3',
