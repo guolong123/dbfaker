@@ -5,7 +5,7 @@ from distutils.core import setup
 import setuptools
 from dbfaker.utils.constant import __version__, __author__, __description__, __author_email__, __url__
 
-with open("README.md", "r") as fh:
+with open("README.md", "r", encoding='utf-8') as fh:
     long_description = fh.read()
 
 setup(
@@ -30,8 +30,9 @@ setup(
         'Faker',
         'Jinja2',
         'SQLAlchemy',
-        'ply'
-
+        'ply',
+		'tqdm',
+		'DBUtils'
     ],
     classifiers=[
         'Development Status :: 4 - Beta',
