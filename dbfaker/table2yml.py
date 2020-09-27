@@ -98,7 +98,7 @@ def parse_args():
     parser.add_argument('type', nargs='?', action='store', default='table_name',
                         help='数据来源，table_name： 通过输入表名与数据库链接方式，在数据库中获取数据库建表语句；\n table_statement: 指定数据库建表语句的sql文件路径')
     parser.add_argument('--connect', nargs='?', action='store',
-                        help='数据库连接语法，例如：mysql+mysqldb://pdmsadmin:system001@cpcs.homelabs.in/pdms_hospital')
+                        help='数据库连接语法，例如：mysql+mysqldb://user:password@host/dbname')
     parser.add_argument('--table_names', nargs='?', action='store', help='数据库表，多个表以“,”分割')
     parser.add_argument('--sql_file', nargs='?', action='store', help='数据库建表语句的sql文件路径')
     parser.add_argument('--output', nargs='?', action='store', default=None, help='输出文件名，默认为数据库表名+meta.yml')

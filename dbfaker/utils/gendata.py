@@ -189,8 +189,9 @@ class DataGenerator:
             datas = self.result_data
 
         def d2s(table, fields):
-            ls = [(k, fields[k]) for k in fields if fields[k]]
-            sql = f"insert into {table} set " + ', '.join([i[0] + "=%r" % i[1] for i in ls]) + ';'
+            keys = ', '.join(list(fields.keys()))
+            values = tuple(fields.values())
+            sql = "INSERT INTO {table}({keys}) values {values}".format(table=table, keys=keys, values=values)
             return sql
 
         for table, fields in datas.items():
