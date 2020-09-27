@@ -1,4 +1,4 @@
-__version__ = '0.0.3-beta0927-1'
+__version__ = '0.0.3-beta0927-2'
 __author__ = 'Long Guo'
 __author_email__ = '565169745@qq.com'
 __url__ = 'https://gitee.com/guojongg/dbfaker'
