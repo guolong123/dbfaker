@@ -3,18 +3,18 @@
 # Author: guolong<565169745@qq.com>
 from distutils.core import setup
 import setuptools
-
+from dbfaker.utils.constant import __version__, __author__, __description__, __author_email__, __url__
 
 with open("README.md", "r") as fh:
     long_description = fh.read()
 
 setup(
     name='dbfaker',
-    version='0.0.2-beta0925',
-    description='基于数据库层面批量生成有逻辑关联的数据',
-    author='Long Guo',
-    author_email='565169745@qq.com',
-    url='https://gitee.com/guojongg/dbfaker',
+    version=__version__,
+    description=__description__,
+    author=__author__,
+    author_email=__author_email__,
+    url=__url__,
     packages=setuptools.find_packages(),
     long_description=long_description,
     long_description_content_type="text/markdown",

@@ -7,26 +7,22 @@ from dbfaker.utils.faker_date_time import Provider as DateTimeProvider
 from dbfaker.utils.faker_tool import Provider as ToolProvider
 from faker import Faker
 from dbfaker.utils.generator import MGenerator
+from tqdm import tqdm
 
 faker = Faker(locale='zh_CN', generator=MGenerator(locale='zh_CN'))
 
 
-def loop(meta_file, number=1, insert=False, connect=None, output=None):
-    n = 0
-    sqls = []
-    while n < number:
-        handler = DataGenerator(faker, meta_file, connect)()
-        sqls += handler.dict2sql()
-        if insert:
-            for sql in sqls:
-                handler.insert2db(sql)
-        n += 1
-    if output:
-        f = open(output, 'w')
-        f.write('\n'.join(sqls))
-        f.close()
-    else:
-        [print(i) for i in sqls]
+def loop(meta_file, number=1, insert=False, connect=None, output=None, _print=True):
+    handler = DataGenerator(faker, meta_file, connect, insert=insert, output=output)
+    handler.import_package()
+    for i in tqdm(range(number), unit='条'):
+        sys.stdout.flush()
+        handler.start()
+    handler.insert2db()
+    handler.save()
+    if _print:
+        [print(i) for i in handler.sqls]
+
     print('执行完成，共生成{number}组数据'.format(number=number))
 
 
@@ -47,6 +43,7 @@ def parse_args():
 
     parser.add_argument('-o', '--output', nargs='?', action='store',
                         help='数据库连接语法，例如：mysql+mysqldb://pdmsadmin:system001@cpcs.homelabs.in/pdms_hospital')
+    parser.add_argument('-p', '--_print', action='store_true', help='是否打印到控制台')
     args = parser.parse_args()
     if not args.meta_file:
         print('You must supply meta_file\n')

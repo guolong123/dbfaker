@@ -6,7 +6,7 @@ import os
 import re
 import json
 from dbfaker.common.setting import check_path
-from dbfaker.common.mysqldb import Database
+from dbfaker.common.database import Database
 import pypinyin
 
 

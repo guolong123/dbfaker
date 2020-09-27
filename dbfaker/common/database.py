@@ -1,11 +1,42 @@
 # -*- encoding: utf-8 -*-
 import pymysql
 from dbfaker.common.drivers import load_sqlalchemy, load_conn
+from dbfaker.common.db_helper import DBHelper
+from sqlalchemy.engine import url
+
 pymysql.install_as_MySQLdb()
 
+
 class Database:
-    def __init__(self, db_session):
-        self.db = load_conn(db_session).connection.connection
+    db = None
+
+    def __init__(self, db_session=None):
+        self.__init_db(db_session)
+
+    @classmethod
+    def __init_db(cls, db_session):
+        if not cls.db and db_session:
+            drivername, db_config = cls.__analyse_db_session(db_session)
+            DBHelper.db_setting(**db_config)
+            cls.db = DBHelper(drivername)
+
+    @staticmethod
+    def __analyse_db_session(db_session):
+        url_config = url.make_url(db_session)
+        entrypoint = url_config._get_entrypoint()
+        dialect_cls = entrypoint.get_dialect_cls(url_config)
+        dbapi = dialect_cls.dbapi()
+
+        db_config = {
+            'creator': dbapi,
+            'host': url_config.host,
+            'user': url_config.username,
+            'passwd': url_config.password,
+            'db': url_config.database,
+            'port': url_config.port
+        }
+
+        return url_config.drivername, db_config
 
     def select(self, table, where=None):
         """
@@ -14,7 +45,7 @@ class Database:
         :param where:
         :return:
         """
-        cur = self.db.cursor()
+        cur = self.db.cur
         if not where:
             sql = "select * from {}".format(table)
         else:
@@ -35,7 +66,7 @@ class Database:
         :param where:
         :return:
         """
-        cur = self.db.cursor()
+        cur = self.db.cur
         if not where:
             sql = "select * from {}".format(table)
         else:
@@ -57,7 +88,7 @@ class Database:
         :param where:
         :return:
         """
-        cur = self.db.cursor()
+        cur = self.db.cur
         cur.execute(sql)
         result = cur.fetchall()
         results = []
@@ -74,7 +105,7 @@ class Database:
         :return:
         """
         # print(sql)
-        cur = self.db.cursor()
+        cur = self.db.cur
         try:
             cur.execute(sql)
             self.db.commit()
@@ -98,7 +129,7 @@ class Database:
 
     def query_table(self, table_name):
         sql = 'show create table {table_name};'.format(table_name=table_name)
-        cur = self.db.cursor()
+        cur = self.db.cur
         cur.execute(sql)
         result = cur.fetchall()
         return result[0][1]
@@ -115,6 +146,4 @@ class Database:
         self.query(sql)
 
     def close(self):
-        self.db.close()
-
-
+        self.db.dispose()

@@ -3,11 +3,13 @@ import jinja2
 import json
 import copy
 from dbfaker.common.logger import log
-from dbfaker.common.mysqldb import Database
+from dbfaker.common.database import Database
 
 
 class DataGenerator:
-    def __init__(self, faker, meta, connect=None):
+    def __init__(self, faker, meta, connect=None, insert=False, output=None):
+        self.insert = insert
+        self.output = output
         self.all_package = {}
         self.pre_data = {}
         self.result_data = {}
@@ -22,13 +24,23 @@ class DataGenerator:
             self.db = None
         self.meta = get_yaml(meta)
 
-    def __call__(self, *args, **kwargs):
+    def import_package(self):
         self._import_package()
+
+    def start(self):
         self._env()
         self.mock_data()
         self.extraction()
         self._error_field()
+        self.dict2sql()
         return self
+
+    def save(self):
+        if not self.output:
+            return
+        f = open(self.output, 'w')
+        f.write('\n'.join(self.sqls))
+        f.close()
 
     def _import_package(self):
         """
@@ -51,10 +63,10 @@ class DataGenerator:
         :return:
         """
         self.pre_data['env'] = {}
-        condition = self.meta.get('env')
-        if not condition:
+        env = self.meta.get('env')
+        if not env:
             return
-        for i, j in condition.items():
+        for i, j in env.items():
             engine = j.get("engine")
             rule = j.get("rule")
             result = self._gen_data(engine, rule)
@@ -191,10 +203,10 @@ class DataGenerator:
                 self.sqls.append(sql)
         return self.sqls
 
-    def insert2db(self, sql=None):
-        if not sql:
-            return
-        if self.db:
-            self.db.query(sql)
-        else:
+    def insert2db(self):
+        if not self.db:
             self.log.w('未指定数据库连接引擎，无法插入到数据库...')
+            return
+        for sql in self.sqls:
+            self.db.query(sql)
+

@@ -1,6 +1,6 @@
 import json
 import yaml
-from dbfaker.common.mysqldb import Database
+from dbfaker.common.database import Database
 import sys
 import os
 from dbfaker.utils.constant import __version__

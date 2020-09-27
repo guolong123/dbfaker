@@ -132,10 +132,10 @@ tables:
 ```shell
 PC:~/01 Work/07 MyProject/dbfaker$ source venv/bin/activate
 (venv) PC:~/01 Work/07 MyProject/dbfaker$ dbfaker -h
-usage: dbfaker [-h] [-n [NUMBER]] [-i] [-c [CONNECT]] [-o [OUTPUT]]
+usage: dbfaker [-h] [-n [NUMBER]] [-i] [-c [CONNECT]] [-o [OUTPUT]] [-p]
                [meta_file]
 
-通过yml格式的描述文件来生成数据
+通过ｙｍｌ格式的描述文件来生成数据
 
 positional arguments:
   meta_file             yml文件所在路径
@@ -151,10 +151,12 @@ optional arguments:
   -o [OUTPUT], --output [OUTPUT]
                         数据库连接语法，例如：mysql+mysqldb://pdmsadmin:system001@cpcs.ho
                         melabs.in/pdms_hospital
+  -p, --_print          是否打印到控制台
+
 
 
 # 打印输出
-dbfaker data/test.yml --number 10
+dbfaker data/test.yml --number 10 -p
 
 # 保存到文件
 dbfaker data/test.yml --number 10 -o out.sql
