@@ -1254,7 +1254,7 @@ tables:
         engine: faker.choice
         rule:
           value: [1,2,3]
-      - column: grace_hr_env
+      - column: grace_hr_condition
         comment: 'Grace 极高危条件 1:急性心力衰竭伴难治性心绞痛和 ST段改变 2:危及生命的心律失常或心脏骤停 3:心源性休克或血流动力学不稳定
       4:心肌梗死机械性并发症 5:再发 ST-T 动态演变，尤其是伴有间歇性 ST 段抬高 '
         engine: faker.weights_choice

@@ -28,6 +28,8 @@ class DataGenerator:
         self._import_package()
 
     def start(self):
+        self.result_data = {}
+        self.extraction_data = {}
         self._env()
         self.mock_data()
         self.extraction()
@@ -163,6 +165,7 @@ class DataGenerator:
         return r
 
     def mock_data(self, fields=None):
+
         if not fields:
             fields = self.meta.get('tables')
         for columns in fields:
@@ -199,7 +202,7 @@ class DataGenerator:
 
     def dict2sql(self, datas=None):
         if not datas and isinstance(self.result_data, dict):
-            datas = self.result_data
+            datas = copy.deepcopy(self.result_data)
 
         def gen_sql(table_name, data):
 
