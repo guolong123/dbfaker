@@ -18,7 +18,6 @@ setup(
     packages=setuptools.find_packages(),
     long_description=long_description,
     long_description_content_type="text/markdown",
-    # scripts=['bin/dbfaker', 'bin/table2yml',],
     entry_points={'console_scripts': [
          'dbfaker = dbfaker.cli:run',
          'table2yml = dbfaker.table2yml:main'
@@ -36,8 +35,6 @@ setup(
     ],
     classifiers=[
         'Development Status :: 4 - Beta',
-        # 'Operating System :: OS Independent'
-        # 'Intended Audience :: Developers',
         'License :: OSI Approved :: BSD License',
         'Programming Language :: Python',
         'Programming Language :: Python :: 3',

@@ -46,7 +46,10 @@ class DataGenerator:
         """
         动态导包
         """
-        self.all_package.update(__builtins__)
+        if isinstance(__builtins__, dict):
+            self.all_package.update(__builtins__)
+        else:
+            self.all_package.update(__builtins__.__dict__)
         packages = self.meta.get('package')
         if not packages:
             return
@@ -145,13 +148,13 @@ class DataGenerator:
         if not engine:
             return
         if '.' not in engine:
-            engine = f"faker.{engine}"
+            engine = "faker.{engine}".format(engine=engine)
         if isinstance(rule, list):
-            r = eval(f"{engine}(*{rule})")
+            r = eval("{engine}(*{rule})".format(engine=engine, rule=rule))
         elif isinstance(rule, dict):
-            r = eval(f"{engine}(**{rule})")
+            r = eval("{engine}(**{rule})".format(engine=engine, rule=rule))
         elif rule is None:
-            r = eval(f"{engine}()")
+            r = eval("{engine}()".format(engine=engine))
         else:
             raise Exception('rule type need be dict or list!')
         return r
