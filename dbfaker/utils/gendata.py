@@ -72,6 +72,7 @@ class DataGenerator:
         for i, j in env.items():
             engine = j.get("engine")
             rule = j.get("rule")
+            rule = json.dumps(rule)
             result = self._gen_data(engine, rule)
             self.pre_data['env'][i] = result
 
@@ -104,25 +105,6 @@ class DataGenerator:
                 self.error_fields.update({'columns': error_field, 'table': table_name})
         return result
 
-    def _error_field(self):
-        """
-        异常字段重新处理，解决引用的字段还未生成时造成的引用失败的问题
-        """
-        if not self.error_fields:
-            return
-        self.mock_data([self.error_fields])
-
-    def _template_render(self, s, env=None):
-        """
-        jinja2模板渲染
-        """
-        tp = jinja2.Template(s, undefined=jinja2.StrictUndefined)
-        if isinstance(env, dict):
-            self.all_package.update(env)
-        tp.globals.update(self.all_package)
-        r = tp.render(**self.pre_data)
-        return r
-
     def _more_field(self, columns, max_cnt=1):
         results = []
         result = {}
@@ -143,7 +125,28 @@ class DataGenerator:
         self.pre_data[table_name] = results
         return results
 
+    def _error_field(self):
+        """
+        异常字段重新处理，解决引用的字段还未生成时造成的引用失败的问题
+        """
+        if not self.error_fields:
+            return
+        self.mock_data([self.error_fields])
+
+    def _template_render(self, s, env=None):
+        """
+        jinja2模板渲染
+        """
+        tp = jinja2.Template(s, undefined=jinja2.StrictUndefined)
+        if isinstance(env, dict):
+            self.all_package.update(env)
+        tp.globals.update(self.all_package)
+        r = tp.render(**self.pre_data)
+        return r
+
     def _gen_data(self, engine: str, rule):
+        if isinstance(rule, str):
+            rule = json.loads(self._template_render(rule))
         faker = self.faker
         if not engine:
             return
@@ -169,8 +172,15 @@ class DataGenerator:
                 d = self._field(columns)
             else:
                 max_cnt = more.get("max_number", 1)
+                if isinstance(max_cnt, str):
+                    max_cnt = int(self._template_render(max_cnt))
                 d = self._more_field(columns=columns, max_cnt=max_cnt)
-            self.result_data[table_name] = d
+            if table_name not in self.result_data and not more:
+                self.result_data[table_name] = {}
+                self.result_data[table_name].update(d)
+            elif table_name not in self.result_data:
+                self.result_data[table_name] = d
+
         return self.result_data
 
     def extraction(self):
@@ -191,19 +201,35 @@ class DataGenerator:
         if not datas and isinstance(self.result_data, dict):
             datas = self.result_data
 
-        def d2s(table, fields):
-            keys = ', '.join(list(fields.keys()))
-            values = tuple(fields.values())
-            sql = "INSERT INTO {table}({keys}) values {values}".format(table=table, keys=keys, values=values)
+        def gen_sql(table_name, data):
+
+
+            """
+            :param table_name: 表名称
+            :param data: 字典对象 key为字段(要与数据库字段一样), value为插入值
+            :return: 拼接好的sql语句
+            """
+
+            fields = list()
+            values = list()
+            for k, v in data.items():
+                if v:  # 没有值, 就不插入
+                    fields.append(k)
+                    values.append(v)
+            fields_count = len(fields)
+            f = "(" + "{}," * (fields_count - 1) + "{})"
+            v = "(" + "'{}'," * (fields_count - 1) + "'{}')"
+            sql = "insert into {} " + f + " VALUES " + v
+            sql = sql.format(table_name, *fields, *values)
             return sql
 
         for table, fields in datas.items():
             if isinstance(fields, list):
                 for i in fields:
-                    sql = d2s(table, i)
+                    sql = gen_sql(table, i)
                     self.sqls.append(sql)
             elif isinstance(fields, dict):
-                sql = d2s(table, fields)
+                sql = gen_sql(table, fields)
                 self.sqls.append(sql)
         return self.sqls
 

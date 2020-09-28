@@ -6,12 +6,17 @@
 
 package:  # 动态导入包, 在jinja2模板中引用
   - datetime
+  - random
 
 env:  # 环境变量，可在此预定义全局变量，用于在下方字段引用
+  hospital_name:
+    engine: eq
+    rule:
+      value: 海口市人民医院
   hospital_id:
     engine: from_db
     rule:
-      sql: select id from hospital_info where name='海口市人民医院';
+      sql: select id from hospital_info where name='{{ env.hospital_name }}';
       key: id
   operator_id:
     engine: faker.from_db
@@ -27,6 +32,12 @@ env:  # 环境变量，可在此预定义全局变量，用于在下方字段引
     engine: faker.eq
     rule:
       value: "%Y-%m-%d %H:%M:%S"
+  infarct_position:
+    engine: order
+    rule:
+      value:  ["01", "02", "03", '04', '05', '06', '07', '08', '09', '10', '11', "12", "13", '14', '15', '16', '17', '18', '19', '20', '21']
+      out_of_order: true
+
 
 tables:
   - columns:
@@ -110,7 +121,7 @@ tables:
         comment: 病人民族
         engine: faker.eq
         rule:
-          value: 汉
+          value: '01'
       - column: blood_type
         comment: 病人血型
         engine: null
@@ -482,6 +493,7 @@ tables:
         engine: faker.randfloat
         rule:
           value: [35,40]
+          round_num: 1
       - column: distress_case
         comment: 病情评估(必填):1-持续性胸闷/胸痛,2-间歇性胸闷/胸痛,3-症状已缓解
         engine: faker.choice
@@ -1701,7 +1713,7 @@ tables:
         comment: D2W 时间
         engine: eq
         rule:
-          value: '{{ int((datetime.datetime.strptime(cpc_coronary_angiographie.balloon_expansion_time,  env.time_format) - datetime.datetime.strptime(cpc_emergency_info.cw_zy_arrived_hospital_time,  env.time_format)).total_seconds()/60) }}'
+          value: '{{ int((datetime.datetime.strptime(cpc_coronary_angiographie[0].balloon_expansion_time,  env.time_format) - datetime.datetime.strptime(cpc_emergency_info.cw_zy_arrived_hospital_time,  env.time_format)).total_seconds()/60) }}'
       - column: is_delay
         comment: 是否延误 0-否 1-是
         engine: eq
@@ -2037,32 +2049,43 @@ tables:
           value: [0,1]
       - column: hod
         comment: 住院天数
-        engine: null
-        rule: null
+        engine: randint
+        rule:
+          value: [1,30]
       - column: total_cost
         comment: 总费用保留2位小数
-        engine: null
-        rule: null
+        engine: randfloat
+        rule:
+          value: [100, 1000]
       - column: outcome_code
         comment: 患者转归( 必填):1-出院,2-转送其它医院,3-转送其它科室,4-死亡
-        engine: null
-        rule: null
+        engine: choice
+        rule:
+          value: [1,2,3,4]
       - column: mission_education
         comment: 离院宣教(多选用竖线隔开。如"1|2|14" ):1-戒烟,2-规律坚持服药,3-遵医嘱随访治疗,4-生活起居调护,5-心血管危险因素控制（降压、调脂、血糖控制、限酒、控制体重）,9-未宣教
-        engine: null
-        rule: null
+        engine: multi_choice
+        rule:
+          value: [1,2,3,4,5,6]
       - column: leave_time
         comment: 出院时间( 必填 条件:当“患者转归”为“出院”时)
-        engine: null
-        rule: null
+        engine: faker.date_time_subtraction
+        rule:
+          start_date: '{{ cpc_treatment_pci_info.anticoagulation_time }}'
+          sub_time: +2d
+          format: '{{ env.time_format }}'
       - column: treatment_result_code
         comment: 治疗结果( 必填 条件:当“患者转归”为“出院”时):1-治愈,2-好转,3-自动离院,4-其它原因离院
-        engine: null
-        rule: null
+        engine: choice
+        rule:
+          value: [1,2,3,4]
       - column: hand_time
         comment: 离开本院大门时间( 必填 条件:当“患者转归”为“转送其它医院”时)
-        engine: null
-        rule: null
+        engine: faker.date_time_subtraction
+        rule:
+          start_date: '{{ cpc_out_come_info.leave_time }}'
+          sub_time: +2d
+          format: '{{ env.time_format }}'
       - column: is_net_hospital
         comment: 是否是网络医院0-否,1-是
         engine: choice
@@ -2070,8 +2093,9 @@ tables:
           value: [0,1]
       - column: hospital_name
         comment: 医院名称
-        engine: null
-        rule: null
+        engine: eq
+        rule:
+          value: '{{ env.hospital_name }}'
       - column: is_trans_pci
         comment: 是否转运PCI:1-是,0-否
         engine: choice
@@ -2129,7 +2153,7 @@ tables:
           value: [0,1]
       - column: death_cause_desc
         comment: 死亡描述
-        engine: null
+        engine: sentence
         rule: null
       - column: antiplatelet_drug
         comment: 抗血小板药物:1-是,0-否
@@ -2287,27 +2311,27 @@ tables:
         rule: null
       - column: lapse_to_basis_remark
         comment: 填报信息备注
-        engine: null
+        engine: sentence
         rule: null
       - column: hazards_remark
         comment: 填报信息备注
-        engine: null
+        engine: sentence
         rule: null
       - column: complicating_disease_remark
         comment: 填报信息备注
-        engine: null
+        engine: sentence
         rule: null
       - column: inspection_result_remark
         comment: 填报信息备注
-        engine: null
+        engine: sentence
         rule: null
       - column: leave_hospital_remark
         comment: 填报信息备注
-        engine: null
+        engine: sentence
         rule: null
       - column: leave_hospital_drugs_remark
         comment: 填报信息备注
-        engine: null
+        engine: sentence
         rule: null
       - column: ctni_max_value_unit
         comment: '72h 内肌钙蛋白最高值(单位) '
@@ -2315,8 +2339,9 @@ tables:
         rule: null
       - column: covid19
         comment: 'COVID-19 1:经筛查后排除  2:经筛查后确诊  3:未经筛查 '
-        engine: null
-        rule: null
+        engine: choice
+        rule:
+          value: [1,2,3]
       - column: is_jtyw
         comment: 降糖药物
         engine: null
@@ -2378,44 +2403,54 @@ tables:
           value: '{{ cpc_basis.id }}'
       - column: infarct_position
         comment: 部位值
-        engine: null
-        rule: null
+        engine: eq
+        rule:
+          value: '{{ next(env.infarct_position) }}'
       - column: narrow_level
         comment: '狭窄程度 1:<50% 2:50~69% 3:70~89% 4:90~99% 5:100% '
-        engine: null
-        rule: null
+        engine: choice
+        rule:
+          value: [1,2,3,4,5]
       - column: preoperative_timi_level
         comment: 造影时 TIMI 血流 0:0 级 1:1 级 2:2 级 3:3 级
-        engine: null
-        rule: null
+        engine: choice
+        rule:
+          value: [1,2,3]
       - column: bracket_thrombus
         comment: '支架内血栓 0:否 1:是 '
-        engine: null
-        rule: null
+        engine: choice
+        rule:
+          value: [1,0]
       - column: branching_sick
         comment: '是否分叉病变 0:否 1:是 '
-        engine: null
-        rule: null
+        engine: choice
+        rule:
+          value: [1,0]
       - column: cto
         comment: '是否cto 0:否 1:是 '
-        engine: null
-        rule: null
+        engine: choice
+        rule:
+          value: [1,0]
       - column: ca_sick
         comment: 钙化病变 0:否 1:是
-        engine: null
-        rule: null
+        engine: choice
+        rule:
+          value: [1,0]
       - column: criminal_sick
         comment: 罪犯病变 0:否 1:是
-        engine: null
-        rule: null
+        engine: choice
+        rule:
+          value: [1,0]
       - column: pci
         comment: pci 0:否 1:是
-        engine: null
-        rule: null
+        engine: choice
+        rule:
+          value: [1,0]
       - column: intraoperative_handle
         comment: 术中处理 0:无 1:植入支架 2:PTCA 3:血栓抽吸 4:冠脉内溶栓 5:仅使用导丝 9:其他
-        engine: null
-        rule: null
+        engine: choice
+        rule:
+          value: [1,0,2,3,4,5,9]
       - column: balloon_expansion_time
         comment: 导丝通过时间
         engine: faker.date_time_subtraction
@@ -2425,18 +2460,23 @@ tables:
           format: '{{ env.time_format }}'
       - column: bracket_num
         comment: '植入支架个 1:0 枚 2:1 枚 3:2 枚 4:>=3 枚 '
-        engine: null
-        rule: null
+        engine: choice
+        rule:
+          value: [1,2,3,4]
       - column: bracket_type
         comment: '支架种类 1:BMS 2:DES 3:可降解支架 4:其他 '
-        engine: null
-        rule: null
+        engine: choice
+        rule:
+          value: [1,2,3,4]
       - column: timi
         comment: '术后TIMI 血流 0:0 级 1:1 级 2:2 级 3:3 级 '
-        engine: null
-        rule: null
+        engine: choice
+        rule:
+          value: [1,2,3]
     comment: '冠状动脉造影 '
     table: cpc_coronary_angiographie
+    more:
+      max_number: '{{ random.randint(1, 10) }}'
 
 extraction:
   hospital_id:

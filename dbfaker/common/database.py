@@ -110,7 +110,7 @@ class Database:
             cur.execute(sql)
             self.db.commit()
         except Exception as e:
-            print(e)
+            print(str(e) + "\n"+sql)
             self.db.rollback()
             if raise_:
                 raise

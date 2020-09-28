@@ -231,10 +231,12 @@ class Provider(BaseProvider):
 
 
     @staticmethod
-    def order(value):
+    def order(value, out_of_order=False):
         """
         返回一个列表生成器对象，使用next()来调用
         """
+        if out_of_order and isinstance(value, list):
+            value = list(set(value))
         for i in value:
             yield i
 
