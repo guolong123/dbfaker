@@ -3,24 +3,56 @@
 # Author: guolong<565169745@qq.com>
 from distutils.core import setup
 import setuptools
-from dbfaker.utils.constant import __version__, __author__, __description__, __author_email__, __url__
+import os
+import codecs
+import re
+
+DESCRIPTION = ''
+AUTHOR = ''
+URL = ''
+VERSION = ''
+EMAIL_URL = ''
+
+here = os.path.abspath(os.path.dirname(__file__))
+
+
+def read(*parts):
+    return codecs.open(os.path.join(here, *parts)).read()
+
+
+def find_config(*file_paths):
+    config_file = read(*file_paths)
+    global VERSION, DESCRIPTION, URL, AUTHOR, EMAIL_URL
+    VERSION = re.search(r"^__version__ = ['\"]([^'\"]*)['\"]",
+                        config_file, re.M).group(1)
+    DESCRIPTION = re.search(r"^__description__ = ['\"]([^'\"]*)['\"]",
+                            config_file, re.M).group(1)
+    AUTHOR = re.search(r"^__author__ = ['\"]([^'\"]*)['\"]",
+                       config_file, re.M).group(1)
+    URL = re.search(r"^__url__ = ['\"]([^'\"]*)['\"]",
+                    config_file, re.M).group(1)
+    EMAIL_URL = re.search(r"^__author_email__ = ['\"]([^'\"]*)['\"]",
+                    config_file, re.M).group(1)
+
 
 with open("README.md", "r", encoding='utf-8') as fh:
     long_description = fh.read()
 
+find_config('dbfaker/utils/constant.py')
+
 setup(
     name='dbfaker',
-    version=__version__,
-    description=__description__,
-    author=__author__,
-    author_email=__author_email__,
-    url=__url__,
+    version=VERSION,
+    description=DESCRIPTION,
+    author=AUTHOR,
+    author_email=EMAIL_URL,
+    url=URL,
     packages=setuptools.find_packages(),
     long_description=long_description,
     long_description_content_type="text/markdown",
     entry_points={'console_scripts': [
-         'dbfaker = dbfaker.cli:run',
-         'table2yml = dbfaker.table2yml:main'
+        'dbfaker = dbfaker.cli:run',
+        'table2yml = dbfaker.table2yml:main'
     ]},
     install_requires=[
         'PyMySQL',
@@ -30,8 +62,8 @@ setup(
         'Jinja2',
         'SQLAlchemy',
         'ply',
-		'tqdm',
-		'DBUtils'
+        'tqdm',
+        'dbutils'
     ],
     classifiers=[
         'Development Status :: 4 - Beta',

@@ -1,4 +1,3 @@
-import json
 import yaml
 from dbfaker.common.database import Database
 import sys
