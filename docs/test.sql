@@ -1,0 +1,6 @@
+insert into stu (id,name,school,nickname,age,score,phone,email,address) VALUES ('f2f60d0b80d04bc9bc928630f2b05eec','杨淑英','中国家里蹲小学','yangshuying','12','E','18117233461','yaoping@hotmail.com','江西省玉梅县萧山陈路x座 634867')
+insert into course (id,name,grade,teacher) VALUES ('9b70b4675fa24b428d24541dc616eee9','数学','五年级','李玉')
+insert into choice_course (id,stu_id,course_id,time) VALUES ('60ea65d707e5459aaa812a5c6f152494','f2f60d0b80d04bc9bc928630f2b05eec','9b70b4675fa24b428d24541dc616eee9','2020-09-29 19:34:S')
+insert into stu (id,name,school,nickname,age,score,phone,email,address) VALUES ('570702c08ea74b9995cd570d802b8c37','王小红','中国家里蹲小学','wangxiaohong','13','E','14545287717','guiyingma@guiying.cn','香港特别行政区邯郸市秀英胡街Q座 661726')
+insert into course (id,name,grade,teacher) VALUES ('9a46ea0ec1494ba78b91221c57259190','物理','一年级','陈玲')
+insert into choice_course (id,stu_id,course_id,time) VALUES ('4b261016b6264d5b9b0b7eac2f338233','570702c08ea74b9995cd570d802b8c37','9a46ea0ec1494ba78b91221c57259190','2020-09-29 19:34:S')
