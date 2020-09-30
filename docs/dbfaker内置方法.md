@@ -22,7 +22,7 @@
 | randfloat  | 给定一个长度为2的列表[value]返回指定范围的浮点数，浮点数的小数点长度为[round_num] | value: list，round_num=2 | float |
 | order  | 给定一个列表[value]返回一个列表生成器对象，使用next()来调用，可指定列表是否需要乱序[out_of_order] | value: list，out_of_order=False | float |
 | date_time_between  | 给定开始的时间点[start_date]和结束时间点[end_date]，从时间范围内返回随机时间；可指定时区[tzinfo]、时间偏移[offset]、返回的时间格式[format],参考faker库中的[date_time_between](https://faker.readthedocs.io/en/stable/providers/faker.providers.date_time.html?highlight=date_time_between#faker.providers.date_time.Provider.date_time_between) | start_date=None, end_date=None, tzinfo=None, offset=None, format=None | str |
-| date_time_subtraction  | 给定开始的时间点[start_date]和要调整的时间[sub_time]，从时间范围内返回随机时间；可通过参数[approximate_time]指定时间是否进行随机偏移，指定后返回的时间将不完全按照[sub_time]字段来显示，会随机将[sub_time]加或者减去自身0-1倍来返回。做到模拟更随机的时间。 | start_date, sub_time, format=None, approximate_time=True | float |
-| now  | 返回当前时间的指定格式[format],不指定format时返回时间戳 | format:None | float |
+| date_time_subtraction  | 给定开始的时间点[start_date]和要调整的时间[sub_time]，从时间范围内返回随机时间；可通过参数[approximate_time]指定时间是否进行随机偏移，指定后返回的时间将不完全按照[sub_time]字段来显示，会随机将[sub_time]加或者减去自身0-1倍来返回。做到模拟更随机的时间。 | start_date, sub_time, format=None, approximate_time=True | str,float |
+| now  | 返回当前时间的指定格式[format],不指定format时返回时间戳 | format:None | str,float |
 
-### 更多参数可参考[faker标准库方法](https://faker.readthedocs.io/en/stable/providers.html)
+### 更多方法可参考[faker标准库方法](https://faker.readthedocs.io/en/stable/providers.html)

@@ -13,7 +13,7 @@ CREATE TABLE `stu` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
---课程表--
+
 CREATE TABLE `course` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT COMMENT '自增id',
   `name` varchar(20) NOT NULL COMMENT '课程名称',
@@ -22,7 +22,7 @@ CREATE TABLE `course` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
---选课表--
+
 CREATE TABLE `choice_course` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT COMMENT '自增id',
   `stu_id` varchar(20) NOT NULL COMMENT '学生ID',
