@@ -63,7 +63,10 @@ class Provider(DataTimeProvider):
             sub_time.update({key: appr_value})
         sub_time1 = timedelta(**sub_time)
         end_date = start_date + sub_time1
-        return end_date.strftime(format)
+        if format:
+            return end_date.strftime(format)
+        else:
+            return end_date.second
 
     def now(self, format=None):
         """

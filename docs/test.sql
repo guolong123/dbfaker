@@ -1,6 +1,32 @@
-insert into stu (id,name,school,nickname,age,score,phone,email,address) VALUES ('f2f60d0b80d04bc9bc928630f2b05eec','杨淑英','中国家里蹲小学','yangshuying','12','E','18117233461','yaoping@hotmail.com','江西省玉梅县萧山陈路x座 634867')
-insert into course (id,name,grade,teacher) VALUES ('9b70b4675fa24b428d24541dc616eee9','数学','五年级','李玉')
-insert into choice_course (id,stu_id,course_id,time) VALUES ('60ea65d707e5459aaa812a5c6f152494','f2f60d0b80d04bc9bc928630f2b05eec','9b70b4675fa24b428d24541dc616eee9','2020-09-29 19:34:S')
-insert into stu (id,name,school,nickname,age,score,phone,email,address) VALUES ('570702c08ea74b9995cd570d802b8c37','王小红','中国家里蹲小学','wangxiaohong','13','E','14545287717','guiyingma@guiying.cn','香港特别行政区邯郸市秀英胡街Q座 661726')
-insert into course (id,name,grade,teacher) VALUES ('9a46ea0ec1494ba78b91221c57259190','物理','一年级','陈玲')
-insert into choice_course (id,stu_id,course_id,time) VALUES ('4b261016b6264d5b9b0b7eac2f338233','570702c08ea74b9995cd570d802b8c37','9a46ea0ec1494ba78b91221c57259190','2020-09-29 19:34:S')
+CREATE TABLE `stu` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT COMMENT '自增id',
+  `name` varchar(20) NOT NULL COMMENT '学生名字',
+  `school` varchar(20) NOT NULL COMMENT '学校名字',
+  `nickname` varchar(20) NOT NULL COMMENT '学生小名',
+  `age` int(11) NOT NULL COMMENT '学生年龄',
+  `class_num` int(11) NOT NULL COMMENT '班级人数',
+  `score` decimal(4,2) NOT NULL COMMENT '成绩',
+  `phone` int(20) NOT NULL COMMENT '电话号码',
+  `email` varchar(64) DEFAULT NULL COMMENT '家庭网络邮箱',
+  `ip` varchar(32) DEFAULT NULL COMMENT 'IP地址',
+  `address` text COMMENT '家庭地址',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+--课程表--
+CREATE TABLE `course` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT COMMENT '自增id',
+  `name` varchar(20) NOT NULL COMMENT '课程名称',
+  `grade` varchar(20) NOT NULL COMMENT '年级',
+  `teacher` varchar(20) NOT NULL COMMENT '授课老师',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+--选课表--
+CREATE TABLE `choice_course` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT COMMENT '自增id',
+  `stu_id` varchar(20) NOT NULL COMMENT '学生ID',
+  `course_id` varchar(20) NOT NULL COMMENT '课程ID',
+  `time` varchar(20) NOT NULL COMMENT '上课时间',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;

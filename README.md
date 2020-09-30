@@ -209,3 +209,6 @@ insert into course set id='0d4dfe07fb3640c69afce366d102487d', stu_id='2534ed0806
 
 #### 更多例子
 [usage example(使用举例)](docs/使用举例.md)
+
+#### 内置方法一览
+[dbfaker内置方法速览](docs/dbfaker内置方法.md)
