@@ -213,18 +213,10 @@ class DataGenerator:
             :return: 拼接好的sql语句
             """
 
-            fields = list()
-            values = list()
-            for k, v in data.items():
-                if v:  # 没有值, 就不插入
-                    fields.append(k)
-                    values.append(v)
-            fields_count = len(fields)
-            f = "(" + "{}," * (fields_count - 1) + "{})"
-            v = "(" + "'{}'," * (fields_count - 1) + "'{}')"
-            sql = "insert into {} " + f + " VALUES " + v
-            sql = sql.format(table_name, *fields, *values)
-            return sql
+            ls = [('`' + k + '`', v) for k, v in data.items() if v is not None]
+            sentence = 'INSERT `%s` (' % table_name + ','.join([i[0] for i in ls]) + \
+                       ') VALUES (' + ','.join(repr(i[1]) for i in ls) + ');'
+            return sentence
 
         for table, fields in datas.items():
             if isinstance(fields, list):
