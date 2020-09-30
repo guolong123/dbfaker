@@ -207,3 +207,5 @@ insert into stu set id='2534ed0806974511b92c954831a002e3', name='许玉梅', idc
 insert into course set id='0d4dfe07fb3640c69afce366d102487d', stu_id='2534ed0806974511b92c954831a002e3', course_name='语文', course_time='2020-09-15 19:26:27';
 ```
 
+#### 更多例子
+[usage example(使用举例)](docs/使用举例.md)
