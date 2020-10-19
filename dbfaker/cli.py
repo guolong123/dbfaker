@@ -8,6 +8,9 @@ from dbfaker.utils.faker_tool import Provider as ToolProvider
 from faker import Faker
 from dbfaker.utils.generator import MGenerator
 from tqdm import tqdm
+from dbfaker.utils.init_project import scaffold
+import os
+import importlib
 
 faker = Faker(locale='zh_CN', generator=MGenerator(locale='zh_CN'))
 
@@ -46,10 +49,14 @@ def parse_args():
     parser.add_argument('-o', '--output', nargs='?', action='store',
                         help='数据库连接语法，例如：mysql+mysqldb://pdmsadmin:system001@cpcs.homelabs.in/pdms_hospital')
     parser.add_argument('-p', '--_print', action='store_true', help='是否打印到控制台')
+    parser.add_argument('--project_name', action='store', help='初始化项目时的项目名称', default='dbfaker-project')
     args = parser.parse_args()
     if not args.meta_file:
         print('You must supply meta_file\n')
         parser.print_help()
+        exit(0)
+    if args.meta_file == 'init':
+        scaffold(project_name=args.project_name)
         exit(0)
 
     if args.insert and not args.connect:
@@ -60,10 +67,25 @@ def parse_args():
     return args
 
 
+def import_module(module_path='script'):
+    pys = [x for x in list(os.walk(module_path))[0][-1] if x.endswith(".py")]
+    modules = []
+    for py in pys:
+        module = importlib.import_module('{}.{}'.format(module_path, py.split(".")[0]))
+        for class_name in dir(module):
+            provider = getattr(module, class_name)
+            if isinstance(provider, type):
+                modules.append(provider)
+    return modules
+
+
 def run():
     args = parse_args()
     faker.add_provider(DateTimeProvider, offset=0)
     faker.add_provider(ToolProvider, connect=args.__dict__.get("connect"))
+    modules = import_module()
+    for module in modules:
+        faker.add_provider(module)
     loop(**args.__dict__)
 
 

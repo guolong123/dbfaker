@@ -66,7 +66,6 @@ class Provider(BaseProvider):
             result = [os.path.abspath(s.string) for s in [re.match(file_match, x) for x in result] if s]
         if len(result) > number:
             result = random.sample(result, number)
-
         return result
 
     def uuid(self, underline=True):
