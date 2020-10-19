@@ -4,6 +4,9 @@
 # "rule"： "engine"方法中接收的参数
 # "tag"： 接收一个变量名，在字段生成后将结果赋值给这个变量名。可在后续的字段进行引用
 
+
+
+
 package:  # 动态导入包, 在jinja2模板中引用
   - datetime
   - random
@@ -2487,3 +2490,6 @@ extraction:
   information_sick_name:
     value: '{{ information_sick.name }}'
     default: '测试用户'
+
+#loop:  # 外部循环时变量的变化控制
+#  intervals:

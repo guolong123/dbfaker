@@ -13,13 +13,15 @@ faker = Faker(locale='zh_CN', generator=MGenerator(locale='zh_CN'))
 
 
 def loop(meta_file, number=1, insert=False, connect=None, output=None, _print=True):
-    handler = DataGenerator(faker, meta_file, connect, insert=insert, output=output)
+    handler = DataGenerator(faker, meta_file, connect, )
     handler.import_package()
     for i in tqdm(range(number), unit='条'):
         sys.stdout.flush()
         handler.start()
-    handler.insert2db()
-    handler.save()
+    if insert:
+        handler.insert2db()
+    if output:
+        handler.save(output=output)
     if _print:
         [print(i) for i in handler.sqls]
 
@@ -63,3 +65,7 @@ def run():
     faker.add_provider(DateTimeProvider, offset=0)
     faker.add_provider(ToolProvider, connect=args.__dict__.get("connect"))
     loop(**args.__dict__)
+
+
+if __name__ == '__main__':
+    run()

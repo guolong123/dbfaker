@@ -7,9 +7,7 @@ from dbfaker.common.database import Database
 
 
 class DataGenerator:
-    def __init__(self, faker, meta, connect=None, insert=False, output=None):
-        self.insert = insert
-        self.output = output
+    def __init__(self, faker, meta, connect=None):
         self.all_package = {}
         self.pre_data = {}
         self.result_data = {}
@@ -37,10 +35,10 @@ class DataGenerator:
         self.dict2sql()
         return self
 
-    def save(self):
-        if not self.output:
+    def save(self, output=None):
+        if not output:
             return
-        f = open(self.output, 'w')
+        f = open(output, 'w')
         f.write('\n'.join(self.sqls))
         f.close()
 
