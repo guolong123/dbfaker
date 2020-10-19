@@ -212,3 +212,6 @@ insert into course set id='0d4dfe07fb3640c69afce366d102487d', stu_id='2534ed0806
 
 #### 内置方法一览
 [dbfaker内置方法速览](docs/dbfaker内置方法.md)
+
+#### 自定义方法使用说明
+[dbfaker自定义方法使用说明](docs/自定义方法使用说明.md)
