@@ -68,6 +68,8 @@ def parse_args():
 
 
 def import_module(module_path='script'):
+    if not os.path.exists(module_path):
+        return
     pys = [x for x in list(os.walk(module_path))[0][-1] if x.endswith(".py")]
     modules = []
     for py in pys:
@@ -86,8 +88,9 @@ def run():
     faker.add_provider(DateTimeProvider, offset=0)
     faker.add_provider(ToolProvider, connect=args.__dict__.get("connect"))
     modules = import_module()
-    for module in modules:
-        faker.add_provider(module)
+    if modules:
+        for module in modules:
+            faker.add_provider(module)
     loop(**args.__dict__)
 
 
