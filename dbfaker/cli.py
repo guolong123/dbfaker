@@ -15,7 +15,7 @@ import importlib
 faker = Faker(locale='zh_CN', generator=MGenerator(locale='zh_CN'))
 
 
-def loop(meta_file, number=1, insert=False, connect=None, output=None, _print=True):
+def loop(meta_file, number=1, insert=False, connect=None, output=None, _print=True, **kwargs):
     handler = DataGenerator(faker, meta_file, connect, )
     handler.import_package()
     for i in tqdm(range(number), unit='条'):
@@ -80,6 +80,8 @@ def import_module(module_path='script'):
 
 
 def run():
+    cur_dir = os.path.abspath(os.curdir)
+    sys.path.append(cur_dir)
     args = parse_args()
     faker.add_provider(DateTimeProvider, offset=0)
     faker.add_provider(ToolProvider, connect=args.__dict__.get("connect"))
