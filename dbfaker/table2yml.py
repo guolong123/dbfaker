@@ -47,6 +47,8 @@ def start(connect, table_names=None,
         result['tables'].append(table_obj)
     if not output:
         output = file_name
+        if os.path.exists('data'):
+            output = os.path.join('data', output)
     f = open(output, 'w', encoding='utf-8')
     f.write('''# 请完善此文件中每个字段的生成规则
 # 规则说明：

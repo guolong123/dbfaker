@@ -47,7 +47,7 @@ def parse_args():
                         help='数据库连接语法，例如：mysql+mysqldb://pdmsadmin:system001@cpcs.homelabs.in/pdms_hospital')
 
     parser.add_argument('-o', '--output', nargs='?', action='store',
-                        help='数据库连接语法，例如：mysql+mysqldb://pdmsadmin:system001@cpcs.homelabs.in/pdms_hospital')
+                        help='指定文件名，输出内容到文件')
     parser.add_argument('-p', '--_print', action='store_true', help='是否打印到控制台')
     parser.add_argument('--project_name', action='store', help='初始化项目时的项目名称', default='dbfaker-project')
     args = parser.parse_args()
@@ -55,6 +55,7 @@ def parse_args():
         print('You must supply meta_file\n')
         parser.print_help()
         exit(0)
+
     if args.meta_file == 'init':
         scaffold(project_name=args.project_name)
         exit(0)

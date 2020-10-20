@@ -203,8 +203,6 @@ class DataGenerator:
             datas = copy.deepcopy(self.result_data)
 
         def gen_sql(table_name, data):
-
-
             """
             :param table_name: 表名称
             :param data: 字典对象 key为字段(要与数据库字段一样), value为插入值
@@ -232,4 +230,5 @@ class DataGenerator:
             return
         for sql in self.sqls:
             self.db.query(sql)
+        self.log.i('在数据库中插入了{}条数据'.format(len(self.sqls)))
 
