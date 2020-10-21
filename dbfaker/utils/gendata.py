@@ -210,7 +210,7 @@ class DataGenerator:
             """
 
             ls = [('`' + k + '`', v) for k, v in data.items() if v is not None]
-            sentence = 'INSERT `%s` (' % table_name + ','.join([i[0] for i in ls]) + \
+            sentence = 'INSERT INTO `%s` (' % table_name + ','.join([i[0] for i in ls]) + \
                        ') VALUES (' + ','.join(repr(i[1]) for i in ls) + ');'
             return sentence
 
