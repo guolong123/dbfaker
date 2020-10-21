@@ -4,6 +4,8 @@ import json
 import copy
 from dbfaker.common.logger import log
 from dbfaker.common.database import Database
+from tqdm import tqdm
+import sys
 
 
 class DataGenerator:
@@ -225,10 +227,14 @@ class DataGenerator:
         return self.sqls
 
     def insert2db(self):
+        self.log.i('开始插入数据至数据库')
+        print('开始插入数据至数据库')
         if not self.db:
             self.log.w('未指定数据库连接引擎，无法插入到数据库...')
             return
-        for sql in self.sqls:
+        for sql in tqdm(self.sqls, unit='条'):
+            sys.stdout.flush()
             self.db.query(sql)
         self.log.i('在数据库中插入了{}条数据'.format(len(self.sqls)))
+        print('在数据库中插入了{}条数据'.format(len(self.sqls)))
 

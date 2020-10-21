@@ -10,6 +10,7 @@ from dbfaker.utils.generator import MGenerator
 from tqdm import tqdm
 from dbfaker.utils.init_project import scaffold
 import os
+from dbfaker.common.logger import log
 import importlib
 
 faker = Faker(locale='zh_CN', generator=MGenerator(locale='zh_CN'))
@@ -18,7 +19,7 @@ faker = Faker(locale='zh_CN', generator=MGenerator(locale='zh_CN'))
 def loop(meta_file, number=1, insert=False, connect=None, output=None, _print=True, **kwargs):
     handler = DataGenerator(faker, meta_file, connect, )
     handler.import_package()
-    for i in tqdm(range(number), unit='条'):
+    for i in tqdm(range(number), unit='组'):
         sys.stdout.flush()
         handler.start()
     if insert:

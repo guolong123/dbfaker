@@ -110,7 +110,7 @@ class Database:
             cur.execute(sql)
             self.db.commit()
         except Exception as e:
-            print(str(e) + "\n"+sql)
+            print(str(e) + "\n" + sql)
             self.db.rollback()
             if raise_:
                 raise
@@ -139,7 +139,6 @@ class Database:
             result = self.db.cur.fetchall()
             return result[0][1]
 
-
     def insert2(self, table, fields):
         """
         执行新增操作
@@ -153,6 +152,7 @@ class Database:
 
     def close(self):
         self.db.dispose()
+
 
 if __name__ == '__main__':
     db = Database(db_session='mysql+mysqldb://root:mysql123@cpcs.homelabs.in/center')

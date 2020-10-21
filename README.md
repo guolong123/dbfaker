@@ -133,6 +133,7 @@ tables:
 PC:~/01 Work/07 MyProject/dbfaker$ source venv/bin/activate
 (venv) PC:~/01 Work/07 MyProject/dbfaker$ dbfaker -h
 usage: dbfaker [-h] [-n [NUMBER]] [-i] [-c [CONNECT]] [-o [OUTPUT]] [-p]
+               [--project_name PROJECT_NAME]
                [meta_file]
 
 通过ｙｍｌ格式的描述文件来生成数据
@@ -149,10 +150,10 @@ optional arguments:
                         数据库连接语法，例如：mysql+mysqldb://pdmsadmin:system001@cpcs.ho
                         melabs.in/pdms_hospital
   -o [OUTPUT], --output [OUTPUT]
-                        数据库连接语法，例如：mysql+mysqldb://pdmsadmin:system001@cpcs.ho
-                        melabs.in/pdms_hospital
+                        指定文件名，输出内容到文件
   -p, --_print          是否打印到控制台
-
+  --project_name PROJECT_NAME
+                        初始化项目时的项目名称
 
 
 # 打印输出
@@ -167,44 +168,29 @@ dbfaker data/test.yml --number 10 -i --connect mysql+mysqldb://pdmsadmin:system0
 
 通过上述模板文件生成出sql:
 ```sql
-insert into stu set id='2c5e318e24eb4bbeb6f0155721d5fa4d', name='郭杨', idcard='450329193605314982', age='84', sex='female';
-insert into course set id='980e0c308b904e4d8574c14589b73d6c', stu_id='2c5e318e24eb4bbeb6f0155721d5fa4d', course_name='化学', course_time='2020-09-15 19:26:21';
-
-
-insert into stu set id='dbd26e53363b4ad0a80d91bf20b58306', name='孙晨', idcard='441500198604185699', age='34', sex='man';
-insert into course set id='46dc316ae223411fa0a5169e1cf9c7df', stu_id='dbd26e53363b4ad0a80d91bf20b58306', course_name='语文', course_time='2020-09-15 19:26:21';
-
-
-insert into stu set id='bc779ca4b55a4216aa21692df798b8a2', name='陈秀华', idcard='321084195409070529', age='66', sex='female';
-insert into course set id='0b981403fd4b4cc7afa8f85d7187d3b0', stu_id='bc779ca4b55a4216aa21692df798b8a2', course_name='语文', course_time='2020-09-15 19:26:21';
-
-
-insert into stu set id='1982c0c518a4434f8bd4bace6baed3e2', name='张建平', idcard='341721194502236759', age='75', sex='man';
-insert into course set id='371152b6f02c44f884c85daf1918cf90', stu_id='1982c0c518a4434f8bd4bace6baed3e2', course_name='语文', course_time='2020-09-15 19:26:22';
-
-
-insert into stu set id='448e3cf1bbe648719b4802196a626efb', name='王瑞', idcard='360281193801017318', age='82', sex='man';
-insert into course set id='fda8a3f261134c64b0a0dd516ecf2e0b', stu_id='448e3cf1bbe648719b4802196a626efb', course_name='数学', course_time='2020-09-15 19:26:27';
-
-
-insert into stu set id='a3d4952faf054c6ba655c2b67e3b4afc', name='陈杨', idcard='640122198510102904', age='35', sex='female';
-insert into course set id='8a7e021d765044f784979591f92ec28d', stu_id='a3d4952faf054c6ba655c2b67e3b4afc', course_name='化学', course_time='2020-09-15 19:26:27';
-
-
-insert into stu set id='4098cc574f6c4fe5a85535a1d9e5002a', name='苏洁', idcard='341225199306268404', age='27', sex='female';
-insert into course set id='77cdf72f82fa4d8882b304abbe97f3a4', stu_id='4098cc574f6c4fe5a85535a1d9e5002a', course_name='数学', course_time='2020-09-15 19:26:27';
-
-
-insert into stu set id='949f3766cdbd417bb3d35858c8022816', name='刘柳', idcard='542133194402097393', age='76', sex='man';
-insert into course set id='7ad45cc62c3847be814ef75d5287ecd6', stu_id='949f3766cdbd417bb3d35858c8022816', course_name='地理', course_time='2020-09-15 19:26:27';
-
-
-insert into stu set id='97786d4eeb674462a1698fd25291d1ba', name='兰欣', idcard='330802194509029887', age='75', sex='female';
-insert into course set id='a649370a793c44ac9b743d35afa17df9', stu_id='97786d4eeb674462a1698fd25291d1ba', course_name='数学', course_time='2020-09-15 19:26:27';
-
-
-insert into stu set id='2534ed0806974511b92c954831a002e3', name='许玉梅', idcard='350401197207148812', age='48', sex='man';
-insert into course set id='0d4dfe07fb3640c69afce366d102487d', stu_id='2534ed0806974511b92c954831a002e3', course_name='语文', course_time='2020-09-15 19:26:27';
+(venv) guolong@guolong-PC:~/01Work/07MyProject/dbfaker$ dbfaker data/test.yml -p -n 10
+100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 10/10 [00:00<00:00, 121.26条/s]
+INSERT INTO `stu` (`id`,`name`,`idcard`,`age`,`sex`) VALUES ('873ebda283ad418681427eee33599d88','常斌','320311197109145812','49','man');
+INSERT INTO `course` (`id`,`stu_id`,`course_name`,`course_time`) VALUES ('c642936a6a3d4067a0bdeaa738e777f7','873ebda283ad418681427eee33599d88','英语','2020-10-21 16:39:07');
+INSERT INTO `stu` (`id`,`name`,`idcard`,`age`,`sex`) VALUES ('975a595bdbe44bca9066e899cf095fdf','朱超','371403194412033153','76','man');
+INSERT INTO `course` (`id`,`stu_id`,`course_name`,`course_time`) VALUES ('e7fce0bd705d407d82365c5078e18e9f','975a595bdbe44bca9066e899cf095fdf','语文','2020-10-21 16:39:07');
+INSERT INTO `stu` (`id`,`name`,`idcard`,`age`,`sex`) VALUES ('c7a35fc6034b416b84633aba68f948a5','谭桂花','220881193603124667','84','female');
+INSERT INTO `course` (`id`,`stu_id`,`course_name`,`course_time`) VALUES ('9ec067ab61384b82839f037d19046d54','c7a35fc6034b416b84633aba68f948a5','地理','2020-10-21 16:39:07');
+INSERT INTO `stu` (`id`,`name`,`idcard`,`age`,`sex`) VALUES ('ec50b43857894724a8520fe4267cdb1c','黄颖','430424200102150376','19','man');
+INSERT INTO `course` (`id`,`stu_id`,`course_name`,`course_time`) VALUES ('a82ca7d9dfb14084ac59f3eef81c397d','ec50b43857894724a8520fe4267cdb1c','语文','2020-10-21 16:39:07');
+INSERT INTO `stu` (`id`,`name`,`idcard`,`age`,`sex`) VALUES ('ada7f3efbd6c44cbbb2b4e97f1e2192e','崔芳','110102197508318809','45','female');
+INSERT INTO `course` (`id`,`stu_id`,`course_name`,`course_time`) VALUES ('09068ec48e344513aa13248afc2a6c9a','ada7f3efbd6c44cbbb2b4e97f1e2192e','语文','2020-10-21 16:39:07');
+INSERT INTO `stu` (`id`,`name`,`idcard`,`age`,`sex`) VALUES ('c7be9316a52d4ce6813e2522c06ec244','伍建','530424195111204807','69','female');
+INSERT INTO `course` (`id`,`stu_id`,`course_name`,`course_time`) VALUES ('b525533bd784470898075b6c3c98e319','c7be9316a52d4ce6813e2522c06ec244','化学','2020-10-21 16:39:07');
+INSERT INTO `stu` (`id`,`name`,`idcard`,`age`,`sex`) VALUES ('ab8156d118ce47388ec080d4ca182324','张杰','430722199410179304','26','female');
+INSERT INTO `course` (`id`,`stu_id`,`course_name`,`course_time`) VALUES ('df802e97f23e43c6b8329f3bc80532b4','ab8156d118ce47388ec080d4ca182324','化学','2020-10-21 16:39:07');
+INSERT INTO `stu` (`id`,`name`,`idcard`,`age`,`sex`) VALUES ('dc508ae92cd14c2b8b44f881e9a2a9dc','温玲','361030193711149093','83','man');
+INSERT INTO `course` (`id`,`stu_id`,`course_name`,`course_time`) VALUES ('37a72421f0ec419aa181cb38f3216866','dc508ae92cd14c2b8b44f881e9a2a9dc','语文','2020-10-21 16:39:07');
+INSERT INTO `stu` (`id`,`name`,`idcard`,`age`,`sex`) VALUES ('48ddceaacddf43fd850a750c003f65e4','杨芳','530322197311251166','47','female');
+INSERT INTO `course` (`id`,`stu_id`,`course_name`,`course_time`) VALUES ('083d692d6a35483a9f4c77d99cb74abc','48ddceaacddf43fd850a750c003f65e4','语文','2020-10-21 16:39:07');
+INSERT INTO `stu` (`id`,`name`,`idcard`,`age`,`sex`) VALUES ('f1e6ff166e504f4b9a1c4ef5c2791e2d','万帅','321323197507311448','45','female');
+INSERT INTO `course` (`id`,`stu_id`,`course_name`,`course_time`) VALUES ('47e6cbb2999c433fb15f2102eec95295','f1e6ff166e504f4b9a1c4ef5c2791e2d','地理','2020-10-21 16:39:07');
+执行完成，共生成10组数据
 ```
 
 #### 更多例子
