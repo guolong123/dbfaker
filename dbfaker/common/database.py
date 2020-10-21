@@ -147,3 +147,10 @@ class Database:
 
     def close(self):
         self.db.dispose()
+
+if __name__ == '__main__':
+    db = Database(db_session='mysql+mysqldb://root:mysql123@cpcs.homelabs.in/center')
+    r = db.select3('select id, username from t_sys_user where id=1')
+    print(r)
+    r = db.select3('select id, username from t_sys_user where id=1')
+    print(r)

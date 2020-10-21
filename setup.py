@@ -17,7 +17,7 @@ here = os.path.abspath(os.path.dirname(__file__))
 
 
 def read(*parts):
-    return codecs.open(os.path.join(here, *parts)).read()
+    return codecs.open(os.path.join(here, *parts), encoding='utf-8').read()
 
 
 def find_config(*file_paths):
