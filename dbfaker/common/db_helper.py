@@ -3,7 +3,6 @@ import pymysql
 from dbutils.pooled_db import PooledDB
 from dbutils.persistent_db import PersistentDB
 
-
 # 数据库配置信息
 db_info = {}
 
@@ -27,7 +26,6 @@ class DBHelper:
             db_info.clear()
             db_info['database'] = db
             db_info['creator'] = creator
-            # db_info = _db_info
         else:
             engine = PooledDB
 
@@ -44,7 +42,8 @@ class DBHelper:
             'user': user,
             'passwd': passwd,
             'host': host,
-            'port': port
+            'port': port,
+            'autocommit': 1
         })
 
     def execute(self, sql):

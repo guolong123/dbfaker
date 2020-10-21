@@ -16,9 +16,9 @@ class Database:
     @classmethod
     def __init_db(cls, db_session):
         if not cls.db and db_session:
-            drivername, db_config = cls.__analyse_db_session(db_session)
+            cls.drivername, db_config = cls.__analyse_db_session(db_session)
             DBHelper.db_setting(**db_config)
-            cls.db = DBHelper(drivername)
+            cls.db = DBHelper(cls.drivername)
 
     @staticmethod
     def __analyse_db_session(db_session):
@@ -128,11 +128,17 @@ class Database:
         self.query(sql)
 
     def query_table(self, table_name):
-        sql = 'show create table {table_name};'.format(table_name=table_name)
-        cur = self.db.cur
-        cur.execute(sql)
-        result = cur.fetchall()
-        return result[0][1]
+        if self.drivername == 'sqlite':
+            sql = "SELECT sql FROM sqlite_master WHERE type='table' AND name = '{}'".format(table_name)
+            self.db.cur.execute(sql)
+            result = self.db.cur.fetchall()
+            return result[0][0]
+        else:
+            sql = 'show create table {table_name};'.format(table_name=table_name)
+            self.db.cur.execute(sql)
+            result = self.db.cur.fetchall()
+            return result[0][1]
+
 
     def insert2(self, table, fields):
         """
