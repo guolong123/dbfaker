@@ -1,70 +1,132 @@
-package:
-  - datetime  #　导入额外的包，在jinja2模板中使用（下面有用到datetime包，所以要先导入）
-env:
-  id:
-    engine: faker.uuid
-    rule: null
-  time_format:
-    engine: faker.eq
-    rule:
-      value: "%Y-%m-%d %H:%M:%S"
+# 请完善此文件中每个字段的生成规则
+# 规则说明：
+# package: 动态导包，在下方字段使用了jinja2模板且在模板语法中使用了非Python基础库时需要在此动态声明导入需要的包;使用示例:
+# package:
+#  - datetime  # 引入datetime包，可在后续的jinja2模板中使用
+#  - os
+
+# env: 可在此处预生成环境变量，给下方字段生成时引用；描述方式如下：
+# env:
+#  name:  # 全局变量名称
+#    engine: eq  # 生成规则方法，与下面的字段生成方法一样
+#    rule:  # "engine"方法中接收的参数
+#      value: 'test'  
+
+# tables： 该字段描述了表字段的生成规则，需要填写数据库字段中的engine与rule字段，为空时数据库字段也为空；示例(给数据库中t_sys_user表中age字段生成从40到80的随机数)：
+# tables:
+# - table: t_sys_user
+#   comment: 用户表
+#   columns:
+#   - column: age  # 数据库中字段名
+#     comment: '年龄'  # 字段备注信息
+#     engine: randint  # 生成字段值调用的方法，必须是faker库中存在或者自行注册到faker库中的方法
+#     rule: 
+#        value: [40, 80]  # 上述方法中接收到的参数
+       
+# extraction： 该字段描述了需要从生成字段中提取哪些变量来返回，写自动化测试用例时可能会用到；举例：
+# extraction：
+#   user_name:
+#     value: '{{ t_sys_user.name }}'  # 返回上面生成的用户姓名
+#     default: '测试用户'  # 可指定默认值，在上述字段不存在或者为空时返回默认值
+#   user_id:
+#     value: '{{ t_sys_user.id }}'  
+
+
+package: []
+env: {}
 tables:
-- columns:
+- table: stu
+  comment: null
+  columns:
   - column: id
-    comment: 数据主键id
-    engine: faker.eq
-    rule:
-      value: '{{ env.id }}'  # 通过引用环境变量中的值
-  - column: name
-    comment: 姓名
-    engine: faker.name
+    comment: 自增id
+    engine: uuid
     rule: null
-  - column: idcard
-    comment: 身份证号
-    engine: faker.ssn
+  - column: name
+    comment: 学生名字
+    engine: name
+    rule: null
+  - column: school
+    comment: 学校名字
+    engine: eq
+    rule:
+      value: 二小学校
+  - column: nickname
+    comment: 学生小名
+    engine: name
     rule: null
   - column: age
-    comment: 年龄
-    engine: faker.eq
+    comment: 学生年龄
+    engine: randint
     rule:
-      value: '{{ datetime.datetime.now().year - int(stu.idcard[6:10]) }}'  #　通过jinja２模板直接计算
-  - column: sex
-    comment: 性别
-    engine: faker.eq
+      value: [8,12]
+  - column: class_num
+    comment: 班级人数
+    engine: randint
     rule:
-      value: '{{ "man" if int(stu.idcard[-2]) % 2==1 else "female" }}'  #　通过jinja２模板直接计算
-  comment: ''
-  table: stu
-- columns:
+      value: [30,60]
+  - column: score
+    comment: 成绩
+    engine: randint
+    rule:
+      value: [40,100]
+  - column: phone
+    comment: 电话号码
+    engine: phone_number
+    rule: null
+  - column: email
+    comment: 家庭网络邮箱
+    engine: email
+    rule: null
+  - column: ip
+    comment: IP地址
+    engine: ipv4
+    rule: null
+  - column: address
+    comment: 家庭地址
+    engine: address
+    rule: null
+- table: course
+  comment: null
+  columns:
   - column: id
-    comment: 数据主键id
-    engine: faker.uuid
+    comment: 自增id
+    engine: uuid
+    rule: null
+  - column: name
+    comment: 课程名称
+    engine: choice
+    rule:
+      value: [语文,数学,英语,化学,生物,地理]
+  - column: grade
+    comment: 年级
+    engine: choice
+    rule:
+      value: [一年级,二年级,三年级,四年级,五年级,六年级]
+  - column: teacher
+    comment: 授课老师
+    engine: name
+    rule: null
+- table: choice_course
+  comment: null
+  columns:
+  - column: id
+    comment: 自增id
+    engine: uuid
     rule: null
   - column: stu_id
-    comment: 数据主键id
-    engine: faker.eq
+    comment: 学生ID
+    engine: eq
     rule:
-      value: '{{ stu.id }}'  # 通过其他表中的值
-  - column: course_name
-    comment: 课程名称
-    engine: faker.choice # 通过内置方法从列表中随机取一个值
+      value: '{{ stu.id }}'
+  - column: course_id
+    comment: 课程ID
+    engine: eq
     rule:
-      value: [数学,语文,英语,化学,地理]
-  - column: course_time
+      value: '{{ course.id }}'
+  - column: time
     comment: 上课时间
-    engine: faker.now  # 通过内置方法获取当前时间，并按照指定格式返回
+    engine: choice
     rule:
-      format: "{{ env.time_format }}"
-  comment: '课程信息 '
-  table: course
-
-
-extraction:  # 从已生成的数据中提取字段
-  stu_id:
-    value: '{{ stu.id }}'
-    default: null
-  course_id:
-    value: '{{ course.id }}'
-  stu_name:
-    value: '{{ stu.name }}'
-    default: '测试用户'
+      value: [星期一,星期二,星期三,星期四,星期五]
+extraction: {}

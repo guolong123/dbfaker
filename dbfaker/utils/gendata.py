@@ -18,10 +18,7 @@ class DataGenerator:
         self.error_fields = {}
         self.faker = faker
         self.sqls = []
-        if connect:
-            self.db = Database(connect)
-        else:
-            self.db = None
+        self.db = Database(connect) if connect else None
         self.meta = get_yaml(meta)
 
     def import_package(self):
@@ -161,7 +158,7 @@ class DataGenerator:
         elif rule is None:
             r = eval("{engine}()".format(engine=engine))
         else:
-            raise Exception('rule type need be dict or list!')
+            raise Exception('rule type must be dictionary or list！')
         return r
 
     def mock_data(self, fields=None):

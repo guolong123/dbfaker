@@ -4,6 +4,8 @@ from faker import Faker
 from dbfaker.utils.generator import MGenerator
 
 mfaker = Faker(locale='zh_CN', generator=MGenerator(locale='zh_CN'))
+
+# 测试连接地址为内部地址，外部访问将会失败。
 mfaker.add_provider(Provider, connect='mysql+mysqldb://pdmsadmin:system001@cpcs.homelabs.in/pdms_hospital')
 
 class MfakerTestCase(unittest.TestCase):
