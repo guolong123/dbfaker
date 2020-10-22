@@ -2,6 +2,7 @@
 
 #### 介绍
 基于数据库层面批量生成有逻辑关联的数据
+
 [![star](https://gitee.com/guojongg/dbfaker/badge/star.svg?theme=dark)](https://gitee.com/guojongg/dbfaker/stargazers)
 [![Downloads](https://pepy.tech/badge/dbfaker)](https://pepy.tech/project/dbfaker)
 [![pypi version](https://img.shields.io/pypi/v/dbfaker.svg)](https://pypi.python.org/pypi/dbfaker)
@@ -197,12 +198,12 @@ INSERT INTO `course` (`id`,`stu_id`,`course_name`,`course_time`) VALUES ('47e6cb
 ```
 
 #### 更多例子
-[usage example(使用举例)](docs/使用举例.md)
+[usage example(使用举例)](https://gitee.com/guojongg/dbfaker/blob/master/docs/%E4%BD%BF%E7%94%A8%E4%B8%BE%E4%BE%8B.md)
 
 #### 内置方法一览
-[dbfaker内置方法速览](docs/dbfaker内置方法.md)
+[dbfaker内置方法速览](https://gitee.com/guojongg/dbfaker/blob/master/docs/dbfaker%E5%86%85%E7%BD%AE%E6%96%B9%E6%B3%95.md)
 
 #### 自定义方法使用说明
-[dbfaker自定义方法使用说明](docs/自定义方法使用说明.md)
+[dbfaker自定义方法使用说明](https://gitee.com/guojongg/dbfaker/blob/master/docs/%E8%87%AA%E5%AE%9A%E4%B9%89%E6%96%B9%E6%B3%95%E4%BD%BF%E7%94%A8%E8%AF%B4%E6%98%8E.md)
 
 __觉得还可以，帮忙点个赞！！！如果有意见或建议或者遇到相关问题需要探讨解决方案欢迎给我提：[Issue](https://gitee.com/guojongg/dbfaker/issues)__
