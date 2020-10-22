@@ -2,6 +2,9 @@
 
 #### 介绍
 基于数据库层面批量生成有逻辑关联的数据
+[![star](https://gitee.com/guojongg/dbfaker/badge/star.svg?theme=dark)](https://gitee.com/guojongg/dbfaker/stargazers)
+[![Downloads](https://pepy.tech/badge/dbfaker)](https://pepy.tech/project/dbfaker)
+[![pypi version](https://img.shields.io/pypi/v/dbfaker.svg)](https://pypi.python.org/pypi/dbfaker)
 
 #### 软件架构
 对于要造大量数据来讲，有几种方式，一是通过开发写的接口来模拟真实用户场景来产生数据，这种方式在某些方面来讲是比较合适的，比如因为是模拟用户场景，业务数据完整，不会丢．但不好的地方就是要处理的地方太多，接口定义，签名，加密等等，还有扩展性也很不好，一个业务场景要写一套代码．另一种方式，是已知业务产生的数据之间的依赖关系后，直接在数据库中插入相关数据，本项目就是通过这种方式来实现，好处就是生成规则通过配置文件来描述即可（yaml文件），不需要额外添加代码（对于某些字段生成规则有可能需要单独编写方法），与测试库testrunner比较类似．现在已知有些库也支持直接在数据库内造数据，但对库表之间的关联关系的处理都做得不太好．
@@ -202,4 +205,4 @@ INSERT INTO `course` (`id`,`stu_id`,`course_name`,`course_time`) VALUES ('47e6cb
 #### 自定义方法使用说明
 [dbfaker自定义方法使用说明](docs/自定义方法使用说明.md)
 
-__遇到相关问题或者需要探讨解决方案欢迎给我提[Issue](https://gitee.com/guojongg/dbfaker/issues)__
+__觉得还可以，帮忙点个赞！！！如果有意见或建议或者遇到相关问题需要探讨解决方案欢迎给我提：[Issue](https://gitee.com/guojongg/dbfaker/issues)__
