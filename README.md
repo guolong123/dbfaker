@@ -206,4 +206,6 @@ INSERT INTO `course` (`id`,`stu_id`,`course_name`,`course_time`) VALUES ('47e6cb
 #### 自定义方法使用说明
 [dbfaker自定义方法使用说明](https://gitee.com/guojongg/dbfaker/blob/master/docs/%E8%87%AA%E5%AE%9A%E4%B9%89%E6%96%B9%E6%B3%95%E4%BD%BF%E7%94%A8%E8%AF%B4%E6%98%8E.md)
 
-__觉得还可以，帮忙点个赞！！！如果有意见或建议或者遇到相关问题需要探讨解决方案欢迎给我提：[Issue](https://gitee.com/guojongg/dbfaker/issues)__
+__觉得还可以，帮忙点个赞！！！__
+
+__如果有意见或建议或者遇到相关问题需要探讨解决方案欢迎给我提：[Issue](https://gitee.com/guojongg/dbfaker/issues)__
