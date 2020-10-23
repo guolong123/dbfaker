@@ -75,48 +75,52 @@ class DataGenerator:
             result = self._gen_data(engine, rule)
             self.pre_data['env'][i] = result
 
-    def _field(self, columns):
+    def _field(self, tables):
         result = {}
         pre_data = {}
-        error_field = []
-        table_name = columns.get("table")
+        table_name = tables.get("table")
         pre_data[table_name] = {}
-        for field in columns.get('columns'):
-            field_column = field.get('column')
-            field_engine = field.get('engine')
-            field_rule = field.get("rule")
-            if field_rule:
-                _rule = json.dumps(field.get("rule"))
-                _rule = _rule.replace('\\\"', "'")
+        columns = tables.get('columns')
+        if isinstance(columns, dict):
+            for key, value in columns.items():
                 try:
-                    field_rule = json.loads(self._template_render(_rule))
+                    value = json.dumps(value).replace('\\\"', "'")
+                    value = self._template_render(value)
+                    value = json.loads(value)
                 except jinja2.exceptions.UndefinedError as e:
-                    error_field.append(field)
+                    # 记录表中出错的字段，在所有字段都生成后再次生成，解决因前面字段调用未生成字段时报错问题
+                    self.error_fields.update({'columns': {key: json.loads(value)}, 'table': table_name})
                     continue
-            _r = self._gen_data(field_engine, field_rule)
-            result[field_column] = _r
-            pre_data[table_name][field_column] = _r
-            if table_name not in self.pre_data:
-                self.pre_data[table_name] = {}
-            self.pre_data[table_name].update(pre_data[table_name])
-            if error_field:
-                # 记录表中出错的字段，在所有字段都生成后再次生成，解决因前面字段调用未生成字段时报错问题
-                self.error_fields.update({'columns': error_field, 'table': table_name})
-        return result
+                field_engine = value.get('engine')
+                field_rule = value.get("rule")
+                _r = self._gen_data(field_engine, field_rule)
+                result[key] = _r
+                pre_data[table_name][key] = _r
+                if table_name not in self.pre_data:
+                    self.pre_data[table_name] = {}
+                self.pre_data[table_name].update(pre_data[table_name])
+            return result
+        if isinstance(columns, list):
+            raise TypeError("数据类型错误，此版本不再兼容老的yml格式，请调整yml文件格式, 或将版本降至0.0.5b1021.post2。")
+        else:
+            raise TypeError("The columns field can only be a dictionary or a list！")
 
-    def _more_field(self, columns, max_cnt=1):
+    def _more_field(self, tables, max_cnt=1):
         results = []
         result = {}
-        table_name = columns.get("table")
+        table_name = tables.get("table")
+        columns = tables.get("columns")
         n = 0
         while n < max_cnt:
             try:
-                for field in columns.get('columns'):
-                    field_column = field.get('column')
-                    field_engine = field.get('engine')
-                    field_rule = json.loads(self._template_render(json.dumps(field.get("rule"))))
-                    _r = self._gen_data(field_engine, field_rule)
-                    result[field_column] = _r
+                if not isinstance(columns, dict):
+                    raise TypeError("数据类型错误，此版本不再兼容老的yml格式，请调整yml文件格式, 或将版本降至0.0.5b1021.post2。")
+                for key,value in columns.items():
+                    value = json.dumps(value).replace('\\\"', "'")
+                    value = json.loads(self._template_render(value))
+                    field_engine = value.get('engine')
+                    _r = self._gen_data(field_engine, value.get("rule"))
+                    result[key] = _r
             except jinja2.exceptions.UndefinedError as e:
                 break
             results.append(copy.deepcopy(result))
@@ -143,7 +147,7 @@ class DataGenerator:
         r = tp.render(**self.pre_data)
         return r
 
-    def _gen_data(self, engine: str, rule):
+    def _gen_data(self, engine: str, rule=None):
         if isinstance(rule, str):
             rule = json.loads(self._template_render(rule))
         faker = self.faker
@@ -151,36 +155,39 @@ class DataGenerator:
             return
         if '.' not in engine:
             engine = "faker.{engine}".format(engine=engine)
-        if isinstance(rule, list):
-            r = eval("{engine}(*{rule})".format(engine=engine, rule=rule))
-        elif isinstance(rule, dict):
-            r = eval("{engine}(**{rule})".format(engine=engine, rule=rule))
-        elif rule is None:
-            r = eval("{engine}()".format(engine=engine))
+        if "(" in engine and ")" in engine:
+            r = eval(engine)
         else:
-            raise Exception('rule type must be dictionary or list！')
+            if isinstance(rule, list):
+                r = eval("{engine}(*{rule})".format(engine=engine, rule=rule))
+            elif isinstance(rule, dict):
+                r = eval("{engine}(**{rule})".format(engine=engine, rule=rule))
+            elif rule is None:
+                r = eval("{engine}()".format(engine=engine))
+            else:
+                raise Exception('rule type must be dictionary or list！')
         return r
 
     def mock_data(self, fields=None):
-
         if not fields:
             fields = self.meta.get('tables')
-        for columns in fields:
-            table_name = columns.get("table")
-            more = columns.get('more')
+        for tables in fields:
+            table_name = tables.get("table")
+            more = tables.get('more')
             if not more:
-                d = self._field(columns)
+                d = self._field(tables)
             else:
                 max_cnt = more.get("max_number", 1)
                 if isinstance(max_cnt, str):
                     max_cnt = int(self._template_render(max_cnt))
-                d = self._more_field(columns=columns, max_cnt=max_cnt)
+                d = self._more_field(tables=tables, max_cnt=max_cnt)
             if table_name not in self.result_data and not more:
                 self.result_data[table_name] = {}
                 self.result_data[table_name].update(d)
             elif table_name not in self.result_data:
                 self.result_data[table_name] = d
-
+            else:
+                self.result_data[table_name].update(d)
         return self.result_data
 
     def extraction(self):

@@ -39,11 +39,10 @@ def start(connect, table_names=None,
     r = parser.parse(table_building_statement)
 
     for i in r:
-        table_obj = {'table': i.get("table"), 'comment': i.get("comment"), "columns": []}
+        table_obj = {'table': i.get("table"), 'comment': i.get("comment"), "columns": {}}
         for j in i['columns']:
-            table_obj['columns'].append(
-                {"column": j.get("column"), 'comment': j.get("comment"), 'engine': None, 'rule': None}
-            )
+            table_obj['columns'][j.get("column")] = {'comment': j.get("comment"), 'engine': None}
+
         result['tables'].append(table_obj)
     if not output:
         output = file_name
@@ -60,8 +59,8 @@ def start(connect, table_names=None,
 # env: 可在此处预生成环境变量，给下方字段生成时引用；描述方式如下：
 # env:
 #  name:  # 全局变量名称
-#    engine: eq  # 生成规则方法，与下面的字段生成方法一样
-#    rule:  # "engine"方法中接收的参数
+#    engine: eq  # 生成规则方法，与下面的字段生成方法一样。也可不需要下方的rule参数，直接在engine后面写参数：例如：eq('test')
+#    rule:  # "engine"方法中接收的参数; 当engine中包含"()"时此参数将不会生效。
 #      value: 'test'  
 
 # tables： 该字段描述了表字段的生成规则，需要填写数据库字段中的engine与rule字段，为空时数据库字段也为空；示例(给数据库中t_sys_user表中age字段生成从40到80的随机数)：
@@ -71,8 +70,8 @@ def start(connect, table_names=None,
 #   columns:
 #   - column: age  # 数据库中字段名
 #     comment: '年龄'  # 字段备注信息
-#     engine: randint  # 生成字段值调用的方法，必须是faker库中存在或者自行注册到faker库中的方法
-#     rule: 
+#     engine: randint  # 生成字段值调用的方法，必须是faker库中存在或者自行注册到faker库中的方法。也可不需要下方的rule参数，直接在engine后面写参数：例如：randint(value=[40,80])
+#     rule:  # 当engine中包含"()"时此参数将不会生效。
 #        value: [40, 80]  # 上述方法中接收到的参数
        
 # extraction： 该字段描述了需要从生成字段中提取哪些变量来返回，写自动化测试用例时可能会用到；举例：
