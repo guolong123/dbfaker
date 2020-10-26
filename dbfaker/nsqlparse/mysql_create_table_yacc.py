@@ -141,10 +141,6 @@ def p_tableKey_unique_comment(p):
     tableKey : tableKey COMMENT columnName
     '''
 
-
-
-
-
 def p_tableKey_using(p):
     '''
     tableKey : tableKey USING iKEYWORD
@@ -193,7 +189,10 @@ def p_tableColumn_attribute_comment(p):
     '''
     tableColumn : tableColumn COMMENT str
     '''
-    p[0] = {**p[1], **{'comment': p[3]}}
+    try:
+        p[0] = {**p[1], **{'comment': p[3]}}
+    except TypeError:
+        print(1)
 
 
 def p_tableColumn_attribute_auto_increment(p):
@@ -249,10 +248,17 @@ def p_tableColumn_attribute_default_keyword(p):
 
 def p_tableColumn_attribute_default_current_timestamp(p):
     '''
-    tableColumn : tableColumn DEFAULT CURRENT_TIMESTAMP '(' iINTEGER ')' ON UPDATE CURRENT_TIMESTAMP '(' iINTEGER ')'
+    tableColumn : tableColumn DEFAULT CURRENT_TIMESTAMP '(' iINTEGER ')'
+                | tableColumn DEFAULT CURRENT_TIMESTAMP
     '''
     p[0] = {**p[1], **{'default': 'CURRENT_TIMESTAMP({})'.format(p[5])}}
 
+def p_tableColumn_attribute_default_update_current_timestamp(p):
+    '''
+    tableColumn : tableColumn ON UPDATE CURRENT_TIMESTAMP '(' iINTEGER ')'
+                | tableColumn ON UPDATE CURRENT_TIMESTAMP
+    '''
+    p[0] = {**p[1]}
 
 
 ### 字段数据类型定义

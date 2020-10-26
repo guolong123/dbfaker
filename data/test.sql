@@ -19,7 +19,7 @@ CREATE TABLE `course` (
   `name` varchar(20) NOT NULL COMMENT '课程名称',
   `grade` varchar(20) NOT NULL COMMENT '年级',
   `teacher` varchar(20) NOT NULL COMMENT '授课老师',
-  `create_time`  timestamp(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3) COMMENT '修改时间',
+  `create_time`  timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3) COMMENT '修改时间',
 
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
