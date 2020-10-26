@@ -4,6 +4,7 @@ import sys
 import os
 from dbfaker.utils.constant import __version__
 import argparse
+from dbfaker.nsqlparse.mysql_create_table_yacc import parser
 
 
 def table_name_to_table_building_statement(db_session, tables):
@@ -12,21 +13,29 @@ def table_name_to_table_building_statement(db_session, tables):
     return table_words
 
 
-def start(connect, table_names=None,
-          sql_file=None, output=None, **kwargs):
-    from dbfaker.nsqlparse.mysql_create_table_yacc import parser
-    if table_names:
-        if "," in table_names:
-            tables = table_names.split(",")
+def start(type, **kwargs):
+    if type == 'table_name':
+        table_names = kwargs.get('table_names')
+        connect = kwargs.get('connect')
+
+        if table_names:
+            if "," in table_names:
+                tables = table_names.split(",")
+            else:
+                tables = [table_names]
+            file_name = '_'.join(tables) + '_meta.yml'
+            session = Database(connect)
+            table_building_statement = table_name_to_table_building_statement(session, tables)
         else:
-            tables = [table_names]
-        file_name = '_'.join(tables) + '_meta.yml'
-        session = Database(connect)
-        table_building_statement = table_name_to_table_building_statement(session, tables)
-    else:
+            raise ValueError("table_names can not be null!")
+    elif type == 'table_statement':
+        sql_file = kwargs.get('sql_file')
         file_name = os.path.split(sql_file)[1] + '_meta.yml'
         with open(sql_file, encoding='utf-8')as f:
             table_building_statement = f.read()
+
+    else:
+        raise TypeError("type must be \"table_statement\" or \"table_name\"")
 
     result = {
         "package": [],
@@ -37,13 +46,20 @@ def start(connect, table_names=None,
     }
 
     r = parser.parse(table_building_statement)
-
+    hide_command = kwargs.get('hide_command')
     for i in r:
-        table_obj = {'table': i.get("table"), 'comment': i.get("comment"), "columns": {}}
+        if hide_command:
+            table_obj = {'table': i.get("table"), "columns": {}}
+        else:
+            table_obj = {'table': i.get("table"), 'comment': i.get("comment"), "columns": {}}
         for j in i['columns']:
-            table_obj['columns'][j.get("column")] = {'comment': j.get("comment"), 'engine': None}
+            if hide_command:
+                table_obj['columns'][j.get("column")] = {'engine': None}
+            else:
+                table_obj['columns'][j.get("column")] = {'comment': j.get("comment"), 'engine': None}
 
         result['tables'].append(table_obj)
+    output = kwargs.get('output')
     if not output:
         output = file_name
         if os.path.exists('data'):
@@ -102,6 +118,7 @@ def parse_args():
     parser.add_argument('--table_names', nargs='?', action='store', help='数据库表，多个表以“,”分割')
     parser.add_argument('--sql_file', nargs='?', action='store', help='数据库建表语句的sql文件路径')
     parser.add_argument('--output', nargs='?', action='store', default=None, help='输出文件名，默认为数据库表名+meta.yml')
+    parser.add_argument('--hide_command', action='store_true', help='不转换command字段（可减少yml文件行数）')
     args = parser.parse_args()
 
     if args.type == 'table_name' and (not args.connect or not args.table_names):
@@ -109,7 +126,7 @@ def parse_args():
         parser.print_help()
         exit(0)
 
-    if args.type == 'table_statement' and not args.sql_file:
+    elif args.type == 'table_statement' and not args.sql_file:
         print('You must supply a sql_file\n')
         parser.print_help()
         exit(0)

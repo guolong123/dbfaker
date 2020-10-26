@@ -202,6 +202,8 @@ class DataGenerator:
             if not r_value:
                 r_value = default
             self.extraction_data[key] = r_value
+            self.log.i('extraction data key: {}, value:{}'.format(key, r_value))
+            print('extraction data key: {}, value:{}'.format(key, r_value))
         return self.extraction_data
 
     def dict2sql(self, datas=None):

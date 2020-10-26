@@ -1,0 +1,95 @@
+# 请完善此文件中每个字段的生成规则
+# 规则说明：
+# package: 动态导包，在下方字段使用了jinja2模板且在模板语法中使用了非Python基础库时需要在此动态声明导入需要的包;使用示例:
+# package:
+#  - datetime  # 引入datetime包，可在后续的jinja2模板中使用
+#  - os
+
+# env: 可在此处预生成环境变量，给下方字段生成时引用；描述方式如下：
+# env:
+#  name:  # 全局变量名称
+#    engine: eq  # 生成规则方法，与下面的字段生成方法一样。也可不需要下方的rule参数，直接在engine后面写参数：例如：eq('test')
+#    rule:  # "engine"方法中接收的参数; 当engine中包含"()"时此参数将不会生效。
+#      value: 'test'  
+
+# tables： 该字段描述了表字段的生成规则，需要填写数据库字段中的engine与rule字段，为空时数据库字段也为空；示例(给数据库中t_sys_user表中age字段生成从40到80的随机数)：
+# tables:
+# - table: t_sys_user
+#   comment: 用户表
+#   columns:
+#   - column: age  # 数据库中字段名
+#     comment: '年龄'  # 字段备注信息
+#     engine: randint  # 生成字段值调用的方法，必须是faker库中存在或者自行注册到faker库中的方法。也可不需要下方的rule参数，直接在engine后面写参数：例如：randint(value=[40,80])
+#     rule:  # 当engine中包含"()"时此参数将不会生效。
+#        value: [40, 80]  # 上述方法中接收到的参数
+       
+# extraction： 该字段描述了需要从生成字段中提取哪些变量来返回，写自动化测试用例时可能会用到；举例：
+# extraction：
+#   user_name:
+#     value: '{{ t_sys_user.name }}'  # 返回上面生成的用户姓名
+#     default: '测试用户'  # 可指定默认值，在上述字段不存在或者为空时返回默认值
+#   user_id:
+#     value: '{{ t_sys_user.id }}'  
+
+
+package:
+  - datetime
+env:
+  name:
+    engine: name
+tables:
+- table: stu
+  columns:
+    id:
+      engine: uuid
+    name:
+      engine: eq('{{ env.name }}')
+    school:
+      engine: eq('二小学校')
+    nickname:
+      engine: hans2pinyin('{{ stu.name }}')
+    age:
+      engine: randint([8,12])
+    class_num:
+      engine: randint([30,60])
+    score:
+      engine: randint([30,100])
+    phone:
+      engine: phone_number
+    email:
+      engine: email
+    ip:
+      engine: ipv4
+    address:
+      engine: address
+    create_time:
+      engine: now(format='%Y-%m-%d %H:%M:%S')
+- table: course
+  columns:
+    id:
+      engine: uuid
+    name:
+      engine: name
+    grade:
+      engine: choice(['男', '女'])
+    teacher:
+      engine: name
+    create_time:
+      engine: now(format='%Y-%m-%d %H:%M:%S')
+- table: choice_course
+  columns:
+    id:
+      engine: uuid
+    stu_id:
+      engine: eq('{{ stu.id }}')
+    course_id:
+      engine: eq('{{ course.id }}')
+    time:
+      engine: now(format='%Y-%m-%d %H:%M:%S')
+    create_time:
+      engine: now(format='%Y-%m-%d %H:%M:%S')
+extraction:
+  stu_name:
+    value: '{{ stu.name }}'
+  stu_nickname:
+    value: '{{ stu.nickname }}'
