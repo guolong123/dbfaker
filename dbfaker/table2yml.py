@@ -4,6 +4,7 @@ import sys
 import os
 from dbfaker.utils.constant import __version__
 import argparse
+from dbfaker.common.setting import get_yaml
 from dbfaker.nsqlparse.mysql_create_table_yacc import parser
 
 
@@ -11,6 +12,26 @@ def table_name_to_table_building_statement(db_session, tables):
     table_words = ';\n'.join([db_session.query_table(s) for s in tables]) + ';'
     print(table_words)
     return table_words
+
+
+def old_yml_to_new(old_yml_file, hide_comment=False):
+    data = get_yaml(old_yml_file)
+    for table in data['tables']:
+        column_dict = {}
+        for columns in table['columns']:
+            if hide_comment and 'comment' in columns:
+                columns.pop("comment")
+            column_dict[columns.pop("column")] = columns
+        table['columns'] = column_dict
+        if hide_comment and 'comment' in table:
+            table.pop("comment")
+
+    base_path, base_file = os.path.split(old_yml_file)[0:2]
+    new_file_path = os.path.join(base_path, base_file + '_new' + '.yml')
+    with open(new_file_path, 'w') as f:
+        f.write(
+            yaml.dump(data, encoding='utf-8', allow_unicode=True, default_flow_style=False, sort_keys=False).decode())
+    print('数据转换成功；新文件地址： {}'.format(new_file_path))
 
 
 def start(type, **kwargs):
@@ -34,8 +55,12 @@ def start(type, **kwargs):
         with open(sql_file, encoding='utf-8')as f:
             table_building_statement = f.read()
 
+    elif type == 'ymlcov':
+        old_yml_to_new(kwargs.get('yml_file'), hide_comment=kwargs.get('hide_comment'))
+        return
+
     else:
-        raise TypeError("type must be \"table_statement\" or \"table_name\"")
+        raise TypeError("type must be \"table_statement\" or \"table_name\" or \"ymlcov\"")
 
     result = {
         "package": [],
@@ -112,11 +137,12 @@ def parse_args():
     parser = argparse.ArgumentParser(
         description='数据库表转数据生成yaml文件格式工具')
     parser.add_argument('type', nargs='?', action='store', default='table_name',
-                        help='数据来源，table_name： 通过输入表名与数据库链接方式，在数据库中获取数据库建表语句；\n table_statement: 指定数据库建表语句的sql文件路径')
+                        help='操作： table_name： 通过输入表名与数据库链接方式，在数据库中获取数据库建表语句；\n table_statement: 指定数据库建表语句的sql文件路径 \n ymlcov: 将版本1.0.0以下的yml文件转换成当前版本')
     parser.add_argument('--connect', nargs='?', action='store',
                         help='数据库连接语法，例如：mysql+mysqldb://user:password@host/dbname')
     parser.add_argument('--table_names', nargs='?', action='store', help='数据库表，多个表以“,”分割')
     parser.add_argument('--sql_file', nargs='?', action='store', help='数据库建表语句的sql文件路径')
+    parser.add_argument('--yml_file', nargs='?', action='store', help='要转换的yml文件路径（操作为ymlc时需要）')
     parser.add_argument('--output', nargs='?', action='store', default=None, help='输出文件名，默认为数据库表名+meta.yml')
     parser.add_argument('--hide_comment', action='store_true', help='不转换comment字段（可减少yml文件行数）')
     args = parser.parse_args()
@@ -128,6 +154,11 @@ def parse_args():
 
     elif args.type == 'table_statement' and not args.sql_file:
         print('You must supply a sql_file\n')
+        parser.print_help()
+        exit(0)
+
+    elif args.type == 'ymlcov' and not args.yml_file:
+        print('You must supply a yml_file\n')
         parser.print_help()
         exit(0)
 
