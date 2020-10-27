@@ -48,8 +48,9 @@ pip uninstall dbfaker
 table2yml.py文件使用说明：
 ```shell
 usage: table2yml [-h] [--connect [CONNECT]] [--table_names [TABLE_NAMES]]
-                 [--sql_file [SQL_FILE]] [--output [OUTPUT]]
-                 [type]
+                    [--sql_file [SQL_FILE]] [--output [OUTPUT]]
+                    [--hide_command]
+                    [type]
 
 数据库表转数据生成yaml文件格式工具
 
@@ -59,16 +60,24 @@ positional arguments:
 
 optional arguments:
   -h, --help            show this help message and exit
-  --connect [CONNECT]   数据库连接语法，例如：mysql+mysqldb://pdmsadmin:system001@cpcs.ho
-                        melabs.in/pdms_hospital
+  --connect [CONNECT]   数据库连接语法，例如：mysql+mysqldb://user:password@host/dbname
   --table_names [TABLE_NAMES]
                         数据库表，多个表以“,”分割
   --sql_file [SQL_FILE]
                         数据库建表语句的sql文件路径
   --output [OUTPUT]     输出文件名，默认为数据库表名+meta.yml
-
+  --hide_comment        不转换comment字段（可减少yml文件行数）
 
 ```
+使用举例
+>1、在可以连接数据库的情况下直接指定数据库连接和要转换的表名来输出yaml文件
+>```shell
+>table2yml table_name --table_names stu,course,choice_course --connect mysql+mysqldb://[dbuser]:[dbpassword]@[dbhost]/[dbname] --output test.yml
+>```
+>2、在不能直接连接数据库，但有建表语句sql文件时可以通过下面的方法来输出yaml文件
+>```shell
+>table2yml table_statement --sql_file test.sql --output test.yml
+>```
 2, 编辑meta.yml文件，文件格式如下
 ```yaml
 package:
@@ -76,60 +85,49 @@ package:
 env:
   id:
     engine: faker.uuid
-    rule: null
   time_format:
-    engine: faker.eq
-    rule:
-      value: "%Y-%m-%d %H:%M:%S"
+    engine: faker.eq("%Y-%m-%d %H:%M:%S")
 tables:
-- columns:
-  - column: id
-    comment: 数据主键id
-    engine: faker.eq
-    rule:
-      value: '{{ env.id }}'  # 通过引用环境变量中的值
-  - column: name
-    comment: 姓名
-    engine: faker.name
-    rule: null
-  - column: idcard
-    comment: 身份证号
-    engine: faker.ssn
-    rule: null
-  - column: age
-    comment: 年龄
-    engine: faker.eq
-    rule:
-      value: '{{ datetime.datetime.now().year - int(stu.idcard[6:10]) }}'  #　通过jinja２模板直接计算
-  - column: sex
-    comment: 性别
-    engine: faker.eq
-    rule:
-      value: '{{ "man" if int(stu.idcard[-2]) % 2==1 else "female" }}'  #　通过jinja２模板直接计算
-  comment: ''
-  table: stu
-- columns:
-  - column: id
-    comment: 数据主键id
-    engine: faker.uuid
-    rule: null
-  - column: stu_id
-    comment: 数据主键id
-    engine: faker.eq
-    rule:
-      value: '{{ stu.id }}'  # 通过其他表中的值
-  - column: course_name
-    comment: 课程名称
-    engine: faker.choice # 通过内置方法从列表中随机取一个值
-    rule:
-      value: [数学,语文,英语,化学,地理]
-  - column: course_time
-    comment: 上课时间
-    engine: faker.now  # 通过内置方法获取当前时间，并按照指定格式返回
-    rule:
-      format: "{{ env.time_format }}"
-  comment: '课程信息 '
-  table: course
+- table: stu
+  comment: '学生表'
+  columns:
+    id:
+      comment: 数据主键id
+      engine: eq('{{ env.id }}') # 通过引用环境变量中的值
+    name:
+      comment: 姓名
+      engine: name
+    idcard:
+      comment: 身份证号
+      engine: ssn
+    age:
+      comment: 年龄
+      engine: eq('{{ datetime.datetime.now().year - int(stu.idcard[6:10]) }}') #　通过jinja２模板直接计算
+    sex:
+      comment: 性别
+      engine: faker.eq('{{ "man" if int(stu.idcard[-2]) % 2==1 else "female" }}')  #　通过jinja２模板直接计算
+- table: course
+  comment: '课程表'
+  columns:
+    id:
+      comment: 数据主键id
+      engine: faker.uuid
+    stu_id:
+      comment: 数据主键id
+      engine: faker.eq('{{ stu.id }}') # 引用其他表中的值
+    course_name:
+      comment: 课程名称
+      engine: faker.choice(['数学','语文','英语','化学','地理']) # 通过内置方法从列表中随机取一个值
+    course_time:
+      comment: 上课时间
+      engine: faker.now(format="{{ env.time_format }}")  # 通过内置方法获取当前时间，并按照指定格式返回
+extraction:
+  stu_name:
+    value: '{{ stu.name }}'
+  course_name:
+    value: '{{ course.course_name }}'
+
+  
 
 ```
 ３，创建ｓｑｌ

@@ -46,14 +46,14 @@ def start(type, **kwargs):
     }
 
     r = parser.parse(table_building_statement)
-    hide_command = kwargs.get('hide_command')
+    hide_comment = kwargs.get('hide_comment')
     for i in r:
-        if hide_command:
+        if hide_comment:
             table_obj = {'table': i.get("table"), "columns": {}}
         else:
             table_obj = {'table': i.get("table"), 'comment': i.get("comment"), "columns": {}}
         for j in i['columns']:
-            if hide_command:
+            if hide_comment:
                 table_obj['columns'][j.get("column")] = {'engine': None}
             else:
                 table_obj['columns'][j.get("column")] = {'comment': j.get("comment"), 'engine': None}
@@ -84,11 +84,11 @@ def start(type, **kwargs):
 # - table: t_sys_user
 #   comment: 用户表
 #   columns:
-#   - column: age  # 数据库中字段名
-#     comment: '年龄'  # 字段备注信息
-#     engine: randint  # 生成字段值调用的方法，必须是faker库中存在或者自行注册到faker库中的方法。也可不需要下方的rule参数，直接在engine后面写参数：例如：randint(value=[40,80])
-#     rule:  # 当engine中包含"()"时此参数将不会生效。
-#        value: [40, 80]  # 上述方法中接收到的参数
+#     age:  # 数据库中字段名
+#       comment: '年龄'  # 字段备注信息
+#       engine: randint  # 生成字段值调用的方法，必须是faker库中存在或者自行注册到faker库中的方法。也可不需要下方的rule参数，直接在engine后面写参数：例如：randint(value=[40,80])
+#       rule:  # 当engine中包含"()"时此参数将不会生效。
+#          value: [40, 80]  # 上述方法中接收到的参数
        
 # extraction： 该字段描述了需要从生成字段中提取哪些变量来返回，写自动化测试用例时可能会用到；举例：
 # extraction：
@@ -118,7 +118,7 @@ def parse_args():
     parser.add_argument('--table_names', nargs='?', action='store', help='数据库表，多个表以“,”分割')
     parser.add_argument('--sql_file', nargs='?', action='store', help='数据库建表语句的sql文件路径')
     parser.add_argument('--output', nargs='?', action='store', default=None, help='输出文件名，默认为数据库表名+meta.yml')
-    parser.add_argument('--hide_command', action='store_true', help='不转换command字段（可减少yml文件行数）')
+    parser.add_argument('--hide_comment', action='store_true', help='不转换comment字段（可减少yml文件行数）')
     args = parser.parse_args()
 
     if args.type == 'table_name' and (not args.connect or not args.table_names):

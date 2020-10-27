@@ -87,7 +87,9 @@ tables:
     time:
       engine: now(format='%Y-%m-%d %H:%M:%S')
     create_time:
-      engine: now(format='%Y-%m-%d %H:%M:%S')
+      engine: now
+      rule:
+        format: '%Y-%m-%d %H:%M:%S'
 extraction:
   stu_name:
     value: '{{ stu.name }}'

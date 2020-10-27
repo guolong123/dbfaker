@@ -13,54 +13,39 @@ env:
       value: "%Y-%m-%d %H:%M:%S"
 
 tables:
-- columns:
-  - column: id
-    comment: 数据主键id
-    engine: faker.eq
-    rule:
-      value: '{{ env.id }}'  # 通过引用环境变量中的值
-  - column: name
-    comment: 姓名
-    engine: faker.name
-    rule: null
-  - column: idcard
-    comment: 身份证号
-    engine: faker.ssn
-    rule: null
-  - column: age
-    comment: 年龄
-    engine: faker.eq
-    rule:
-      value: '{{ datetime.datetime.now().year - int(stu.idcard[6:10]) }}'  #　通过jinja２模板直接计算
-  - column: sex
-    comment: 性别
-    engine: faker.eq
-    rule:
-      value: '{{ "man" if int(stu.idcard[-2]) % 2==1 else "female" }}'  #　通过jinja２模板直接计算
-  comment: ''
-  table: stu
-- columns:
-  - column: id
-    comment: 数据主键id
-    engine: faker.uuid
-    rule: null
-  - column: stu_id
-    comment: 数据主键id
-    engine: faker.eq
-    rule:
-      value: '{{ stu.id }}'  # 通过其他表中的值
-  - column: course_name
-    comment: 课程名称
-    engine: faker.choice # 通过内置方法从列表中随机取一个值
-    rule:
-      value: [数学,语文,英语,化学,地理]
-  - column: course_time
-    comment: 上课时间
-    engine: faker.now  # 通过内置方法获取当前时间，并按照指定格式返回
-    rule:
-      format: "{{ env.time_format }}"
+- table: stu
+  comment: '学生表'
+  columns:
+    id:
+      comment: 数据主键id
+      engine: faker.eq(value='{{ env.id }}') # 通过引用环境变量中的值
+    name:
+      comment: 姓名
+      engine: faker.name
+    idcard:
+      comment: 身份证号
+      engine: faker.ssn
+    age:
+      comment: 年龄
+      engine: faker.eq(value='{{ datetime.datetime.now().year - int(stu.idcard[6:10]) }}')  #　通过jinja２模板直接计算
+    sex:
+      comment: 性别
+      engine: faker.eq(value='{{ "man" if int(stu.idcard[-2]) % 2==1 else "female" }}')  #　通过jinja２模板直接计算
+- table: course
   comment: '课程信息 '
-  table: course
+  columns:
+    id:
+      comment: 数据主键id
+      engine: faker.uuid
+    stu_id:
+      comment: 数据主键id
+      engine: faker.eq(value='{{ stu.id }}')  # 通过其他表中的值
+    course_name:
+      comment: 课程名称
+      engine: faker.choice(value=['数学','语文','英语','化学','地理']) # 通过内置方法从列表中随机取一个值
+    course_time:
+      comment: 上课时间
+      engine: faker.now(format="{{ env.time_format }}")  # 通过内置方法获取当前时间，并按照指定格式返回
 
 extraction:  # 从已生成的数据中提取字段
   stu_id:
