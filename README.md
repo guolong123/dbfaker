@@ -196,13 +196,13 @@ INSERT INTO `course` (`id`,`stu_id`,`course_name`,`course_time`) VALUES ('47e6cb
 ```
 
 #### 更多例子
-[usage example(使用举例)](https://gitee.com/guojongg/dbfaker/blob/master/docs/%E4%BD%BF%E7%94%A8%E4%B8%BE%E4%BE%8B.md)
+[usage example(使用举例)](https://gitee.com/guojongg/dbfaker/blob/develop/docs/%E4%BD%BF%E7%94%A8%E4%B8%BE%E4%BE%8B.md)
 
 #### 内置方法一览
-[dbfaker内置方法速览](https://gitee.com/guojongg/dbfaker/blob/master/docs/dbfaker%E5%86%85%E7%BD%AE%E6%96%B9%E6%B3%95.md)
+[dbfaker内置方法速览](https://gitee.com/guojongg/dbfaker/blob/develop/docs/dbfaker%E5%86%85%E7%BD%AE%E6%96%B9%E6%B3%95.md)
 
 #### 自定义方法使用说明
-[dbfaker自定义方法使用说明](https://gitee.com/guojongg/dbfaker/blob/master/docs/%E8%87%AA%E5%AE%9A%E4%B9%89%E6%96%B9%E6%B3%95%E4%BD%BF%E7%94%A8%E8%AF%B4%E6%98%8E.md)
+[dbfaker自定义方法使用说明](https://gitee.com/guojongg/dbfaker/blob/develop/docs/%E8%87%AA%E5%AE%9A%E4%B9%89%E6%96%B9%E6%B3%95%E4%BD%BF%E7%94%A8%E8%AF%B4%E6%98%8E.md)
 
 __觉得还可以，帮忙点个赞！！！__
 
