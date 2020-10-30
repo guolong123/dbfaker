@@ -33,7 +33,9 @@
 
 
 package: []
-env: {}
+env:
+  name:
+    engine: name
 tables:
 - table: stu
   comment: null
@@ -86,8 +88,7 @@ tables:
     teacher:
       comment: null
       engine: name
-  more:
-    max_number: 10
+  max_number: 1
 - table: choice_course
   comment: null
   columns:
@@ -103,4 +104,8 @@ tables:
     time:
       comment: null
       engine: choice(['星期一','星期二','星期三','星期四','星期五'])
-extraction: {}
+extraction:
+  stu_name:
+    engine: eq('{{ stu.name }}')
+  stu_nickname:
+    engine: eq('{{ stu.nickname }}')

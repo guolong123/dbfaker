@@ -94,9 +94,9 @@ def scaffold(project_name='dbfaker-project', path=None):
     os.mkdir('data') if not os.path.exists('data') else None
     os.mkdir('log') if not os.path.exists('log') else None
     os.mkdir('script') if not os.path.exists('script') else None
-    with open(os.path.join('data', 'sample.yml'), 'w', encoding='utf-8') as f:
+    with open(os.path.join('data', 'example.yml'), 'w', encoding='utf-8') as f:
         f.write(SAMPLE_YAML_DATA)
-    with open(os.path.join('script', 'sample.py'), 'w', encoding='utf-8') as f:
+    with open(os.path.join('script', 'example.py'), 'w', encoding='utf-8') as f:
         f.write(SAMPLE_FUNCTION)
     with open(os.path.join('readme.md'), 'w', encoding='utf-8') as f:
         f.write(README)

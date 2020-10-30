@@ -27,7 +27,8 @@ def old_yml_to_new(old_yml_file, hide_comment=False):
             table.pop("comment")
 
     base_path, base_file = os.path.split(old_yml_file)[0:2]
-    new_file_path = os.path.join(base_path, base_file + '_new' + '.yml')
+    new_file = base_file.split(".")[0] + '_new' + '.yml'
+    new_file_path = os.path.join(base_path, new_file)
     with open(new_file_path, 'w') as f:
         f.write(
             yaml.dump(data, encoding='utf-8', allow_unicode=True, default_flow_style=False, sort_keys=False).decode())
