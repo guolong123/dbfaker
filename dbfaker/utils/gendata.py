@@ -14,7 +14,7 @@ class GeneratorField():
         self.meta_data = get_yaml(meta)
         self.db = Database(db_session=connect) if connect else None
         self.all_package = {}
-        self.env_data = {}
+        self.env_data = {'faker': faker, 'env': {}, }
         self.field_data = {}
         self.extraction_data = {}
         self.log = log
@@ -54,29 +54,54 @@ class GeneratorField():
         :param condition:
         :return:
         """
+        self.env_data.update(self.all_package)
         env = self.meta_data.get('env')
         if not env:
             return
         self._field_handle(env_key='env', **env)
 
-    def _field_handle(self, env_key, max_number=1, **kwargs):
+    def dict_resolve(self, data: dict):
+        """
+        递归将字典的value使用模板格式化
+        :param data:
+        :return:
+        """
+        if not isinstance(data, dict) and isinstance(data, str):
+            return self._template_render(data)
+        elif isinstance(data, dict):
+            for key, value in data.items():
+                if isinstance(value, dict):
+                    self.dict_resolve(value)
+                elif isinstance(value, str):
+                    value = self._template_render(value)
+                data[key] = value
+        return data
+
+    def _field_handle(self, env_key=None, max_number=1, **kwargs):
         result = []
         i = 0
         while i < max_number:
-            tmp = {}
-            for key, value in kwargs.items():
+            data = {}
+            for key, value in copy.deepcopy(kwargs).items():
                 try:
-                    value = self._template_render(value)
+                    _value = self.dict_resolve(value)
+                    if not isinstance(value, dict):
+                        _data = {key: _value}
+                    elif 'engine' not in _value:
+                        _data = {key: self._field_handle(**_value)}
+                    else:
+                        _data = {key: self._gen_field(**_value)}
+                    data.update(_data)
                 except jinja2.exceptions.UndefinedError:
                     if env_key not in self.error_data:
                         self.error_data[env_key] = {}
                     self.error_data[env_key].update({key: value})
                     continue
-                tmp[key] = self._gen_field(engine=value.get("engine"), rule=value.get("rule"))
-                if env_key not in self.env_data:
-                    self.env_data[env_key] = {}
-                self.env_data[env_key].update(tmp)
-            result.append(tmp)
+                if env_key:
+                    if env_key not in self.env_data:
+                        self.env_data[env_key] = {}
+                    self.env_data[env_key].update(data)
+            result.append(data)
             i += 1
         return result
 
@@ -91,6 +116,7 @@ class GeneratorField():
                 raise TypeError("数据类型错误，此版本不再兼容老的yml格式，"
                                 "请使用\"table2yml ymlcov xxx.yml\"来调整yml文件格式, "
                                 "或将dbfaker版本降至0.0.5b1021.post2。")
+
             self.field_data[table_name] = self._field_handle(env_key=table_name, max_number=max_number, **columns)
 
     def extraction(self):
@@ -143,7 +169,10 @@ class GeneratorField():
         self.log.i('在数据库中插入了{}条数据'.format(len(self.sqls)))
         print('在数据库中插入了{}条数据'.format(len(self.sqls)))
 
-    def _gen_field(self, engine: str, rule=None):
+    def _gen_field(self, **kwargs):
+        engine = kwargs.get('engine')
+        rule = kwargs.get('rule')
+
         if isinstance(rule, str):
             rule = json.loads(self._template_render(rule))
         faker = self.faker

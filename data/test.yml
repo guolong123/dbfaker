@@ -34,18 +34,20 @@
 
 package: []
 env:
-  name:
-    engine: name
+  name: '{{ faker.name() }}'
+  test: '{{ print(env.name) }}'
 tables:
 - table: stu
   comment: null
+  max_number: 10
   columns:
-    id:
-      comment: 自增id
-      engine: uuid()
-    name:
-      comment: 学生名字
-      engine: name
+    # 新增字段生成方式，可直接在jinja2模板中调用生成方法，调用方式参考Python语法
+    id: '{{ faker.uuid() }}'
+#      comment: 自增id
+#      engine: uuid()
+    name: name
+#      comment: 学生名字
+#      engine: name
     school:
       comment: 学校名字
       engine: eq('二小学校')
@@ -105,7 +107,7 @@ tables:
       comment: null
       engine: choice(['星期一','星期二','星期三','星期四','星期五'])
 extraction:
-  stu_name:
-    engine: eq('{{ stu.name }}')
-  stu_nickname:
-    engine: eq('{{ stu.nickname }}')
+  stu_name: '{{ stu.name }}'
+#    engine: eq('{{ stu.name }}')
+  stu_nickname: '{{ stu.nickname }}'
+
