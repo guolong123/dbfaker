@@ -251,7 +251,10 @@ def p_tableColumn_attribute_default_current_timestamp(p):
     tableColumn : tableColumn DEFAULT CURRENT_TIMESTAMP '(' iINTEGER ')'
                 | tableColumn DEFAULT CURRENT_TIMESTAMP
     '''
-    p[0] = {**p[1], **{'default': 'CURRENT_TIMESTAMP({})'.format(p[5])}}
+    if len(p) >= 5:
+        p[0] = {**p[1], **{'default': 'CURRENT_TIMESTAMP({})'.format(p[5])}}
+    else:
+        p[0] = {**p[1], **{'default': 'CURRENT_TIMESTAMP'}}
 
 def p_tableColumn_attribute_default_update_current_timestamp(p):
     '''
