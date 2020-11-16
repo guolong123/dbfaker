@@ -73,16 +73,23 @@ def start(type, **kwargs):
 
     r = parser.parse(table_building_statement)
     hide_comment = kwargs.get('hide_comment')
+    use_comment = kwargs.get('use_comment')
+    engine = None
     for i in r:
         if hide_comment:
             table_obj = {'table': i.get("table"), "columns": {}}
         else:
             table_obj = {'table': i.get("table"), 'comment': i.get("comment"), "columns": {}}
         for j in i['columns']:
-            if hide_comment:
-                table_obj['columns'][j.get("column")] = {'engine': None}
+            _comment = j.get("comment")
+            if use_comment and "||" in _comment:
+                comment, engine = _comment.split("||")
             else:
-                table_obj['columns'][j.get("column")] = {'comment': j.get("comment"), 'engine': None}
+                comment = _comment
+            if hide_comment:
+                table_obj['columns'][j.get("column")] = {'engine': engine}
+            else:
+                table_obj['columns'][j.get("column")] = {'comment': comment, 'engine': engine}
 
         result['tables'].append(table_obj)
     output = kwargs.get('output')
@@ -146,6 +153,7 @@ def parse_args():
     parser.add_argument('--yml_file', nargs='?', action='store', help='要转换的yml文件路径（操作为ymlc时需要）')
     parser.add_argument('--output', nargs='?', action='store', default=None, help='输出文件名，默认为数据库表名+meta.yml')
     parser.add_argument('--hide_comment', action='store_true', help='不转换comment字段（可减少yml文件行数）')
+    parser.add_argument('--use_comment', action='store_true', help='使用注释字段来生成规则，注释字段编写规则参考https://gitee.com/guojongg/dbfaker/blob/develop/docs/使用comment字段来描述生成规则.md')
     args = parser.parse_args()
 
     if args.type == 'table_name' and (not args.connect or not args.table_names):
