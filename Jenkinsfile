@@ -12,9 +12,15 @@ pipeline {
       }
     }
 
-    stage('') {
+    stage('archive') {
       steps {
         archiveArtifacts 'dist/*.tar.gz'
+      }
+    }
+
+    stage('end') {
+      steps {
+        echo 'success'
       }
     }
 
