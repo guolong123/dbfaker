@@ -12,5 +12,11 @@ pipeline {
       }
     }
 
+    stage('') {
+      steps {
+        archiveArtifacts 'dist/*.tar.gz'
+      }
+    }
+
   }
 }
