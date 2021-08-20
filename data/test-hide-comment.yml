@@ -10,7 +10,7 @@
 #  name:  # 全局变量名称
 #    engine: eq  # 生成规则方法，与下面的字段生成方法一样。也可不需要下方的rule参数，直接在engine后面写参数：例如：eq('test')
 #    rule:  # "engine"方法中接收的参数; 当engine中包含"()"时此参数将不会生效。
-#      value: 'test'
+#      value: 'test'  
 
 # tables： 该字段描述了表字段的生成规则，需要填写数据库字段中的engine与rule字段，为空时数据库字段也为空；示例(给数据库中t_sys_user表中age字段生成从40到80的随机数)：
 # tables:
@@ -22,92 +22,76 @@
 #     engine: randint  # 生成字段值调用的方法，必须是faker库中存在或者自行注册到faker库中的方法。也可不需要下方的rule参数，直接在engine后面写参数：例如：randint(value=[40,80])
 #     rule:  # 当engine中包含"()"时此参数将不会生效。
 #        value: [40, 80]  # 上述方法中接收到的参数
-
+       
 # extraction： 该字段描述了需要从生成字段中提取哪些变量来返回，写自动化测试用例时可能会用到；举例：
 # extraction：
 #   user_name:
 #     value: '{{ t_sys_user.name }}'  # 返回上面生成的用户姓名
 #     default: '测试用户'  # 可指定默认值，在上述字段不存在或者为空时返回默认值
 #   user_id:
-#     value: '{{ t_sys_user.id }}'
+#     value: '{{ t_sys_user.id }}'  
 
 
-package: []
+package:
+  - datetime
 env:
-  name: '{{ faker.name() }}'
-  test: '{{ print(env.name) }}'
+  name:
+    engine: name
 tables:
 - table: stu
-  comment: null
-  max_number: 10
-  columns:
-    # 新增字段生成方式，可直接在jinja2模板中调用生成方法，调用方式参考Python语法
-    id: '{{ faker.uuid() }}'
-#      comment: 自增id
-#      engine: uuid()
-    name: name
-#      comment: 学生名字
-#      engine: name
-    school:
-      comment: 学校名字
-      engine: eq('二小学校')
-    nickname:
-      comment: 学生小名
-      engine: name
-    age:
-      comment: 学生年龄
-      engine: randint(value=[8,12])
-    class_num:
-      comment: 班级人数
-      engine: randint([30,60])
-    score:
-      comment: 成绩
-      engine: randint([40,100])
-    phone:
-      comment: 电话号码
-      engine: phone_number
-    email:
-      comment: 家庭网络邮箱
-      engine: email
-    ip:
-      comment: IP地址
-      engine: ipv4
-    address:
-      comment: 家庭地址
-      engine: address
-- table: course
-  comment: null
   columns:
     id:
-      comment: null
       engine: uuid
     name:
-      comment: null
-      engine: choice(['语文','数学','英语','化学','生物','地理'])
-    grade:
-      comment: null
-      engine: choice(['一年级','二年级','三年级','四年级','五年级','六年级'])
-    teacher:
-      comment: null
-      engine: name
-  max_number: 1
-- table: choice_course
-  comment: null
+      engine: eq('{{ env.name }}')
+    school:
+      engine: eq('二小学校')
+    nickname:
+      engine: hans2pinyin('{{ stu.name }}')
+    age:
+      engine: randint([8,12])
+    class_num:
+      engine: randint([30,60])
+    score:
+      engine: randint([30,100])
+    phone:
+      engine: phone_number
+    email:
+      engine: email
+    ip:
+      engine: ipv4
+    address:
+      engine: address
+    create_time:
+      engine: now(format='%Y-%m-%d %H:%M:%S')
+- table: course
   columns:
     id:
-      comment: null
+      engine: uuid
+    name:
+      engine: name
+    grade:
+      engine: choice(['男', '女'])
+    teacher:
+      engine: name
+    create_time:
+      engine: now(format='%Y-%m-%d %H:%M:%S')
+- table: choice_course
+  columns:
+    id:
       engine: uuid
     stu_id:
-      comment: null
-      engine: eq("{{ stu.id }}")
+      engine: eq('{{ stu.id }}')
     course_id:
-      comment: null
       engine: eq('{{ course.id }}')
     time:
-      comment: null
-      engine: choice(['星期一','星期二','星期三','星期四','星期五'])
+      engine: now(format='%Y-%m-%d %H:%M:%S')
+    create_time:
+      engine: now
+      rule:
+        format: '%Y-%m-%d %H:%M:%S'
 extraction:
-  stu_name: '{{ stu.name }}'
-#    engine: eq('{{ stu.name }}')
-  stu_nickname: '{{ stu.nickname }}'
-
+  stu_name:
+    value: '{{ stu.name }}'
+  stu_nickname:
+    value: '{{ stu.nickname }}'

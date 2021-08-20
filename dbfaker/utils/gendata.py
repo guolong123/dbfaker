@@ -8,38 +8,28 @@ from tqdm import tqdm
 import sys
 
 
-class DataGenerator:
+class GeneratorField():
     def __init__(self, faker, meta, connect=None):
+        self.faker = faker
+        self.meta_data = get_yaml(meta)
+        self.db = Database(db_session=connect) if connect else None
         self.all_package = {}
-        self.pre_data = {}
-        self.result_data = {}
+        self.env_data = {'faker': faker, 'env': {}, }
+        self.field_data = {}
         self.extraction_data = {}
         self.log = log
-        self.error_fields = {}
-        self.faker = faker
         self.sqls = []
-        self.db = Database(connect) if connect else None
-        self.meta = get_yaml(meta)
+        self.error_data = {}
+
+    def start(self):
+        self._env()
+        self._tables_handle()
+        self.extraction()
+        self._error_handle()
+        self.data2sql()
 
     def import_package(self):
         self._import_package()
-
-    def start(self):
-        self.result_data = {}
-        self.extraction_data = {}
-        self._env()
-        self.mock_data()
-        self.extraction()
-        self._error_field()
-        self.dict2sql()
-        return self
-
-    def save(self, output=None):
-        if not output:
-            return
-        f = open(output, 'w')
-        f.write('\n'.join(self.sqls))
-        f.close()
 
     def _import_package(self):
         """
@@ -49,14 +39,14 @@ class DataGenerator:
             self.all_package.update(__builtins__)
         else:
             self.all_package.update(__builtins__.__dict__)
-        packages = self.meta.get('package')
+        packages = self.meta_data.get('package')
         if not packages:
             return
         for i in packages:
             try:
                 self.all_package[i] = __import__(i)
             except ModuleNotFoundError:
-                pass
+                self.log.e('import package {} failed'.format(i))
 
     def _env(self):
         """
@@ -64,142 +54,86 @@ class DataGenerator:
         :param condition:
         :return:
         """
-        self.pre_data['env'] = {}
-        env = self.meta.get('env')
+        self.env_data.update(self.all_package)
+        env = self.meta_data.get('env')
         if not env:
             return
-        for i, j in env.items():
-            engine = j.get("engine")
-            rule = j.get("rule")
-            rule = json.dumps(rule)
-            result = self._gen_data(engine, rule)
-            self.pre_data['env'][i] = result
+        self._field_handle(env_key='env', **env)
 
-    def _field(self, columns):
-        result = {}
-        pre_data = {}
-        error_field = []
-        table_name = columns.get("table")
-        pre_data[table_name] = {}
-        for field in columns.get('columns'):
-            field_column = field.get('column')
-            field_engine = field.get('engine')
-            field_rule = field.get("rule")
-            if field_rule:
-                _rule = json.dumps(field.get("rule"))
-                _rule = _rule.replace('\\\"', "'")
+    def dict_resolve(self, data: dict):
+        """
+        递归将字典的value使用模板格式化
+        :param data:
+        :return:
+        """
+        if not isinstance(data, dict) and isinstance(data, str):
+            return self._template_render(data)
+        elif isinstance(data, dict):
+            for key, value in data.items():
+                if isinstance(value, dict):
+                    self.dict_resolve(value)
+                elif isinstance(value, str):
+                    value = self._template_render(value)
+                data[key] = value
+        return data
+
+    def _field_handle(self, env_key=None, max_number=1, **kwargs):
+        result = []
+        i = 0
+        while i < max_number:
+            data = {}
+            for key, value in copy.deepcopy(kwargs).items():
                 try:
-                    field_rule = json.loads(self._template_render(_rule))
-                except jinja2.exceptions.UndefinedError as e:
-                    error_field.append(field)
+                    _value = self.dict_resolve(value)
+                    if not isinstance(value, dict):
+                        _data = {key: _value}
+                    elif 'engine' not in _value:
+                        _data = {key: self._field_handle(**_value)}
+                    else:
+                        _data = {key: self._gen_field(**_value)}
+                    data.update(_data)
+                except jinja2.exceptions.UndefinedError:
+                    if env_key not in self.error_data:
+                        self.error_data[env_key] = {}
+                    self.error_data[env_key].update({key: value})
                     continue
-            _r = self._gen_data(field_engine, field_rule)
-            result[field_column] = _r
-            pre_data[table_name][field_column] = _r
-            if table_name not in self.pre_data:
-                self.pre_data[table_name] = {}
-            self.pre_data[table_name].update(pre_data[table_name])
-            if error_field:
-                # 记录表中出错的字段，在所有字段都生成后再次生成，解决因前面字段调用未生成字段时报错问题
-                self.error_fields.update({'columns': error_field, 'table': table_name})
+                if env_key:
+                    if env_key not in self.env_data:
+                        self.env_data[env_key] = {}
+                    self.env_data[env_key].update(data)
+            result.append(data)
+            i += 1
         return result
 
-    def _more_field(self, columns, max_cnt=1):
-        results = []
-        result = {}
-        table_name = columns.get("table")
-        n = 0
-        while n < max_cnt:
-            try:
-                for field in columns.get('columns'):
-                    field_column = field.get('column')
-                    field_engine = field.get('engine')
-                    field_rule = json.loads(self._template_render(json.dumps(field.get("rule"))))
-                    _r = self._gen_data(field_engine, field_rule)
-                    result[field_column] = _r
-            except jinja2.exceptions.UndefinedError as e:
-                break
-            results.append(copy.deepcopy(result))
-            n += 1
-        self.pre_data[table_name] = results
-        return results
+    def _tables_handle(self):
+        for tables in self.meta_data.get('tables'):
+            table_name = tables.get("table")
+            columns = tables.get('columns')
+            max_number = tables.get('more', {}).get("max_number") or tables.get("max_number", 1)
+            if isinstance(max_number, str):
+                max_number = int(self._template_render(max_number))
+            if not isinstance(columns, dict):
+                raise TypeError("数据类型错误，此版本不再兼容老的yml格式，"
+                                "请使用\"table2yml ymlcov xxx.yml\"来调整yml文件格式, "
+                                "或将dbfaker版本降至0.0.5b1021.post2。")
 
-    def _error_field(self):
-        """
-        异常字段重新处理，解决引用的字段还未生成时造成的引用失败的问题
-        """
-        if not self.error_fields:
-            return
-        self.mock_data([self.error_fields])
-
-    def _template_render(self, s, env=None):
-        """
-        jinja2模板渲染
-        """
-        tp = jinja2.Template(s, undefined=jinja2.StrictUndefined)
-        if isinstance(env, dict):
-            self.all_package.update(env)
-        tp.globals.update(self.all_package)
-        r = tp.render(**self.pre_data)
-        return r
-
-    def _gen_data(self, engine: str, rule):
-        if isinstance(rule, str):
-            rule = json.loads(self._template_render(rule))
-        faker = self.faker
-        if not engine:
-            return
-        if '.' not in engine:
-            engine = "faker.{engine}".format(engine=engine)
-        if isinstance(rule, list):
-            r = eval("{engine}(*{rule})".format(engine=engine, rule=rule))
-        elif isinstance(rule, dict):
-            r = eval("{engine}(**{rule})".format(engine=engine, rule=rule))
-        elif rule is None:
-            r = eval("{engine}()".format(engine=engine))
-        else:
-            raise Exception('rule type must be dictionary or list！')
-        return r
-
-    def mock_data(self, fields=None):
-
-        if not fields:
-            fields = self.meta.get('tables')
-        for columns in fields:
-            table_name = columns.get("table")
-            more = columns.get('more')
-            if not more:
-                d = self._field(columns)
-            else:
-                max_cnt = more.get("max_number", 1)
-                if isinstance(max_cnt, str):
-                    max_cnt = int(self._template_render(max_cnt))
-                d = self._more_field(columns=columns, max_cnt=max_cnt)
-            if table_name not in self.result_data and not more:
-                self.result_data[table_name] = {}
-                self.result_data[table_name].update(d)
-            elif table_name not in self.result_data:
-                self.result_data[table_name] = d
-
-        return self.result_data
+            self.field_data[table_name] = self._field_handle(env_key=table_name, max_number=max_number, **columns)
 
     def extraction(self):
-        extraction_metas = self.meta.get('extraction')
+        extraction_metas = self.meta_data.get('extraction')
         if not extraction_metas:
-            return self.extraction_data
-
-        for key, values in extraction_metas.items():
-            value = {'value': self._template_render(values.get('value', ''))}
-            r_value = self._gen_data('eq', value)
-            default = values.pop("default") if 'default' in values else None
-            if not r_value:
-                r_value = default
-            self.extraction_data[key] = r_value
+            return
+        self.extraction_data = self._field_handle(env_key='extraction', **extraction_metas)
+        self.log.i('extraction data: {}'.format(self.extraction_data))
         return self.extraction_data
 
-    def dict2sql(self, datas=None):
-        if not datas and isinstance(self.result_data, dict):
-            datas = copy.deepcopy(self.result_data)
+    def _error_handle(self):
+        for table, field in self.error_data.items():
+            self._field_handle(env_key=table, **field)
+
+    def data2sql(self, datas=None):
+        if not datas and isinstance(self.field_data, dict):
+            datas = copy.deepcopy(self.field_data)
 
         def gen_sql(table_name, data):
             """
@@ -235,3 +169,49 @@ class DataGenerator:
         self.log.i('在数据库中插入了{}条数据'.format(len(self.sqls)))
         print('在数据库中插入了{}条数据'.format(len(self.sqls)))
 
+    def _gen_field(self, **kwargs):
+        engine = kwargs.get('engine')
+        rule = kwargs.get('rule')
+
+        if isinstance(rule, str):
+            rule = json.loads(self._template_render(rule))
+        faker = self.faker
+        if not engine:
+            return
+        if '.' not in engine:
+            engine = "faker.{engine}".format(engine=engine)
+        if "(" in engine and ")" in engine:
+            r = eval(engine)
+        else:
+            if isinstance(rule, list):
+                r = eval("{engine}(*{rule})".format(engine=engine, rule=rule))
+            elif isinstance(rule, dict):
+                r = eval("{engine}(**{rule})".format(engine=engine, rule=rule))
+            elif rule is None:
+                r = eval("{engine}()".format(engine=engine))
+            else:
+                raise Exception('rule type must be dictionary or list！')
+        return r
+
+    def _template_render(self, s, env=None):
+        """
+        jinja2模板渲染
+        """
+        source_type = type(s)
+        if isinstance(s, (list, dict)):
+            s = json.dumps(s).replace('\\\"', "'")
+        tp = jinja2.Template(s)
+        if isinstance(env, dict):
+            self.all_package.update(env)
+        tp.globals.update(self.all_package)
+        r = tp.render(**self.env_data)
+        if source_type in [list, dict]:
+            r = json.loads(r)
+        return r
+
+    def save(self, output=None):
+        if not output:
+            return
+        f = open(output, 'w')
+        f.write('\n'.join(self.sqls))
+        f.close()

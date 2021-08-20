@@ -4,6 +4,8 @@ import sys
 import os
 from dbfaker.utils.constant import __version__
 import argparse
+from dbfaker.common.setting import get_yaml
+from dbfaker.nsqlparse.mysql_create_table_yacc import parser
 
 
 def table_name_to_table_building_statement(db_session, tables):
@@ -12,21 +14,54 @@ def table_name_to_table_building_statement(db_session, tables):
     return table_words
 
 
-def start(connect, table_names=None,
-          sql_file=None, output=None, **kwargs):
-    from dbfaker.nsqlparse.mysql_create_table_yacc import parser
-    if table_names:
-        if "," in table_names:
-            tables = table_names.split(",")
+def old_yml_to_new(old_yml_file, hide_comment=False):
+    data = get_yaml(old_yml_file)
+    for table in data['tables']:
+        column_dict = {}
+        for columns in table['columns']:
+            if hide_comment and 'comment' in columns:
+                columns.pop("comment")
+            column_dict[columns.pop("column")] = columns
+        table['columns'] = column_dict
+        if hide_comment and 'comment' in table:
+            table.pop("comment")
+
+    base_path, base_file = os.path.split(old_yml_file)[0:2]
+    new_file = base_file.split(".")[0] + '_new' + '.yml'
+    new_file_path = os.path.join(base_path, new_file)
+    with open(new_file_path, 'w') as f:
+        f.write(
+            yaml.dump(data, encoding='utf-8', allow_unicode=True, default_flow_style=False, sort_keys=False).decode())
+    print('数据转换成功；新文件地址： {}'.format(new_file_path))
+
+
+def start(type, **kwargs):
+    if type == 'table_name':
+        table_names = kwargs.get('table_names')
+        connect = kwargs.get('connect')
+
+        if table_names:
+            if "," in table_names:
+                tables = table_names.split(",")
+            else:
+                tables = [table_names]
+            file_name = '_'.join(tables) + '_meta.yml'
+            session = Database(connect)
+            table_building_statement = table_name_to_table_building_statement(session, tables)
         else:
-            tables = [table_names]
-        file_name = '_'.join(tables) + '_meta.yml'
-        session = Database(connect)
-        table_building_statement = table_name_to_table_building_statement(session, tables)
-    else:
+            raise ValueError("table_names can not be null!")
+    elif type == 'table_statement':
+        sql_file = kwargs.get('sql_file')
         file_name = os.path.split(sql_file)[1] + '_meta.yml'
         with open(sql_file, encoding='utf-8')as f:
             table_building_statement = f.read()
+
+    elif type == 'ymlcov':
+        old_yml_to_new(kwargs.get('yml_file'), hide_comment=kwargs.get('hide_comment'))
+        return
+
+    else:
+        raise TypeError("type must be \"table_statement\" or \"table_name\" or \"ymlcov\"")
 
     result = {
         "package": [],
@@ -37,14 +72,27 @@ def start(connect, table_names=None,
     }
 
     r = parser.parse(table_building_statement)
-
+    hide_comment = kwargs.get('hide_comment')
+    use_comment = kwargs.get('use_comment')
+    engine = None
     for i in r:
-        table_obj = {'table': i.get("table"), 'comment': i.get("comment"), "columns": []}
+        if hide_comment:
+            table_obj = {'table': i.get("table"), "columns": {}}
+        else:
+            table_obj = {'table': i.get("table"), 'comment': i.get("comment"), "columns": {}}
         for j in i['columns']:
-            table_obj['columns'].append(
-                {"column": j.get("column"), 'comment': j.get("comment"), 'engine': None, 'rule': None}
-            )
+            _comment = j.get("comment")
+            if use_comment and "||" in _comment:
+                comment, engine = _comment.split("||")
+            else:
+                comment = _comment
+            if hide_comment:
+                table_obj['columns'][j.get("column")] = {'engine': engine}
+            else:
+                table_obj['columns'][j.get("column")] = {'comment': comment, 'engine': engine}
+
         result['tables'].append(table_obj)
+    output = kwargs.get('output')
     if not output:
         output = file_name
         if os.path.exists('data'):
@@ -60,8 +108,8 @@ def start(connect, table_names=None,
 # env: 可在此处预生成环境变量，给下方字段生成时引用；描述方式如下：
 # env:
 #  name:  # 全局变量名称
-#    engine: eq  # 生成规则方法，与下面的字段生成方法一样
-#    rule:  # "engine"方法中接收的参数
+#    engine: eq  # 生成规则方法，与下面的字段生成方法一样。也可不需要下方的rule参数，直接在engine后面写参数：例如：eq('test')
+#    rule:  # "engine"方法中接收的参数; 当engine中包含"()"时此参数将不会生效。
 #      value: 'test'  
 
 # tables： 该字段描述了表字段的生成规则，需要填写数据库字段中的engine与rule字段，为空时数据库字段也为空；示例(给数据库中t_sys_user表中age字段生成从40到80的随机数)：
@@ -69,11 +117,11 @@ def start(connect, table_names=None,
 # - table: t_sys_user
 #   comment: 用户表
 #   columns:
-#   - column: age  # 数据库中字段名
-#     comment: '年龄'  # 字段备注信息
-#     engine: randint  # 生成字段值调用的方法，必须是faker库中存在或者自行注册到faker库中的方法
-#     rule: 
-#        value: [40, 80]  # 上述方法中接收到的参数
+#     age:  # 数据库中字段名
+#       comment: '年龄'  # 字段备注信息
+#       engine: randint  # 生成字段值调用的方法，必须是faker库中存在或者自行注册到faker库中的方法。也可不需要下方的rule参数，直接在engine后面写参数：例如：randint(value=[40,80])
+#       rule:  # 当engine中包含"()"时此参数将不会生效。
+#          value: [40, 80]  # 上述方法中接收到的参数
        
 # extraction： 该字段描述了需要从生成字段中提取哪些变量来返回，写自动化测试用例时可能会用到；举例：
 # extraction：
@@ -97,12 +145,15 @@ def parse_args():
     parser = argparse.ArgumentParser(
         description='数据库表转数据生成yaml文件格式工具')
     parser.add_argument('type', nargs='?', action='store', default='table_name',
-                        help='数据来源，table_name： 通过输入表名与数据库链接方式，在数据库中获取数据库建表语句；\n table_statement: 指定数据库建表语句的sql文件路径')
+                        help='操作： table_name： 通过输入表名与数据库链接方式，在数据库中获取数据库建表语句；\n table_statement: 指定数据库建表语句的sql文件路径 \n ymlcov: 将版本1.0.0以下的yml文件转换成当前版本')
     parser.add_argument('--connect', nargs='?', action='store',
                         help='数据库连接语法，例如：mysql+mysqldb://user:password@host/dbname')
     parser.add_argument('--table_names', nargs='?', action='store', help='数据库表，多个表以“,”分割')
     parser.add_argument('--sql_file', nargs='?', action='store', help='数据库建表语句的sql文件路径')
+    parser.add_argument('--yml_file', nargs='?', action='store', help='要转换的yml文件路径（操作为ymlc时需要）')
     parser.add_argument('--output', nargs='?', action='store', default=None, help='输出文件名，默认为数据库表名+meta.yml')
+    parser.add_argument('--hide_comment', action='store_true', help='不转换comment字段（可减少yml文件行数）')
+    parser.add_argument('--use_comment', action='store_true', help='使用注释字段来生成规则，注释字段编写规则参考https://gitee.com/guojongg/dbfaker/blob/develop/docs/使用comment字段来描述生成规则.md')
     args = parser.parse_args()
 
     if args.type == 'table_name' and (not args.connect or not args.table_names):
@@ -110,8 +161,13 @@ def parse_args():
         parser.print_help()
         exit(0)
 
-    if args.type == 'table_statement' and not args.sql_file:
+    elif args.type == 'table_statement' and not args.sql_file:
         print('You must supply a sql_file\n')
+        parser.print_help()
+        exit(0)
+
+    elif args.type == 'ymlcov' and not args.yml_file:
+        print('You must supply a yml_file\n')
         parser.print_help()
         exit(0)
 
